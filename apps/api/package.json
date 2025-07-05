@@ -46,5 +46,15 @@
         }
       }
     }
+  },
+  "dependencies": {
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.5",
+    "@supabase/supabase-js": "^2.50.3",
+    "bufferutil": "^4.0.9",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "utf-8-validate": "^6.0.5"
   }
 }

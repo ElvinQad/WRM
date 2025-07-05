@@ -4,16 +4,13 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/wrm-e2e"
-    },
-    {
       "path": "./apps/wrm"
     },
     {
-      "path": "./api-e2e"
+      "path": "./types"
     },
     {
-      "path": "./api"
+      "path": "./apps/api"
     }
   ]
 }

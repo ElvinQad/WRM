@@ -2,3 +2,4 @@ packages:
   - 'apps/*'
   - 'api'
   - 'api-e2e'
+  - 'types'
