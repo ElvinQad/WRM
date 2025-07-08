@@ -24,6 +24,7 @@ export function Timeline({ sunTimes, tickets = [], onTicketUpdate, onTicketClick
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState<{ x: number; scrollLeft: number } | null>(null);
   const [autoCenter, setAutoCenter] = useState(autoCenterOnNow); // Local state for auto-center toggle
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null); // Selected date for date picker
   const [dragState, setDragState] = useState<DragState>({
     ticketId: null,
     isDragging: false,
@@ -49,7 +50,7 @@ export function Timeline({ sunTimes, tickets = [], onTicketUpdate, onTicketClick
     
     switch (currentScale) {
       case 'hours': {
-        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() - 13);
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() - 14);
         // Cut off at midnight (12 AM) of the current day
         const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
         const normalEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 12);
@@ -452,6 +453,34 @@ export function Timeline({ sunTimes, tickets = [], onTicketUpdate, onTicketClick
     }
   }, [autoCenter, timeToPixels, totalWidth]);
 
+  // Center on selected date
+  const centerOnDate = useCallback((date: Date) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const dateX = timeToPixels(date.getTime());
+    const containerWidth = container.clientWidth;
+    const maxScrollLeft = Math.max(0, totalWidth - containerWidth);
+    const newScrollLeft = Math.max(0, Math.min(maxScrollLeft, dateX - containerWidth / 2));
+    
+    container.scrollTo({
+      left: newScrollLeft,
+      behavior: 'smooth'
+    });
+  }, [timeToPixels, totalWidth]);
+
+  // Handle date selector change
+  const handleDateChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedDateValue = event.target.value;
+    if (selectedDateValue) {
+      const date = new Date(selectedDateValue);
+      setSelectedDate(date);
+      centerOnDate(date);
+    } else {
+      setSelectedDate(null);
+    }
+  }, [centerOnDate]);
+
   // Handle container scroll (horizontal panning)
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     // Only update scroll position for horizontal scrolling
@@ -648,6 +677,30 @@ export function Timeline({ sunTimes, tickets = [], onTicketUpdate, onTicketClick
             <span>📍</span>
             <span>{autoCenter ? 'Auto-Center ON' : 'Center Now'}</span>
           </button>
+          {/* Date Selector */}
+          <div className="flex items-center space-x-2">
+            <label htmlFor="date-selector" className="text-sm text-gray-600 font-medium">
+              📅 Go to Date:
+            </label>
+            <input
+              id="date-selector"
+              type="date"
+              value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''}
+              onChange={handleDateChange}
+              className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            {selectedDate && (
+              <button
+                onClick={() => {
+                  setSelectedDate(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 text-sm"
+                title="Clear date selection"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
         <div className="text-sm text-gray-600">
           Scroll to zoom, drag tickets to move/resize. Drag vertically to change lanes.
@@ -657,7 +710,7 @@ export function Timeline({ sunTimes, tickets = [], onTicketUpdate, onTicketClick
       {/* Timeline container */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-auto relative bg-gray-50"
+        className="flex-1 overflow-auto relative bg-gray-50 timeline-container"
         onWheel={handleWheel}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -670,7 +723,7 @@ export function Timeline({ sunTimes, tickets = [], onTicketUpdate, onTicketClick
         <div
           className="relative timeline-content"
           style={{
-            width: `${totalWidth}px`,
+            width: `${totalWidth}px `,
             height: `${totalHeight}px`,
             minHeight: '100%',
           }}
@@ -796,6 +849,32 @@ export function Timeline({ sunTimes, tickets = [], onTicketUpdate, onTicketClick
                  }}>
             </div>
           </div>
+
+          {/* Selected date indicator */}
+          {selectedDate && (
+            <div
+              className="absolute w-1 bg-blue-500 z-20 pointer-events-none shadow-lg"
+              style={{ 
+                left: `${timeToPixels(selectedDate.getTime())}px`,
+                top: 0,
+                height: '100%',
+              }}
+            >
+              {/* Selected date label */}
+              <div className="absolute bg-blue-500 text-white text-xs px-3 py-1 rounded-r whitespace-nowrap shadow-md border-l-2 border-blue-600"
+                   style={{ top: '32px' }}>
+                📅 {selectedDate.toLocaleDateString([], { month: 'short', day: 'numeric' })}
+              </div>
+              {/* Glow effect */}
+              <div className="absolute w-3 bg-blue-400 opacity-50 animate-pulse"
+                   style={{ 
+                     left: '-1px',
+                     top: 0,
+                     height: '100%',
+                   }}>
+              </div>
+            </div>
+          )}
 
           {/* Tickets */}
           {ticketsWithPositions.map(({ ticket, startX, width, lane }) => {

@@ -120,4 +120,13 @@
   body {
     @apply bg-background text-foreground h-full overflow-hidden;
   }
+  
+  /* Hide scrollbars for timeline */
+  .timeline-container {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  .timeline-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }

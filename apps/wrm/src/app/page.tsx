@@ -1,6 +1,7 @@
 "use client";
 
-import { Timeline, type Ticket } from "../components/timeline/Timeline";
+import { type Ticket } from "../components/timeline/types";
+import { Timeline } from "../components/timeline/Timeline";
 import { TicketDetailModal } from "../components/tickets/TicketDetailModal";
 import { useState, useEffect, useCallback } from "react";
 import SunCalc from "suncalc";
@@ -13,7 +14,7 @@ export default function Index() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [useInfiniteTickets, setUseInfiniteTickets] = useState(true); // Default to infinite tickets
-
+  
   // Initialize sample tickets (only when not using infinite tickets)
   useEffect(() => {
     if (!useInfiniteTickets) {
