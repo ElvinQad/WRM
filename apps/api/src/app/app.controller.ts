@@ -20,4 +20,23 @@ export class AppController {
     
     return { data };
   }
+
+  @Get()
+  getBackendStructure() {
+    return {
+      message: 'Welcome to the API backend!',
+      modules: [
+        'AppModule',
+        'AuthModule',
+      ],
+      services: [
+        'AppService',
+        'SupabaseService',
+      ],
+      endpoints: [
+        { path: '/', description: 'Backend structure overview' },
+        { path: '/test-supabase', description: 'Test Supabase connection' }
+      ]
+    };
+  }
 }

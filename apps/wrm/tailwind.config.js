@@ -14,10 +14,21 @@ module.exports = {
   content: [
     './{src,pages,components,app}/**/*.{ts,tsx,js,jsx,html}',
     '!./{src,pages,components,app}/**/*.{stories,spec}.{ts,tsx,js,jsx,html}',
+    './src/components/**/*.{ts,tsx,js,jsx}',
+    './src/lib/**/*.{ts,tsx,js,jsx}',
     //     ...createGlobPatternsForDependencies(__dirname)
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        polite: {
+          100: '#FFF287',
+          300: '#C83F12',
+          500: '#8A0000',
+          700: '#3B060A',
+        },
+      },
+    },
   },
   plugins: [],
 };

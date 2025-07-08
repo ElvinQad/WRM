@@ -1,4 +1,6 @@
 import './global.css';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export const metadata = {
   title: 'Welcome to ',
@@ -12,7 +14,33 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="bg-gray-50 h-screen overflow-hidden flex flex-col">
+        <nav className="flex items-center justify-between px-6 py-4 bg-white shadow-md flex-shrink-0">
+          <div className="flex items-center gap-4">
+            {/* Home Icon */}
+            <Link href="/" aria-label="Home" className="hover:bg-gray-100 rounded-full p-2 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-blue-600">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5" />
+              </svg>
+            </Link>
+            <span className="text-xl font-semibold text-gray-800">My App</span>
+          </div>
+          {/* User Profile Icon */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Hi, User</span>
+            <Image
+              src="https://randomuser.me/api/portraits/men/32.jpg"
+              alt="User Avatar"
+              width={40}
+              height={40}
+              className="w-10 h-10 rounded-full border-2 border-blue-500 shadow-sm object-cover"
+            />
+          </div>
+        </nav>
+        <main className="flex-1 overflow-hidden">
+          {children}
+        </main>
+      </body>
     </html>
   );
 }
