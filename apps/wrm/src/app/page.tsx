@@ -4,7 +4,7 @@ import { Timeline, type Ticket } from "../components/timeline/Timeline";
 import { TicketDetailModal } from "../components/tickets/TicketDetailModal";
 import { useState, useEffect, useCallback } from "react";
 import SunCalc from "suncalc";
-import { generateSampleTickets } from "../lib/sampleData";
+import { generateSampleTickets } from "../components/timeline/sampleData";
 
 export default function Index() {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);

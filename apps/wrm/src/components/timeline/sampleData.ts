@@ -1,4 +1,4 @@
-import { Ticket } from '../components/timeline/Timeline';
+import { Ticket } from './types';
 
 // Sample ticket data generator for testing purposes
 export const generateSampleTickets = (): Ticket[] => {

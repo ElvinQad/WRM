@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { generateTicketsForTimeRange } from '../../lib/sampleData';
+import { generateTicketsForTimeRange } from './sampleData';
 import { Ticket, TimelineProps, TicketWithPosition, TimeMarker, DragState } from './types';
 import { ZOOM_LEVELS, TICKET_HEIGHT, LANE_HEIGHT, HEADER_HEIGHT, MIN_TIMELINE_HEIGHT } from './constants';
 
