@@ -50,7 +50,7 @@ export function Timeline({ sunTimes, tickets = [], onTicketUpdate, onTicketClick
     
     switch (currentScale) {
       case 'hours': {
-        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() - 14);
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() - 1);
         // Cut off at midnight (12 AM) of the current day
         const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
         const normalEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 12);

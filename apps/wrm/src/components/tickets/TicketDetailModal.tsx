@@ -1,7 +1,10 @@
 "use client";
 
-import React from 'react';
-import { Ticket } from '../timeline/Timeline';
+import React, { useEffect, useRef } from 'react';
+import { Ticket } from '../timeline/types';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { cn } from '../../lib/utils';
 
 interface TicketDetailModalProps {
   ticket: Ticket | null;
@@ -12,6 +15,34 @@ interface TicketDetailModalProps {
 }
 
 export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete }: TicketDetailModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  // Close modal on backdrop click
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   if (!isOpen || !ticket) return null;
 
   const handleUpdate = (field: keyof Ticket, value: string | Date) => {
@@ -20,131 +51,160 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
   };
 
   const formatDateTime = (date: Date) => {
-    return date.toISOString().slice(0, 16); // Format for datetime-local input
+    return date.toISOString().slice(0, 16);
   };
 
   const parseDateTime = (value: string) => {
     return new Date(value);
   };
 
+  const colorOptions = [
+    { value: '#ffffff', name: 'White' },
+    { value: '#fef3c7', name: 'Yellow' },
+    { value: '#dbeafe', name: 'Blue' },
+    { value: '#dcfce7', name: 'Green' },
+    { value: '#fce7f3', name: 'Pink' },
+    { value: '#f3e8ff', name: 'Purple' },
+    { value: '#fed7d7', name: 'Red' },
+    { value: '#e0f2fe', name: 'Cyan' },
+    { value: '#f0f9ff', name: 'Sky' },
+  ];
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">Ticket Details</h2>
-            <button
+    <div 
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={handleBackdropClick}
+    >
+      <div 
+        ref={modalRef}
+        className={cn(
+          "bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl",
+          "max-w-md w-full mx-4 transform transition-all duration-300",
+          "border border-gray-200/50",
+          isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"
+        )}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200/50">
+          <h2 className="text-2xl font-bold text-gray-900">Ticket Details</h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </Button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+          {/* Title */}
+          <div className="space-y-2">
+            <Input
+              label="Title"
+              value={ticket.title}
+              onChange={(e) => handleUpdate('title', e.target.value)}
+              className="font-medium"
+              placeholder="Enter ticket title"
+            />
+          </div>
+
+          {/* Description */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Description
+            </label>
+            <textarea
+              value={ticket.description}
+              onChange={(e) => handleUpdate('description', e.target.value)}
+              rows={3}
+              placeholder="Enter ticket description"
+              className={cn(
+                "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm",
+                "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                "transition-colors resize-none"
+              )}
+            />
+          </div>
+
+          {/* Time Range */}
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Start Time"
+              type="datetime-local"
+              value={formatDateTime(ticket.start)}
+              onChange={(e) => handleUpdate('start', parseDateTime(e.target.value))}
+            />
+            <Input
+              label="End Time"
+              type="datetime-local"
+              value={formatDateTime(ticket.end)}
+              onChange={(e) => handleUpdate('end', parseDateTime(e.target.value))}
+            />
+          </div>
+
+          {/* Category */}
+          <Input
+            label="Category"
+            value={ticket.category || ''}
+            onChange={(e) => handleUpdate('category', e.target.value)}
+            placeholder="e.g., Work, Personal, Meeting"
+          />
+
+          {/* Color Selection */}
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-gray-700">
+              Color
+            </label>
+            <div className="grid grid-cols-5 gap-2">
+              {colorOptions.map((color) => (
+                <button
+                  key={color.value}
+                  onClick={() => handleUpdate('color', color.value)}
+                  className={cn(
+                    "w-10 h-10 rounded-lg border-2 transition-all duration-200",
+                    "hover:scale-105 hover:shadow-md",
+                    ticket.color === color.value 
+                      ? 'border-blue-500 ring-2 ring-blue-200' 
+                      : 'border-gray-300 hover:border-gray-400'
+                  )}
+                  style={{ backgroundColor: color.value }}
+                  title={color.name}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-between items-center p-6 border-t border-gray-200/50 bg-gray-50/50">
+          <Button
+            variant="outline"
+            onClick={() => onDelete?.(ticket.id)}
+            className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Delete
+          </Button>
+          <div className="flex space-x-3">
+            <Button
+              variant="outline"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
             >
-              ×
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Title
-              </label>
-              <input
-                type="text"
-                value={ticket.title}
-                onChange={(e) => handleUpdate('title', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                value={ticket.description}
-                onChange={(e) => handleUpdate('description', e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Start Time
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formatDateTime(ticket.start)}
-                  onChange={(e) => handleUpdate('start', parseDateTime(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  End Time
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formatDateTime(ticket.end)}
-                  onChange={(e) => handleUpdate('end', parseDateTime(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Color
-              </label>
-              <div className="flex space-x-2">
-                {['#ffffff', '#fef3c7', '#dbeafe', '#dcfce7', '#fce7f3', '#f3e8ff', '#fed7d7'].map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => handleUpdate('color', color)}
-                    className={`w-8 h-8 rounded border-2 ${
-                      ticket.color === color ? 'border-gray-800' : 'border-gray-300'
-                    }`}
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
-              </label>
-              <input
-                type="text"
-                value={ticket.category || ''}
-                onChange={(e) => handleUpdate('category', e.target.value)}
-                placeholder="e.g., Work, Personal, Meeting"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-between mt-6">
-            <button
-              onClick={() => onDelete?.(ticket.id)}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={onClose}
             >
-              Delete
-            </button>
-            <div className="space-x-2">
-              <button
-                onClick={onClose}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={onClose}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-              >
-                Save
-              </button>
-            </div>
+              Save Changes
+            </Button>
           </div>
         </div>
       </div>

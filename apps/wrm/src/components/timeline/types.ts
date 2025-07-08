@@ -45,6 +45,6 @@ export interface TimeMarker {
   time: number;
   label: string;
   x: number;
-  type: 'major' | 'minor';
+  type: 'major' | 'minor' | 'now';
 }
 

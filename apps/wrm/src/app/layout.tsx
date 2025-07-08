@@ -1,6 +1,7 @@
 import './global.css';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ReduxProvider } from '../store/ReduxProvider';
 
 export const metadata = {
   title: 'Welcome to ',
@@ -38,7 +39,9 @@ export default function RootLayout({
           </div>
         </nav>
         <main className="flex-1 overflow-hidden">
-          {children}
+          <ReduxProvider>
+            {children}
+          </ReduxProvider>
         </main>
       </body>
     </html>

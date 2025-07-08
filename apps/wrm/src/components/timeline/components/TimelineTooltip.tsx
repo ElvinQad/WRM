@@ -1,0 +1,22 @@
+import React from 'react';
+
+interface TimelineTooltipProps {
+  mousePosition: { x: number; y: number } | null;
+  hoveredTime: Date | null;
+}
+
+export function TimelineTooltip({ mousePosition, hoveredTime }: TimelineTooltipProps) {
+  if (!mousePosition || !hoveredTime) return null;
+
+  return (
+    <div
+      className="fixed bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg pointer-events-none z-50"
+      style={{
+        left: `${mousePosition.x + 10}px`,
+        top: `${mousePosition.y - 10}px`,
+      }}
+    >
+      {hoveredTime.toLocaleString()}
+    </div>
+  );
+}
