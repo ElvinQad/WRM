@@ -29,10 +29,10 @@ export function TicketComponent({
     <div
       className={`absolute rounded-lg shadow-sm border transition-all duration-200 ${
         isSelected
-          ? 'border-blue-500 shadow-lg z-30'
+          ? 'border-primary shadow-lg z-30'
           : isHovered
-          ? 'border-gray-400 shadow-md z-20'
-          : 'border-gray-300 hover:border-gray-400 z-10'
+          ? 'border-muted-foreground shadow-md z-20'
+          : 'border-border hover:border-muted-foreground z-10'
       }`}
       style={{
         left: `${startX}px`,
@@ -50,7 +50,7 @@ export function TicketComponent({
       {/* Left resize handle */}
       <div 
         className={`absolute left-0 top-0 w-3 h-full cursor-ew-resize rounded-l-lg transition-all duration-200 ${
-          isHovered || isSelected ? 'bg-blue-500 opacity-30' : 'bg-transparent hover:bg-blue-500 hover:opacity-30'
+          isHovered || isSelected ? 'bg-primary opacity-30' : 'bg-transparent hover:bg-primary hover:opacity-30'
         }`}
         onMouseDown={(e) => {
           e.stopPropagation();
@@ -61,7 +61,7 @@ export function TicketComponent({
       {/* Right resize handle */}
       <div 
         className={`absolute right-0 top-0 w-3 h-full cursor-ew-resize rounded-r-lg transition-all duration-200 ${
-          isHovered || isSelected ? 'bg-blue-500 opacity-30' : 'bg-transparent hover:bg-blue-500 hover:opacity-30'
+          isHovered || isSelected ? 'bg-primary opacity-30' : 'bg-transparent hover:bg-primary hover:opacity-30'
         }`}
         onMouseDown={(e) => {
           e.stopPropagation();

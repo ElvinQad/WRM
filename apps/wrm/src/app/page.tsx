@@ -99,7 +99,7 @@ export default function Index() {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <header className="p-4 border-b flex bg-white shadow-sm flex-shrink-0">
+      <header className="p-4 border-b border-border flex bg-card shadow-sm flex-shrink-0">
         <div className="flex items-center space-x-4">
           <Button
             onClick={handleAddTicket}
@@ -115,7 +115,7 @@ export default function Index() {
               onChange={(e) => dispatch(setUseInfiniteTickets(e.target.checked))}
               className="rounded"
             />
-            <span className="text-sm text-gray-700">Infinite Tickets</span>
+            <span className="text-sm text-muted-foreground">Infinite Tickets</span>
           </label>
         </div>
       </header>

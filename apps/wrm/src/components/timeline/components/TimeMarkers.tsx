@@ -16,10 +16,10 @@ export function TimeMarkers({ markers, headerHeight, totalHeight }: TimeMarkersP
           <div
             className={`absolute ${
               marker.type === 'now'
-                ? 'border-l-2 border-red-500'
+                ? 'border-l-2 border-destructive'
                 : marker.type === 'major' 
-                ? 'border-l-2 border-gray-400' 
-                : 'border-l border-gray-300'
+                ? 'border-l-2 border-muted-foreground' 
+                : 'border-l border-muted-foreground/40'
             } ${marker.type === 'now' ? 'opacity-90' : 'opacity-80'}`}
             style={{
               left: `${marker.x}px`,
@@ -32,11 +32,11 @@ export function TimeMarkers({ markers, headerHeight, totalHeight }: TimeMarkersP
           <div
             className={`absolute select-none ${
               marker.type === 'now'
-                ? 'text-sm font-bold text-red-600 bg-red-50 border-red-200'
+                ? 'text-sm font-bold text-destructive bg-black/90 border-destructive/20'
                 : marker.type === 'major' 
-                ? 'text-sm font-semibold text-gray-800' 
-                : 'text-xs font-medium text-gray-600'
-            } bg-white px-2 py-1 rounded-md border border-gray-200 shadow-sm whitespace-nowrap`}
+                ? 'text-sm font-semibold text-foreground' 
+                : 'text-xs font-medium text-muted-foreground'
+            } bg-card px-2 py-1 rounded-md border border-border shadow-sm whitespace-nowrap`}
             style={{
               left: `${marker.x}px`,
               top: `${headerHeight - 60}px`, // Position above the timeline header

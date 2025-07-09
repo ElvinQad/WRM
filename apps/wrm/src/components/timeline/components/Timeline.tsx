@@ -63,7 +63,7 @@ export function Timeline({
       {/* Timeline container */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-auto relative bg-gray-50 timeline-container"
+        className="flex-1 overflow-auto relative bg-background timeline-container"
         onWheel={handleWheel}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -71,14 +71,18 @@ export function Timeline({
         onMouseLeave={handleMouseLeave}
         onScroll={handleScroll}
         style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
-      >
-        {/* Timeline content */}
+      >          {/* Timeline content */}
         <div
           className="relative timeline-content"
           style={{
             width: `${totalWidth}px`,
             height: `${totalHeight}px`,
             minHeight: '100%',
+            backgroundImage: `
+              linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 40px',
           }}
         >
           {/* Lane backgrounds */}
@@ -87,8 +91,8 @@ export function Timeline({
           }, (_, index) => (
             <div
               key={index}
-              className={`absolute w-full border-b border-gray-200 ${
-                index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+              className={`absolute w-full border-b border-border/50 ${
+                index % 2 === 0 ? 'bg-background/80' : 'bg-card/80'
               }`}
               style={{
                 top: `${HEADER_HEIGHT + index * LANE_HEIGHT}px`,

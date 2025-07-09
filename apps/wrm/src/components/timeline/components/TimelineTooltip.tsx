@@ -10,7 +10,7 @@ export function TimelineTooltip({ mousePosition, hoveredTime }: TimelineTooltipP
 
   return (
     <div
-      className="fixed bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg pointer-events-none z-50"
+      className="fixed bg-popover text-popover-foreground text-sm px-3 py-2 rounded shadow-lg pointer-events-none z-50 border border-border"
       style={{
         left: `${mousePosition.x + 10}px`,
         top: `${mousePosition.y - 10}px`,

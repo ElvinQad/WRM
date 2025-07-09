@@ -18,6 +18,20 @@ export function SunTimesOverlay({
 }: SunTimesOverlayProps) {
   if (!sunTimes) return null;
 
+  // Adjust opacity based on scale for better visibility
+  const getOpacity = (baseOpacity: number) => {
+    switch (currentScale) {
+      case 'hours':
+        return baseOpacity * 0.9; // More visible for hours
+      case 'days':
+        return baseOpacity * 0.9; // Standard visibility for days
+      case 'weeks':
+        return baseOpacity * 0.8; // Less prominent for weeks to avoid clutter
+      default:
+        return baseOpacity;
+    }
+  };
+
   const sunTimeOverlays = [];
   const start = new Date(startTime);
   const end = new Date(endTime);
@@ -65,12 +79,28 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`night-start-${i}`}
-            className="absolute bg-slate-800 opacity-20 pointer-events-none z-50"
+            className="absolute bg-slate-900 pointer-events-none z-5"
             style={{
               left: `${Math.max(0, dayStart)}px`,
               top: 0,
               width: `${Math.max(0, sunriseX - Math.max(0, dayStart))}px`,
               height: '100%',
+              opacity: getOpacity(0.4),
+            }}
+          />
+        );
+        
+        // Add a subtle blue overlay for night time
+        sunTimeOverlays.push(
+          <div
+            key={`night-start-blue-${i}`}
+            className="absolute bg-blue-900 pointer-events-none z-6"
+            style={{
+              left: `${Math.max(0, dayStart)}px`,
+              top: 0,
+              width: `${Math.max(0, sunriseX - Math.max(0, dayStart))}px`,
+              height: '100%',
+              opacity: getOpacity(0.15),
             }}
           />
         );
@@ -81,12 +111,45 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`night-end-${i}`}
-            className="absolute bg-slate-800 opacity-20 pointer-events-none z-100"
+            className="absolute bg-slate-900 pointer-events-none z-5"
             style={{
               left: `${sunsetX}px`,
               top: 0,
               width: `${Math.max(0, dayEnd - sunsetX)}px`,
               height: '100%',
+              opacity: getOpacity(0.4),
+            }}
+          />
+        );
+        
+        // Add a subtle blue overlay for night time
+        sunTimeOverlays.push(
+          <div
+            key={`night-end-blue-${i}`}
+            className="absolute bg-blue-900 pointer-events-none z-6"
+            style={{
+              left: `${sunsetX}px`,
+              top: 0,
+              width: `${Math.max(0, dayEnd - sunsetX)}px`,
+              height: '100%',
+              opacity: getOpacity(0.15),
+            }}
+          />
+        );
+      }
+      
+      // Day time overlay - sunrise to sunset
+      if (sunriseX < sunsetX) {
+        sunTimeOverlays.push(
+          <div
+            key={`day-${i}`}
+            className="absolute bg-yellow-200 pointer-events-none z-4"
+            style={{
+              left: `${sunriseX}px`,
+              top: 0,
+              width: `${Math.max(0, sunsetX - sunriseX)}px`,
+              height: '100%',
+              opacity: getOpacity(0.1),
             }}
           />
         );
@@ -97,12 +160,13 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`dawn-${i}`}
-            className="absolute bg-gradient-to-r from-slate-700 to-transparent opacity-15 pointer-events-none z-10"
+            className="absolute bg-gradient-to-r from-slate-900 to-orange-100 pointer-events-none z-7"
             style={{
               left: `${Math.max(0, sunriseX - 30)}px`,
               top: 0,
               width: '60px',
               height: '100%',
+              opacity: getOpacity(0.3),
             }}
           />
         );
@@ -110,12 +174,13 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`dusk-${i}`}
-            className="absolute bg-gradient-to-r from-transparent to-slate-700 opacity-15 pointer-events-none"
+            className="absolute bg-gradient-to-r  from-yellow-200 to-slate-800 pointer-events-none z-7"
             style={{
               left: `${Math.max(0, sunsetX - 30)}px`,
               top: 0,
               width: '60px',
               height: '100%',
+              opacity: getOpacity(0.3),
             }}
           />
         );
@@ -152,7 +217,7 @@ export function SunTimesOverlay({
           sunTimeOverlays.push(
             <div
               key={`sunrise-label-${i}`}
-              className="absolute bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded shadow-sm border border-orange-200 whitespace-nowrap"
+              className="absolute bg-orange-900/30 text-orange-300 text-xs px-2 py-1 rounded shadow-sm border border-orange-600/40 whitespace-nowrap"
               style={{
                 left: `${sunriseX + 6}px`,
                 bottom: '8px',
@@ -165,7 +230,7 @@ export function SunTimesOverlay({
           sunTimeOverlays.push(
             <div
               key={`sunset-label-${i}`}
-              className="absolute bg-red-100 text-red-800 text-xs px-2 py-1 rounded shadow-sm border border-red-200 whitespace-nowrap "
+              className="absolute bg-red-900/30 text-red-300 text-xs px-2 py-1 rounded shadow-sm border border-red-600/40 whitespace-nowrap"
               style={{
                 left: `${sunsetX + 6}px`,
                 bottom: '8px',
