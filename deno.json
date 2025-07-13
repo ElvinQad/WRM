@@ -1,0 +1,51 @@
+{
+  "workspace": [
+    "./packages/backend",
+    "./packages/frontend", 
+    "./packages/types"
+  ],
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "dev": "deno task dev:types && (deno task dev:backend & deno task dev:frontend)",
+    "dev:types": "cd packages/types && deno task build",
+    "dev:frontend": "cd packages/frontend && deno task dev", 
+    "dev:backend": "cd packages/backend && deno task dev",
+    "build": "deno task build:types && deno task build:backend && deno task build:frontend",
+    "build:types": "cd packages/types && deno task build",
+    "build:frontend": "cd packages/frontend && deno task build",
+    "build:backend": "cd packages/backend && deno task build",
+    "test": "deno test",
+    "lint": "deno lint",
+    "lint:fix": "deno lint --fix",
+    "format": "deno fmt",
+    "format:check": "deno fmt --check",
+    "type-check": "deno check **/*.ts **/*.tsx",
+    "clean": "deno task clean:types && deno task clean:backend && deno task clean:frontend",
+    "clean:types": "cd packages/types && deno task clean",
+    "clean:frontend": "cd packages/frontend && deno task clean",
+    "clean:backend": "cd packages/backend && deno task clean"
+  },
+  "imports": {
+    "@wrm/types": "./packages/types/src/index.ts",
+    "@wrm/types/": "./packages/types/src/"
+  },
+  "compilerOptions": {
+    "lib": ["deno.window", "dom", "dom.iterable", "es2022"],
+    "strict": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": true,
+    "proseWrap": "preserve"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  }
+}

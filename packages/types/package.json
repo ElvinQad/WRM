@@ -6,6 +6,11 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
   "exports": {
     "./package.json": "./package.json",
     ".": {
@@ -15,15 +20,7 @@
       "default": "./dist/index.js"
     }
   },
-  "scripts": {
-    "build": "vite build",
-    "dev": "vite build --watch",
-    "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist"
-  },
   "devDependencies": {
-    "typescript": "~5.8.3",
-    "vite": "^7.0.4",
-    "vite-plugin-dts": "^4.5.4"
+    "typescript": "^5.8.3"
   }
 }

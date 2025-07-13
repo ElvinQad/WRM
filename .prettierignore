@@ -1,5 +1,12 @@
 # Add files here to ignore them from prettier formatting
-/dist
-/coverage
+node_modules
+dist
+build
+coverage
+.next
+.vite
+*.log
+pnpm-lock.yaml
+*.tsbuildinfo
 /.nx/cache
 /.nx/workspace-data

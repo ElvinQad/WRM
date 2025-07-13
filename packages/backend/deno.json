@@ -1,0 +1,41 @@
+{
+  "name": "@wrm/backend",
+  "version": "0.0.1",
+  "exports": "./src/main.ts",
+  "tasks": {
+    "dev": "deno run --allow-all --env-file=../../.env --watch src/main.ts",
+    "start": "deno run --allow-all --env-file=../../.env src/main.ts",
+    "build": "deno compile --allow-all --output dist/main src/main.ts",
+    "test": "deno test --allow-all",
+    "test:watch": "deno test --allow-all --watch",
+    "test:coverage": "deno test --allow-all --coverage",
+    "lint": "deno lint src/",
+    "lint:fix": "deno lint --fix src/",
+    "type-check": "deno check src/**/*.ts",
+    "clean": "rm -rf dist"
+  },
+  "imports": {
+    "@nestjs/common": "npm:@nestjs/common@^11.1.3",
+    "@nestjs/core": "npm:@nestjs/core@^11.1.3",
+    "@nestjs/config": "npm:@nestjs/config@^4.0.2",
+    "@nestjs/jwt": "npm:@nestjs/jwt@^11.0.0",
+    "@nestjs/passport": "npm:@nestjs/passport@^11.0.5",
+    "@nestjs/platform-express": "npm:@nestjs/platform-express@^11.1.3",
+    "@nestjs/swagger": "npm:@nestjs/swagger@^11.2.0",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@^2.50.5",
+    "@wrm/types": "../types/src/index.ts",
+    "class-transformer": "npm:class-transformer@^0.5.1",
+    "class-validator": "npm:class-validator@^0.14.2",
+    "passport": "npm:passport@^0.7.0",
+    "passport-jwt": "npm:passport-jwt@^4.0.1",
+    "nestjs-supabase-auth": "npm:nestjs-supabase-auth@^1.0.9",
+    "reflect-metadata": "npm:reflect-metadata@^0.1.13"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.ns", "es2022"],
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
