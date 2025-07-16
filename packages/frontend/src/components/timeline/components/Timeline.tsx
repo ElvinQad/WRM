@@ -1,4 +1,3 @@
-import React from 'react';
 import { TimelineProps } from '../types';
 import { useTimeline } from '../hooks/useTimeline';
 import { HEADER_HEIGHT, LANE_HEIGHT } from '../constants';

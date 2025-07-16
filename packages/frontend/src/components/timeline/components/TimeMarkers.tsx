@@ -1,4 +1,3 @@
-import React from 'react';
 import { TimeMarker } from '../types';
 
 interface TimeMarkersProps {

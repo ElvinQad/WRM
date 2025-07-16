@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "exports": "./src/app/page.tsx",
   "tasks": {
-    "dev": "deno run --allow-all npm:next@~15.3.5 dev",
-    "build": "deno run --allow-all npm:next@~15.3.5 build",
-    "start": "deno run --allow-all npm:next@~15.3.5 start",
-    "lint": "deno run --allow-all npm:next@~15.3.5 lint",
-    "lint:fix": "deno run --allow-all npm:next@~15.3.5 lint --fix",
-    "type-check": "deno check src/**/*.ts src/**/*.tsx",
+    "dev": "node_modules/.bin/next dev",
+    "build": "node_modules/.bin/next build",
+    "start": "node_modules/.bin/next start",
+    "lint": "node_modules/.bin/next lint",
+    "lint:fix": "node_modules/.bin/next lint --fix",
+    "type-check": "npx tsc --noEmit",
     "clean": "rm -rf .next dist",
     "test": "echo \"No tests specified\" && exit 0"
   },
@@ -34,6 +34,7 @@
     "suncalc": "npm:suncalc@^1.9.0",
     "tailwind-merge": "npm:tailwind-merge@^3.3.1",
     "tailwindcss": "npm:tailwindcss@^4.1.11",
+    "typescript": "npm:typescript@^5.8.0",
     "zustand": "npm:zustand@^5.0.6"
   },
   "compilerOptions": {

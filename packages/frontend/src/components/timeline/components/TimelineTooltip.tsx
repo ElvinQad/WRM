@@ -1,4 +1,3 @@
-import React from 'react';
 
 interface TimelineTooltipProps {
   mousePosition: { x: number; y: number } | null;

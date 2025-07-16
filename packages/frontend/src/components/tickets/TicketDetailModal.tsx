@@ -163,6 +163,7 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
             <div className="grid grid-cols-5 gap-2">
               {colorOptions.map((color) => (
                 <button
+                  type="button"
                   key={color.value}
                   onClick={() => handleUpdate('color', color.value)}
                   className={cn(

@@ -47,6 +47,7 @@ export function TimelineHeader({
           />
           {selectedDate && (
             <button
+              type="button"
               onClick={onClearDate}
               className="text-muted-foreground hover:text-foreground text-sm"
               title="Clear date selection"

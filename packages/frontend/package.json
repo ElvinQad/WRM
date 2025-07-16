@@ -2,6 +2,7 @@
   "name": "@wrm/frontend",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -42,6 +43,9 @@
     "@types/react-redux": "^7.1.34",
     "@types/suncalc": "^1.9.2",
     "autoprefixer": "^10.4.21",
-    "tw-animate-css": "^1.3.5"
+    "eslint": "9.31.0",
+    "eslint-config-next": "15.3.5",
+    "tw-animate-css": "^1.3.5",
+    "typescript": "^5.8.0"
   }
 }

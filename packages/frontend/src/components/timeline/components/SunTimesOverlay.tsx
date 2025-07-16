@@ -1,4 +1,3 @@
-import React from 'react';
 import { TimeScale } from '../types';
 
 interface SunTimesOverlayProps {
