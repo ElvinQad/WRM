@@ -1,6 +1,7 @@
 import { Controller, Post, Body, UseGuards, Get, Query, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import type { Response } from 'express';
+import process from "node:process";
 import { AuthService } from './auth.service.ts';
 import { SignUpDto, SignInDto, RefreshTokenDto, ResendConfirmationDto } from './dto/auth.dto.ts';
 import { SupabaseAuthGuard } from '../guards/jwt-auth.guard.ts';
@@ -17,7 +18,7 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'User successfully created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   async signUp(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(
+    return await this.authService.signUp(
       signUpDto.email, 
       signUpDto.password, 
       signUpDto.full_name ? { full_name: signUpDto.full_name } : undefined
@@ -29,7 +30,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'User successfully signed in' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+    return await this.authService.signIn(signInDto.email, signInDto.password);
   }
 
   @Post('signout')
@@ -41,7 +42,7 @@ export class AuthController {
   async signOut() {
     // Note: Actual signOut should be handled on the client side
     // This endpoint just acknowledges the signout request
-    return this.authService.signOut();
+    return await this.authService.signOut();
   }
 
   @Post('refresh')
@@ -49,7 +50,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Token successfully refreshed' })
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
-    return this.authService.refreshToken(refreshTokenDto.refreshToken);
+    return await this.authService.refreshToken(refreshTokenDto.refreshToken);
   }
 
   @Post('resend-confirmation')
@@ -57,7 +58,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Confirmation email resent' })
   @ApiResponse({ status: 400, description: 'Invalid email address' })
   async resendConfirmation(@Body() resendConfirmationDto: ResendConfirmationDto) {
-    return this.authService.resendConfirmation(resendConfirmationDto.email);
+    return await this.authService.resendConfirmation(resendConfirmationDto.email);
   }
 
   @Get('me')

@@ -1,5 +1,6 @@
 import { Injectable, Logger, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { createClient } from '@supabase/supabase-js';
+import process from "node:process";
 
 @Injectable()
 export class AuthService {
@@ -181,7 +182,7 @@ export class AuthService {
     // Note: signOut should typically be handled on the client side
     // This is a placeholder - consider removing this endpoint
     // or implementing it differently based on your needs
-    return { message: 'Signed out successfully' };
+    return await Promise.resolve({ message: 'Signed out successfully' });
   }
 
   async refreshToken(refreshToken: string) {

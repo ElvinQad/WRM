@@ -1,0 +1,353 @@
+openapi: 3.0.0
+info:
+  title: "WRM API - Brownfield Enhancement"
+  description: "API specification for the new modules: Tickets, Agent, and Collaboration."
+  version: "1.0.0"
+servers:
+  - url: "/api"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    # Ticket Schemas
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "The unique identifier for the ticket."
+        userId:
+          type: string
+          format: uuid
+          description: "The ID of the user who owns the ticket."
+        title:
+          type: string
+          description: "The title of the ticket."
+        startTime:
+          type: string
+          format: date-time
+          description: "The start time of the ticket."
+        endTime:
+          type: string
+          format: date-time
+          description: "The end time of the ticket."
+        typeId:
+          type: string
+          format: uuid
+          description: "The ID of the associated ticket type."
+        customProperties:
+          type: object
+          additionalProperties: true
+          description: "A JSON object for custom fields defined in the ticket type."
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CreateTicketDto:
+      type: object
+      required:
+        - title
+        - startTime
+        - endTime
+        - typeId
+      properties:
+        title:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        typeId:
+          type: string
+          format: uuid
+        customProperties:
+          type: object
+          additionalProperties: true
+    UpdateTicketDto:
+      type: object
+      properties:
+        title:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        typeId:
+          type: string
+          format: uuid
+        customProperties:
+          type: object
+          additionalProperties: true
+
+    # TicketType Schemas
+    TicketType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: "The name of the ticket type (e.g., 'Meeting', 'Task')."
+        propertiesSchema:
+          type: object
+          description: "A JSON schema defining the custom properties for this type."
+    CreateTicketTypeDto:
+      type: object
+      required:
+        - name
+        - propertiesSchema
+      properties:
+        name:
+          type: string
+        propertiesSchema:
+          type: object
+    UpdateTicketTypeDto:
+      type: object
+      properties:
+        name:
+          type: string
+        propertiesSchema:
+          type: object
+
+    # Agent Schemas
+    AgentCommandDto:
+      type: object
+      required:
+        - command
+      properties:
+        command:
+          type: string
+          description: "The natural language command from the user."
+        context:
+          type: object
+          description: "Optional context, like current view or selected items."
+    AgentResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "A summary of the action taken by the agent."
+        action:
+          type: string
+          description: "The type of action performed (e.g., 'CREATE_TICKET', 'UPDATE_TICKET')."
+        data:
+          type: object
+          description: "The resulting data from the action, e.g., the created ticket."
+
+    # Collaboration Schemas
+    ShareTimelineDto:
+      type: object
+      required:
+        - timelineId
+        - recipientEmail
+        - permission
+      properties:
+        timelineId:
+          type: string
+          format: uuid
+        recipientEmail:
+          type: string
+          format: email
+        permission:
+          type: string
+          enum: [view, edit]
+    ShareDetailsDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        timelineId:
+          type: string
+          format: uuid
+        sharedWithEmail:
+          type: string
+          format: email
+        permission:
+          type: string
+          enum: [view, edit]
+
+# Paths and Operations
+paths:
+  /tickets:
+    get:
+      tags: [Tickets]
+      summary: "Get all tickets for the user"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "A list of tickets."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+    post:
+      tags: [Tickets]
+      summary: "Create a new ticket"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketDto'
+      responses:
+        '201':
+          description: "The created ticket."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+
+  /tickets/{id}:
+    get:
+      tags: [Tickets]
+      summary: "Get a ticket by ID"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: "The requested ticket."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+    patch:
+      tags: [Tickets]
+      summary: "Update a ticket"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTicketDto'
+      responses:
+        '200':
+          description: "The updated ticket."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+    delete:
+      tags: [Tickets]
+      summary: "Delete a ticket"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: "Ticket deleted successfully."
+
+  /ticket-types:
+    get:
+      tags: [TicketTypes]
+      summary: "Get all ticket types for the user"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "A list of ticket types."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketType'
+    post:
+      tags: [TicketTypes]
+      summary: "Create a new ticket type"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketTypeDto'
+      responses:
+        '201':
+          description: "The created ticket type."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketType'
+
+  /agent/command:
+    post:
+      tags: [Agent]
+      summary: "Send a command to the AI Agent"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentCommandDto'
+      responses:
+        '200':
+          description: "The agent's response."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponseDto'
+
+  /share/timeline:
+    post:
+      tags: [Collaboration]
+      summary: "Share a timeline with another user"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareTimelineDto'
+      responses:
+        '201':
+          description: "Sharing details."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareDetailsDto'

@@ -11,8 +11,10 @@ import process from "node:process";
 import 'npm:reflect-metadata';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module.ts';
+import * as yaml from 'js-yaml';
+import { Deno as fs } from "@deno/shim-deno"; // Use Deno's fs shim
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,45 +31,24 @@ async function bootstrap() {
     },
   }));
 
-  // Enable CORS for Swagger UI assets
+  // Enable CORS
   app.enableCors({
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  // Swagger configuration
-  const config = new DocumentBuilder()
-    .setTitle('WRM API')
-    .setDescription('Web Resource Management API with Supabase Authentication')
-    .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter Supabase JWT token',
-        in: 'header',
-      },
-      'JWT-auth'
-    )
-    .build();
+  // --- SWAGGER SETUP ---
+  // Load the static OpenAPI document
+  const fileContents = await fs.readTextFile('./src/open-api.yaml');
+  const document = yaml.load(fileContents);
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document, {
+  // Setup Swagger UI
+  SwaggerModule.setup('docs', app, document as any, {
     swaggerOptions: {
       persistAuthorization: true,
     },
     customSiteTitle: 'WRM API Documentation',
-    customCss: '.swagger-ui .topbar { display: none }',
-    customJs: [
-      'https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js',
-      'https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js',
-    ],
-    customCssUrl: [
-      'https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css',
-    ],
   });
 
   const port = process.env.PORT || 3000;
