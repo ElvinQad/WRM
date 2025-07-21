@@ -1,82 +1,63 @@
-# 
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+# Project Documentation: WRM
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## 1. High-Level Overview
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+This project is a monorepo containing a full-stack web application. It is structured using a packages directory, which houses the `frontend`, `backend`, and shared types packages. The setup utilizes Deno for scripting and dependency management at the root level, while individual packages may use their own package managers (e.g., npm/pnpm for the frontend).
 
-## Finish your CI setup
+- **frontend**: A Next.js application for the user interface.
+- **backend**: A NestJS application serving as the API.
+- **types**: A shared package for TypeScript types used across the frontend and backend.
+- **web-bundles**: Contains configuration files for different AI agent personas.
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/QDpODldbmf)
+## 2. Backend (backend)
 
+The backend is a NestJS application responsible for business logic and data management.
 
-## Run tasks
+-   **Framework**: [NestJS](https://nestjs.com/) (a progressive Node.js framework for building efficient, reliable and scalable server-side applications).
+-   **Language**: TypeScript.
+-   **Authentication**: Authentication is handled using [Supabase Auth](https://supabase.com/docs/guides/auth), as detailed in SUPABASE_AUTH.md. This includes a `SupabaseStrategy` for `passport`.
+-   **API Documentation**: [Swagger (OpenAPI)](https://swagger.io/) is used to generate interactive API documentation, available at the `/docs` endpoint.
+-   **Key Dependencies**:
+    -   `@nestjs/core`, `@nestjs/common`: Core NestJS libraries.
+    -   `nestjs-supabase-auth`: For Supabase authentication.
+    -   `@nestjs/swagger`: For API documentation.
+-   **Structure**:
+    -   main.ts: The application entry point.
+    -   app.module.ts: The root module of the application.
+    -   `src/app/auth.module.ts`: The module handling authentication logic.
+    -   `src/app/supabase.service.ts`: A service to interact with the Supabase client.
+    -   `src/app/guards/jwt-auth.guard.ts`: A guard to protect routes.
 
-To run the dev server for your app, use:
+## 3. Frontend (frontend)
 
-```sh
-npx nx dev WRM
-```
+The frontend is a modern React application built with Next.js.
 
-To create a production bundle:
+-   **Framework**: [Next.js](https://nextjs.org/) (a React framework for production).
+-   **Language**: TypeScript.
+-   **UI Components**:
+    -   [**shadcn/ui**](https://ui.shadcn.com/): A collection of re-usable components. The configuration is in components.json.
+    -   [**Tailwind CSS**](https://tailwindcss.com/): A utility-first CSS framework for styling. The configuration is in tailwind.config.js.
+    -   [**Radix UI**](https://www.radix-ui.com/): Provides unstyled, accessible components that `shadcn/ui` is built upon.
+    -   [**Lucide React**](https://lucide.dev/): For icons.
+-   **State Management**: [Redux Toolkit](https://redux-toolkit.js.org/) is used for global state management, with the store setup in `src/store`.
+-   **Key Components**:
+    -   page.tsx: The main page of the application.
+    -   `src/components/timeline`: A key feature of the UI, for displaying events or tickets over time.
+    -   `src/components/tickets/TicketDetailModal.tsx`: A modal for displaying ticket details.
+-   **Structure**:
+    -   `src/app`: Contains the pages and layouts of the application, following the Next.js App Router structure.
+    -   `src/components`: Contains reusable React components.
+    -   `src/store`: Contains the Redux store, slices, and hooks.
+    -   `src/lib`: Contains utility functions.
 
-```sh
-npx nx build WRM
-```
+## 4. Shared Types (types)
 
-To see all available targets to run for a project, run:
+This package contains shared TypeScript type definitions used by both the frontend and backend to ensure type safety across the monorepo.
 
-```sh
-npx nx show project WRM
-```
+-   **Purpose**: To provide a single source of truth for data structures.
+-   **Build Process**: A build.ts script using `dnt` (Deno to Node Transform) compiles the Deno-based TypeScript into a Node.js-compatible package.
+-   **Key Files**:
+    -   index.ts: Main entry point for all shared types.
+    -   `src/lib/timeline.types.ts`: Types related to the timeline feature.
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/next:app demo
-```
-
-To generate a new library, use:
-
-```sh
-npx nx g @nx/react:lib mylib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/next?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)

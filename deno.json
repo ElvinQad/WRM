@@ -26,6 +26,7 @@
     "clean:backend": "cd packages/backend && deno task clean"
   },
   "imports": {
+    "@deno/shim-deno": "npm:@deno/shim-deno@^0.19.2",
     "@wrm/types": "./packages/types/src/index.ts",
     "@wrm/types/": "./packages/types/src/"
   },
