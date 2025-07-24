@@ -1,0 +1,3 @@
+# **7. Next Steps**
+*   **Architect Prompt:** "Please review this completed PRD and the existing codebase. Create a detailed brownfield architecture document that outlines the necessary changes to the frontend and backend to implement all epics and stories."
+*   **UX Expert Prompt:** "Please review the UI/UX goals in this PRD. Create wireframes or mockups for the core screens and components, focusing on the dynamic timeline and the AI assistant interface."

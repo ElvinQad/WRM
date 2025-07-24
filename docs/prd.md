@@ -5,7 +5,7 @@
 | 2025-07-21 | 1.0     | Initial Draft            | BMad Master  |
 | 2025-07-21 | 2.0     | Completed missing sections | BMad Master |
 
-### **1. Goals and Background Context**
+## **1. Goals and Background Context**
 
 #### **Goals**
 
@@ -18,7 +18,7 @@
 
 Individuals currently lack a deeply personal and intelligent tool to track their daily activities and goals. Existing solutions are often rigid, demand constant manual input, and fail to proactively assist the user. This project aims to solve that by creating a flexible, AI-powered life dashboard that serves as a foundation for both personal organization and future social collaboration.
 
-### **2. Requirements**
+## **2. Requirements**
 
 #### **Functional Requirements**
 
@@ -42,7 +42,7 @@ Individuals currently lack a deeply personal and intelligent tool to track their
 *   **NFR4:** The system must be secure, leveraging the existing Supabase authentication.
 *   **NFR5:** The user interface must be responsive and accessible on modern web browsers.
 
-### **3. User Interface Design Goals**
+## **3. User Interface Design Goals**
 
 *   **Overall UX Vision:** A clean, intuitive, and highly visual interface that makes schedule management feel effortless and fluid. The UI should feel like a personal dashboard, not a rigid calendar.
 *   **Key Interaction Paradigms:** Direct manipulation (drag-and-drop, resize), conversational UI (chat/voice with AI), and clear visual state indicators (color-coded borders).
@@ -54,7 +54,7 @@ Individuals currently lack a deeply personal and intelligent tool to track their
 *   **Branding:** Modern, clean, and professional with a user-selectable light/dark mode.
 *   **Target Device and Platforms:** Web Responsive
 
-### **4. Technical Assumptions**
+## **4. Technical Assumptions**
 
 *   **Repository Structure:** Monorepo
 *   **Service Architecture:** The existing system is a full-stack application composed of a Next.js frontend and a NestJS backend. This structure will be extended.
@@ -65,7 +65,7 @@ Individuals currently lack a deeply personal and intelligent tool to track their
     *   **Shared Types:** A dedicated `packages/types` directory will continue to be used.
 *   **Testing Requirements:** The testing strategy will include unit tests for business logic, integration tests for API endpoints, and end-to-end tests for critical user flows.
 
-### **5. Epic List**
+## **5. Epic List**
 
 *   **Epic 1: The Dynamic Timeline:** Covers the core interface for viewing and navigating the user's schedule.
 *   **Epic 2: Intelligent & Customizable Tickets:** Covers the creation, customization, and state management of tickets.
@@ -74,7 +74,7 @@ Individuals currently lack a deeply personal and intelligent tool to track their
 
 ---
 
-### **Epic 1: The Dynamic Timeline**
+## **Epic 1: The Dynamic Timeline**
 *This epic covers the core interface for viewing and navigating the user's schedule.*
 
 *   **User Story 1.1 (View Switching):**
@@ -109,7 +109,7 @@ Individuals currently lack a deeply personal and intelligent tool to track their
         *   Dragging the edge modifies the ticket's start or end time.
         *   The ticket's duration is updated in the backend.
 
-### **Epic 2: Intelligent & Customizable Tickets**
+## **Epic 2: Intelligent & Customizable Tickets**
 *This epic covers the creation, customization, and state management of tickets.*
 
 *   **User Story 2.1 (Ticket Type Creation):**
@@ -138,7 +138,7 @@ Individuals currently lack a deeply personal and intelligent tool to track their
         *   A ticket whose time has passed and has had *no interaction* has a distinct "Untouched" border color (e.g., red).
         *   A ticket whose time has passed but *was interacted with* has a distinct "Confirmed" border color (e.g., amber).
 
-### **Epic 3: The AI Personal Assistant**
+## **Epic 3: The AI Personal Assistant**
 *This epic covers the functionality of the embedded AI agent that assists the user.*
 
 *   **User Story 3.1 (Voice/Chat Input):**
@@ -180,9 +180,9 @@ Individuals currently lack a deeply personal and intelligent tool to track their
         *   A settings panel allows the user to set autonomy levels.
         *   A settings panel allows the user to select a communication tone.
 
-### **6. Checklist Results Report**
+## **6. Checklist Results Report**
 *(To be completed after the PM-Checklist is run.)*
 
-### **7. Next Steps**
+## **7. Next Steps**
 *   **Architect Prompt:** "Please review this completed PRD and the existing codebase. Create a detailed brownfield architecture document that outlines the necessary changes to the frontend and backend to implement all epics and stories."
 *   **UX Expert Prompt:** "Please review the UI/UX goals in this PRD. Create wireframes or mockups for the core screens and components, focusing on the dynamic timeline and the AI assistant interface."

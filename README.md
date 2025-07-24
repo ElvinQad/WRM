@@ -8,7 +8,6 @@ This project is a monorepo containing a full-stack web application. It is struct
 - **frontend**: A Next.js application for the user interface.
 - **backend**: A NestJS application serving as the API.
 - **types**: A shared package for TypeScript types used across the frontend and backend.
-- **web-bundles**: Contains configuration files for different AI agent personas.
 
 ## 2. Backend (backend)
 
