@@ -8,6 +8,7 @@
         *   A dropdown menu is present in the main UI.
         *   Selecting an option from the dropdown immediately re-renders the timeline view to the corresponding scale.
         *   The timeline grid and ticket displays adjust logically for each view.
+        *   **Data Behavior:** Hourly/Daily/Weekly views load detailed ticket data; Monthly view loads aggregated summary data.
 
 *   **User Story 1.2 (Date Navigation):**
     *   **As a user,** I want to use a slider with two handles to select a start and end date.
@@ -32,3 +33,12 @@
         *   Hovering over the start or end edge of a ticket changes the cursor to a resize icon.
         *   Dragging the edge modifies the ticket's start or end time.
         *   The ticket's duration is updated in the backend.
+
+*   **User Story 1.5 (Monthly Data Aggregation):**
+    *   **As a system,** I want to provide aggregated ticket data for monthly timeline views.
+    *   **So that** monthly view performance is optimized and displays appropriate summary information.
+    *   **Acceptance Criteria:**
+        *   Backend provides aggregated API endpoints for monthly data (e.g., ticket counts, duration summaries by day/week).
+        *   Monthly view loads aggregated data instead of detailed ticket data.
+        *   Aggregated data includes sufficient information for meaningful monthly visualization.
+        *   Data aggregation maintains user privacy and security constraints.

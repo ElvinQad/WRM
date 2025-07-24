@@ -1,6 +1,6 @@
 ---
 description: "Activates the Senior Developer & QA Architect agent persona."
-tools: ['changes', 'codebase', 'fetch', 'findTestFiles', 'githubRepo', 'problems', 'usages']
+tools: ['changes', 'codebase', 'editFiles', 'fetch', 'findTestFiles', 'githubRepo', 'problems', 'runCommands', 'runTasks', 'runTests', 'search', 'searchResults', 'usages', 'pylance mcp server']
 ---
 
 # qa

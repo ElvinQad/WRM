@@ -1,11 +1,11 @@
-import { TimelineProps } from '../types';
-import { useTimeline } from '../hooks/useTimeline';
-import { HEADER_HEIGHT, LANE_HEIGHT } from '../constants';
-import { TimelineHeader } from './TimelineHeader';
-import { TimeMarkers } from './TimeMarkers';
-import { SunTimesOverlay } from './SunTimesOverlay';
-import { TicketComponent } from './TicketComponent';
-import { TimelineTooltip } from './TimelineTooltip';
+import { TimelineProps } from '../types.ts';
+import { useTimeline } from '../hooks/useTimeline.ts';
+import { HEADER_HEIGHT, LANE_HEIGHT } from '../constants.ts';
+import { TimelineHeader } from './TimelineHeader.tsx';
+import { TimeMarkers } from './TimeMarkers.tsx';
+import { SunTimesOverlay } from './SunTimesOverlay.tsx';
+import { TicketComponent } from './TicketComponent.tsx';
+import { TimelineTooltip } from './TimelineTooltip.tsx';
 
 export function Timeline({ 
   sunTimes, 

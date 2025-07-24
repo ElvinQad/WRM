@@ -26,3 +26,4 @@
         *   A ticket whose scheduled time is happening *now* has a distinct "Active" border color (e.g., green).
         *   A ticket whose time has passed and has had *no interaction* has a distinct "Untouched" border color (e.g., red).
         *   A ticket whose time has passed but *was interacted with* has a distinct "Confirmed" border color (e.g., amber).
+        *   **Data Granularity:** State visualization works across all view scales - detailed views (hourly/daily/weekly) show individual ticket states, monthly view shows aggregated daily productivity/completion indicators.

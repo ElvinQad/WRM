@@ -11,10 +11,13 @@ The NestJS backend will be expanded with new modules to handle the business logi
 *   **`TicketsModule`**: Handles all CRUD operations for tickets and ticket types.
     *   **Controllers**:
         *   `TicketsController`: Exposes endpoints for creating, reading, updating, and deleting tickets.
+            *   `/api/tickets` - CRUD operations for detailed ticket data
+            *   `/api/tickets/aggregated` - GET endpoint for monthly aggregated data
         *   `TicketTypesController`: Exposes endpoints for managing custom ticket types.
     *   **Services**:
         *   `TicketsService`: Contains the core business logic for ticket manipulation.
         *   `TicketTypesService`: Manages the creation and validation of custom ticket types.
+        *   `TicketAggregationService`: Generates aggregated data summaries for monthly timeline views.
     *   **Database Schema**:
         *   `tickets`: `{id, user_id, title, start_time, end_time, type_id, custom_properties:jsonb}`
         *   `ticket_types`: `{id, user_id, name, properties_schema:jsonb}`
@@ -40,6 +43,7 @@ The frontend will be responsible for rendering the dynamic timeline, managing us
 
 *   **`TimelineView`**: A container component that orchestrates the rendering of the timeline. It will manage view switching (Hourly, Daily, etc.) and the date range slider.
 *   **`TicketComponent`**: Represents a single ticket on the timeline. It will handle its own rendering based on its state and manage drag-and-drop and resizing interactions.
+*   **`MonthlyCalendarView`**: A specialized component for monthly aggregated data display. Shows calendar grid with daily metrics, busy levels, hover details, and drill-down navigation.
 *   **`AIAssistantUI`**: A chat/voice interface component that communicates with the AI backend service.
 
 ### State Management (Redux Store)
@@ -75,3 +79,12 @@ Here are two examples of how data will flow through the system for key user acti
 4.  The `AgentService` sends the text to an AI model to extract intent and entities (title, time).
 5.  The `AgentService` calls the `TicketsService` to create the new ticket in the database.
 6.  The backend sends a success response to the frontend, which updates the Redux store and displays the new ticket on the timeline.
+
+### User Switches to Monthly View
+
+1.  User selects "Monthly" from the timeline view dropdown in the frontend.
+2.  The `TimelineView` component detects the view change and dispatches an action to the Redux `timelineSlice`.
+3.  A thunk in the slice calls the `APIService` to send a `GET` request to `/api/tickets/aggregated` with date range parameters.
+4.  The backend's `TicketsController` receives the request and calls the `TicketAggregationService`.
+5.  The `TicketAggregationService` queries the database and generates summary data (e.g., daily ticket counts, total durations).
+6.  The backend returns aggregated data, and the Redux store is updated, re-rendering the timeline with monthly summary view.
