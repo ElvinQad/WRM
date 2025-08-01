@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  password            String
+  firstName           String?              @map("first_name")
+  lastName            String?              @map("last_name")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  agentCollaborations AgentCollaboration[]
+  ticketTypes         TicketType[]
+  tickets             Ticket[]
+
+  @@map("users")
+}
+
+model TicketType {
+  id               String   @id @default(uuid())
+  name             String   @unique
+  description      String?
+  propertiesSchema Json     @default("{}") @map("properties_schema")
+  defaultDuration  Int?     @map("default_duration")
+  color            String?
+  userId           String?  @map("user_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  user             User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tickets          Ticket[]
+
+  @@map("ticket_types")
+}
+
+model Ticket {
+  id               String               @id @default(uuid())
+  userId           String               @map("user_id")
+  title            String
+  description      String?
+  startTime        DateTime             @map("start_time")
+  endTime          DateTime             @map("end_time")
+  typeId           String               @map("type_id")
+  customProperties Json                 @default("{}") @map("custom_properties")
+  status           TicketStatus         @default(FUTURE)
+  lastInteraction  DateTime?            @map("last_interaction")
+  aiGenerated      Boolean              @default(false) @map("ai_generated")
+  aiContext        String?              @map("ai_context")
+  priority         Int?
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+  collaborations   AgentCollaboration[]
+  ticketType       TicketType           @relation(fields: [typeId], references: [id])
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([typeId])
+  @@index([startTime])
+  @@index([endTime])
+  @@map("tickets")
+}
+
+model Agent {
+  id             String               @id @default(uuid())
+  name           String
+  description    String?
+  systemPrompt   String               @map("system_prompt")
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+  collaborations AgentCollaboration[]
+
+  @@map("agents")
+}
+
+model AgentCollaboration {
+  id        String                   @id @default(uuid())
+  ticketId  String                   @map("ticket_id")
+  agentId   String                   @map("agent_id")
+  userId    String                   @map("user_id")
+  status    AgentCollaborationStatus
+  startedAt DateTime                 @default(now()) @map("started_at")
+  endedAt   DateTime?                @map("ended_at")
+  results   Json                     @default("{}")
+  createdAt DateTime                 @default(now()) @map("created_at")
+  updatedAt DateTime                 @updatedAt @map("updated_at")
+  agent     Agent                    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  ticket    Ticket                   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([ticketId, agentId])
+  @@index([ticketId])
+  @@index([agentId])
+  @@index([status])
+  @@map("agent_collaborations")
+}
+
+enum AgentCollaborationStatus {
+  active
+  completed
+  cancelled
+}
+
+enum TicketStatus {
+  FUTURE
+  ACTIVE
+  PAST_UNTOUCHED
+  PAST_CONFIRMED
+}

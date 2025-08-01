@@ -1,29 +1,50 @@
 import React from 'react';
-import { Button } from '../../ui';
+import { Button, Select, SelectOption, ViewRelativeNavigator } from '../../ui/index.ts';
+import { TimelineView } from '../../../store/slices/timelineSlice.ts';
+import { QuickRangeOption } from '../../ui/ViewRelativeNavigator.tsx';
 
 interface TimelineHeaderProps {
-  currentZoomConfig: { label: string; zoom: number };
   autoCenter: boolean;
-  selectedDate: Date | null;
+  currentView: TimelineView;
+  startDate: Date;
+  endDate: Date;
   onToggleAutoCenter: () => void;
-  onDateChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onClearDate: () => void;
+  onViewChange: (view: TimelineView) => void;
+  onNavigate: (direction: 'previous' | 'next') => void;
+  onQuickRange: (range: QuickRangeOption) => void;
 }
 
 export function TimelineHeader({
-  currentZoomConfig,
   autoCenter,
-  selectedDate,
+  currentView,
+  startDate,
+  endDate,
   onToggleAutoCenter,
-  onDateChange,
-  onClearDate,
+  onViewChange,
+  onNavigate,
+  onQuickRange,
 }: TimelineHeaderProps) {
+  const viewOptions: SelectOption[] = [
+    { value: 'daily', label: 'Daily' },
+    { value: 'weekly', label: 'Weekly' },
+    { value: 'monthly', label: 'Monthly' },
+  ];
+
   return (
     <div className="p-3 border-b border-border bg-card flex items-center justify-between">
       <div className="flex items-center space-x-4">
         <span className="text-sm text-muted-foreground font-medium">Timeline View</span>
-        <div className="bg-secondary px-3 py-1 rounded-lg text-sm font-medium text-secondary-foreground">
-          {currentZoomConfig.label} ({currentZoomConfig.zoom.toFixed(1)}x)
+        
+        {/* View Selector Dropdown */}
+        <div className="flex items-center space-x-2">
+          <label htmlFor="view-selector" className="text-sm text-muted-foreground font-medium">
+            View:
+          </label>
+          <Select
+            options={viewOptions}
+            value={currentView}
+            onChange={(value) => onViewChange(value as TimelineView)}
+          />
         </div>
         <Button
           variant={autoCenter ? 'primary' : 'secondary'}
@@ -33,29 +54,17 @@ export function TimelineHeader({
         >
           📍 {autoCenter ? 'Auto-Center ON' : 'Center Now'}
         </Button>
-        {/* Date Selector */}
-        <div className="flex items-center space-x-2">
-          <label htmlFor="date-selector" className="text-sm text-muted-foreground font-medium">
-            📅 Go to Date:
-          </label>
-          <input
-            id="date-selector"
-            type="date"
-            value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''}
-            onChange={onDateChange}
-            className="px-2 py-1 border border-input rounded text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-          />
-          {selectedDate && (
-            <button
-              type="button"
-              onClick={onClearDate}
-              className="text-muted-foreground hover:text-foreground text-sm"
-              title="Clear date selection"
-            >
-              ✕
-            </button>
-          )}
-        </div>
+        
+        {/* View Relative Navigator */}
+        <ViewRelativeNavigator
+          currentView={currentView}
+          startDate={startDate}
+          endDate={endDate}
+          onNavigate={onNavigate}
+          onQuickRange={onQuickRange}
+        />
+        
+       
         
         {/* Day/Night Legend */}
         <div className="flex items-center space-x-2 text-xs">
@@ -71,7 +80,7 @@ export function TimelineHeader({
         </div>
       </div>
       <div className="text-sm text-muted-foreground flex items-center space-x-4">
-        <span>Scroll to zoom, drag tickets to move/resize. Drag vertically to change lanes.</span>
+        <span>Use dropdown to change view. Drag tickets to move/resize. Drag vertically to change lanes.</span>
       </div>
     </div>
   );

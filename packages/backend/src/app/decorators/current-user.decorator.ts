@@ -1,8 +1,14 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { SupabaseAuthUser } from 'nestjs-supabase-auth';
+
+export interface AuthenticatedUser {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+}
 
 export const CurrentUser = createParamDecorator(
-  (_data: unknown, context: ExecutionContext): SupabaseAuthUser => {
+  (_data: unknown, context: ExecutionContext): AuthenticatedUser => {
     const request = context.switchToHttp().getRequest();
     return request.user;
   },

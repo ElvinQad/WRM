@@ -1,4 +1,5 @@
-import { Ticket, TicketWithPosition, TimeMarker, TimeScale } from '../types';
+import { FrontendTicket as Ticket, TicketWithPosition, TimeMarker } from '@wrm/types';
+import { TimelineView } from '../../../store/slices/timelineSlice.ts';
 
 /**
  * Converts time to pixel position
@@ -42,32 +43,36 @@ export function timeRangesOverlap(
 
 /**
  * Calculates time bounds and pixel ratio for different scales
+ * Note: This function is deprecated and no longer used. Time bounds are now managed by Redux state.
  */
-export function calculateTimeBounds(currentScale: TimeScale, currentZoom: number) {
+export function calculateTimeBounds(currentScale: TimelineView) {
   const now = new Date();
-  let start: Date, end: Date;
+  let start: Date;
+  let end: Date;
   
   switch (currentScale) {
-    case 'hours': {
-      start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() - 19);
-      // Cut off at midnight (12 AM) of the current day
-      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-      const normalEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 12);
-      end = normalEnd <= midnight ? normalEnd : midnight;
-      break;
-    }
-    case 'days':
+    case 'daily':
       start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
       end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 4);
       break;
-    case 'weeks':
+    case 'weekly':
       start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 21); // Show 3 weeks before
       end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 21);   // Show 3 weeks after
+      break;
+    case 'monthly':
+      // Show 6 months: 3 before current month + current month + 2 after
+      start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+      end = new Date(now.getFullYear(), now.getMonth() + 3, 0); // Last day of 2 months ahead
+      break;
+    default:
+      // Default to days view
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 4);
       break;
   }
 
   const durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
-  const basePixelsPerMinute = 2 * currentZoom;
+  const basePixelsPerMinute = 2; // Fixed at 2, no zoom scaling
   const width = durationMinutes * basePixelsPerMinute;
 
   return {
@@ -141,8 +146,7 @@ export function calculateTicketPositions(
 export function generateTimeMarkers(
   startTime: number,
   endTime: number,
-  currentScale: TimeScale,
-  currentZoom: number,
+  currentScale: TimelineView,
   pixelsPerMinute: number,
   currentTime: number = Date.now()
 ): TimeMarker[] {
@@ -156,19 +160,13 @@ export function generateTimeMarkers(
   let minorFormat: (date: Date) => string;
   
   switch (currentScale) {
-    case 'hours':
-      majorInterval = 60 * 60 * 1000; // 1 hour
-      minorInterval = 0; // No minor markers for hours view
-      format = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      minorFormat = () => ''; // Not used
-      break;
-    case 'days':
+    case 'daily':
       majorInterval = 24 * 60 * 60 * 1000; // 1 day
       minorInterval = 60 * 60 * 1000; // 1 hour (changed from 6 hours)
       format = (date) => date.toLocaleDateString([], { weekday: 'short', day: 'numeric' });
       minorFormat = (date) => date.toLocaleTimeString([], { hour: '2-digit' }) + 'h';
       break;
-    case 'weeks':
+    case 'weekly':
     default:
       majorInterval = 7 * 24 * 60 * 60 * 1000; // 1 week
       minorInterval = 24 * 60 * 60 * 1000; // 1 day
@@ -193,20 +191,17 @@ export function generateTimeMarkers(
     current = new Date(current.getTime() + majorInterval);
   }
 
-  // Generate minor markers if enabled and zoom level is sufficient
+  // Generate minor markers if enabled
   if (minorInterval > 0) {
     let showMinorMarkers = false;
     
-    // Different zoom thresholds for different scales
+    // Show minor markers based on view type and pixel density
     switch (currentScale) {
-      case 'hours':
-        showMinorMarkers = currentZoom >= 1.2;
+      case 'daily':
+        showMinorMarkers = pixelsPerMinute >= 0.5; // Show hourly markers at reasonable density
         break;
-      case 'days':
-        showMinorMarkers = currentZoom >= 0.5; // Show hourly markers at lower zoom levels
-        break;
-      case 'weeks':
-        showMinorMarkers = currentZoom >= 0.1; // Always show day markers in weekly view
+      case 'weekly':
+        showMinorMarkers = pixelsPerMinute >= 0.1; // Always show day markers in weekly view
         break;
     }
     
@@ -235,13 +230,10 @@ export function generateTimeMarkers(
     let nowLabel: string;
     
     switch (currentScale) {
-      case 'hours':
-        nowLabel = 'Now';
-        break;
-      case 'days':
+      case 'daily':
         nowLabel = `Now (${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`;
         break;
-      case 'weeks':
+      case 'weekly':
         nowLabel = `Now (${now.toLocaleDateString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' })})`;
         break;
       default:

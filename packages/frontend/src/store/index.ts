@@ -1,12 +1,12 @@
 // Store exports
-export { store } from './store';
-export type { RootState, AppDispatch } from './store';
+export { store } from './store.ts';
+export type { RootState, AppDispatch } from './store.ts';
 
 // Hooks
-export { useAppDispatch, useAppSelector } from './hooks';
+export { useAppDispatch, useAppSelector } from './hooks.ts';
 
 // Provider
-export { ReduxProvider } from './ReduxProvider';
+export { ReduxProvider } from './ReduxProvider.tsx';
 
 // Action creators
 export {
@@ -15,17 +15,16 @@ export {
   updateTicket,
   deleteTicket,
   setSelectedTicket,
-} from './slices/ticketsSlice';
+} from './slices/ticketsSlice.ts';
 
 export {
   setModalOpen,
-  setUseInfiniteTickets,
   setCoords,
-} from './slices/appSlice';
+} from './slices/appSlice.ts';
 
-export { setSunTimes } from './slices/sunTimesSlice';
+export { setSunTimes } from './slices/sunTimesSlice.ts';
 
 // State interfaces
-export type { TicketsState } from './slices/ticketsSlice';
-export type { AppState } from './slices/appSlice';
-export type { SunTimesState } from './slices/sunTimesSlice';
+export type { TicketsState } from './slices/ticketsSlice.ts';
+export type { AppState } from './slices/appSlice.ts';
+export type { SunTimesState } from './slices/sunTimesSlice.ts';

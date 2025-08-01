@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { timeToPixels } from '../utils/timelineUtils';
+import { timeToPixels } from '../utils/timelineUtils.ts';
 
 export function useTimelineAutoCenter(
   startTime: number,
   pixelsPerMinute: number,
   totalWidth: number,
-  isZooming: boolean,
   autoCenterOnNow = false
 ) {
   const [autoCenter, setAutoCenter] = useState(autoCenterOnNow);
@@ -40,7 +39,7 @@ export function useTimelineAutoCenter(
     }, 200);
     
     return () => clearTimeout(timeoutId);
-  }, [autoCenter, startTime, pixelsPerMinute, isZooming, totalWidth, centerOnNow]);
+  }, [autoCenter, startTime, pixelsPerMinute, totalWidth, centerOnNow]);
 
   // Auto-center on now when the component first mounts with autoCenterOnNow enabled
   useEffect(() => {

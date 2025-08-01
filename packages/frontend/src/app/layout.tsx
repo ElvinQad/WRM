@@ -1,7 +1,6 @@
 import './global.css';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ReduxProvider } from '../store/ReduxProvider';
+import { ReduxProvider } from '../store/ReduxProvider.tsx';
+import { AuthenticatedLayout } from '../components/layout/AuthenticatedLayout.tsx';
 
 export const metadata = {
   title: 'Welcome to ',
@@ -16,33 +15,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="bg-background text-foreground h-screen overflow-hidden flex flex-col">
-        <nav className="flex items-center justify-between px-6 py-4 bg-card shadow-md flex-shrink-0 border-b border-border">
-          <div className="flex items-center gap-4">
-            {/* Home Icon */}
-            <Link href="/" aria-label="Home" className="hover:bg-accent rounded-full p-2 transition">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-primary">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5" />
-              </svg>
-            </Link>
-            <span className="text-xl font-semibold text-foreground">My App</span>
-          </div>
-          {/* User Profile Icon */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Hi, User</span>
-            <Image
-              src="https://randomuser.me/api/portraits/men/32.jpg"
-              alt="User Avatar"
-              width={40}
-              height={40}
-              className="w-10 h-10 rounded-full border-2 border-primary shadow-sm object-cover"
-            />
-          </div>
-        </nav>
-        <main className="flex-1 overflow-hidden">
-          <ReduxProvider>
+        <ReduxProvider>
+          <AuthenticatedLayout>
             {children}
-          </ReduxProvider>
-        </main>
+          </AuthenticatedLayout>
+        </ReduxProvider>
       </body>
     </html>
   );

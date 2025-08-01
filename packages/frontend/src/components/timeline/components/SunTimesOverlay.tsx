@@ -1,10 +1,10 @@
-import { TimeScale } from '../types';
+import { TimelineView } from '../../../store/slices/timelineSlice.ts';
 
 interface SunTimesOverlayProps {
   sunTimes: { sunrise: Date; sunset: Date; nextSunrise: Date } | null;
   startTime: number;
   endTime: number;
-  currentScale: TimeScale;
+  currentScale: TimelineView;
   timeToPixels: (time: number) => number;
 }
 
@@ -19,16 +19,20 @@ export function SunTimesOverlay({
 
   // Adjust opacity based on scale for better visibility
   const getOpacity = (baseOpacity: number) => {
+    let alpha: number;
     switch (currentScale) {
-      case 'hours':
-        return baseOpacity * 0.9; // More visible for hours
-      case 'days':
-        return baseOpacity * 0.9; // Standard visibility for days
-      case 'weeks':
-        return baseOpacity * 0.8; // Less prominent for weeks to avoid clutter
+      case 'daily':
+        alpha = 0.4; // More visible for daily view
+        break;
+      case 'weekly':
+        alpha = 0.4; // Less prominent for weekly
+        break;
+      case 'monthly':
       default:
-        return baseOpacity;
+        alpha = 0.3; // Subtle for monthly
+        break;
     }
+    return Math.min(1.0, alpha * baseOpacity); // Ensure we don't exceed 1.0
   };
 
   const sunTimeOverlays = [];
@@ -49,8 +53,8 @@ export function SunTimesOverlay({
     // This is a simplified version - in production you'd want to calculate sun times for each specific day
     let daySunrise, daySunset;
     
-    if (currentScale === 'hours') {
-      // For hours view, use the actual provided sun times
+    if (currentScale === 'daily' && i === 0) {
+      // For daily view on current day, use the actual provided sun times
       daySunrise = sunTimes.sunrise;
       daySunset = sunTimes.sunset;
     } else {
@@ -68,8 +72,8 @@ export function SunTimesOverlay({
     const sunriseX = timeToPixels(daySunrise.getTime());
     const sunsetX = timeToPixels(daySunset.getTime());
     
-    // Only add overlays if they're within the visible timeline
-    if (sunriseX >= 0 || sunsetX >= 0) {
+    // Only add overlays if they're within the visible timeline or if we're showing basic day/night
+    if (sunriseX >= 0 || sunsetX >= 0 || currentScale === 'daily') {
       const dayStart = timeToPixels(day.getTime());
       const dayEnd = timeToPixels(day.getTime() + 24 * 60 * 60 * 1000);
       
@@ -78,13 +82,14 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`night-start-${i}`}
-            className="absolute bg-slate-900 pointer-events-none z-5"
+            className="absolute bg-slate-800 pointer-events-none"
             style={{
               left: `${Math.max(0, dayStart)}px`,
               top: 0,
               width: `${Math.max(0, sunriseX - Math.max(0, dayStart))}px`,
               height: '100%',
-              opacity: getOpacity(0.4),
+              opacity: getOpacity(1.0), // More visible
+              zIndex: 5,
             }}
           />
         );
@@ -93,13 +98,14 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`night-start-blue-${i}`}
-            className="absolute bg-blue-900 pointer-events-none z-6"
+            className="absolute bg-blue-800 pointer-events-none"
             style={{
               left: `${Math.max(0, dayStart)}px`,
               top: 0,
               width: `${Math.max(0, sunriseX - Math.max(0, dayStart))}px`,
               height: '100%',
-              opacity: getOpacity(0.15),
+              opacity: getOpacity(0.3), // Additional blue tint
+              zIndex: 6,
             }}
           />
         );
@@ -110,13 +116,14 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`night-end-${i}`}
-            className="absolute bg-slate-900 pointer-events-none z-5"
+            className="absolute bg-slate-800 pointer-events-none"
             style={{
               left: `${sunsetX}px`,
               top: 0,
               width: `${Math.max(0, dayEnd - sunsetX)}px`,
               height: '100%',
-              opacity: getOpacity(0.4),
+              opacity: getOpacity(1.0), // More visible
+              zIndex: 5,
             }}
           />
         );
@@ -125,13 +132,14 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`night-end-blue-${i}`}
-            className="absolute bg-blue-900 pointer-events-none z-6"
+            className="absolute bg-blue-800 pointer-events-none"
             style={{
               left: `${sunsetX}px`,
               top: 0,
               width: `${Math.max(0, dayEnd - sunsetX)}px`,
               height: '100%',
-              opacity: getOpacity(0.15),
+              opacity: getOpacity(0.3), // Additional blue tint
+              zIndex: 6,
             }}
           />
         );
@@ -142,30 +150,35 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`day-${i}`}
-            className="absolute bg-yellow-200 pointer-events-none z-4"
+            className="absolute bg-yellow-100 pointer-events-none"
             style={{
               left: `${sunriseX}px`,
               top: 0,
               width: `${Math.max(0, sunsetX - sunriseX)}px`,
               height: '100%',
-              opacity: getOpacity(0.1),
+              opacity: getOpacity(0.8), // More visible day overlay
+              zIndex: 4,
             }}
           />
         );
       }
       
-      // Dawn/Dusk transition zones (only for hours view to avoid clutter)
-      if (currentScale === 'hours') {
+      // Dawn/Dusk transition zones (show for daily views)
+      if (currentScale === 'daily') {
+        // Transition zone width for daily view
+        const transitionWidth = 45;
+        
         sunTimeOverlays.push(
           <div
             key={`dawn-${i}`}
-            className="absolute bg-gradient-to-r from-slate-900 to-orange-100 pointer-events-none z-7"
+            className="absolute bg-gradient-to-r from-slate-700 to-orange-200 pointer-events-none"
             style={{
-              left: `${Math.max(0, sunriseX - 30)}px`,
+              left: `${Math.max(0, sunriseX - transitionWidth / 2)}px`,
               top: 0,
-              width: '60px',
+              width: `${transitionWidth}px`,
               height: '100%',
-              opacity: getOpacity(0.3),
+              opacity: getOpacity(0.8), // More visible transition
+              zIndex: 7,
             }}
           />
         );
@@ -173,28 +186,30 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`dusk-${i}`}
-            className="absolute bg-gradient-to-r  from-yellow-200 to-slate-800 pointer-events-none z-7"
+            className="absolute bg-gradient-to-r from-yellow-200 to-slate-700 pointer-events-none"
             style={{
-              left: `${Math.max(0, sunsetX - 30)}px`,
+              left: `${Math.max(0, sunsetX - transitionWidth / 2)}px`,
               top: 0,
-              width: '60px',
+              width: `${transitionWidth}px`,
               height: '100%',
-              opacity: getOpacity(0.3),
+              opacity: getOpacity(0.8), // More visible transition
+              zIndex: 7,
             }}
           />
         );
       }
       
-      // Sunrise and sunset markers (only show for current day or when in hours view)
-      if (currentScale === 'hours' || i === 0) {
+            // Sunrise and sunset markers (show for current day or daily view)
+      if (currentScale === 'daily' || i === 0) {
         sunTimeOverlays.push(
           <div
             key={`sunrise-marker-${i}`}
-            className="absolute w-1 bg-gradient-to-b from-orange-300 to-orange-500 pointer-events-none shadow-sm z-50"
+            className="absolute w-1 bg-gradient-to-b from-orange-300 to-orange-500 pointer-events-none shadow-sm"
             style={{ 
               left: `${sunriseX}px`,
               top: 0,
               height: '100%',
+              zIndex: 50,
             }}
           />
         );
@@ -202,17 +217,18 @@ export function SunTimesOverlay({
         sunTimeOverlays.push(
           <div
             key={`sunset-marker-${i}`}
-            className="absolute w-1 bg-gradient-to-b from-orange-500 to-red-600 pointer-events-none shadow-sm z-50"
+            className="absolute w-1 bg-gradient-to-b from-orange-500 to-red-600 pointer-events-none shadow-sm"
             style={{ 
               left: `${sunsetX}px`,
               top: 0,
               height: '100%',
+              zIndex: 50,
             }}
           />
         );
         
-        // Sun time labels (only for current day or hours view)
-        if (currentScale === 'hours' || (i === 0 && currentScale === 'days')) {
+        // Sun time labels (show for daily views and first day for weekly)
+        if (currentScale === 'daily' || (i === 0 && currentScale === 'weekly')) {
           sunTimeOverlays.push(
             <div
               key={`sunrise-label-${i}`}

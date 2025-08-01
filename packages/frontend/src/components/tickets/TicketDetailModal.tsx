@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import { Ticket } from '../timeline/types';
+import { FrontendTicket as Ticket } from '@wrm/types';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { cn } from '../../lib/utils';
@@ -45,9 +45,21 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
 
   if (!isOpen || !ticket) return null;
 
-  const handleUpdate = (field: keyof Ticket, value: string | Date) => {
+  const handleUpdate = (field: keyof Ticket | 'description', value: string | Date) => {
     if (!ticket || !onUpdate) return;
-    onUpdate({ ...ticket, [field]: value });
+    
+    if (field === 'description') {
+      // Handle description separately since it's stored in customProperties
+      onUpdate({ 
+        ...ticket, 
+        customProperties: { 
+          ...ticket.customProperties, 
+          description: value 
+        } 
+      });
+    } else {
+      onUpdate({ ...ticket, [field]: value });
+    }
   };
 
   const formatDateTime = (date: Date) => {
@@ -104,10 +116,10 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {/* Title */}
           <div className="space-y-2">
-            <Input
-              label="Title"
+                        <input
+              type="text"
               value={ticket.title}
-              onChange={(e) => handleUpdate('title', e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUpdate('title', e.target.value)}
               className="font-medium"
               placeholder="Enter ticket title"
             />
@@ -119,8 +131,8 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
               Description
             </label>
             <textarea
-              value={ticket.description}
-              onChange={(e) => handleUpdate('description', e.target.value)}
+              value={(ticket.customProperties?.description as string) || ''}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleUpdate('description', e.target.value)}
               rows={3}
               placeholder="Enter ticket description"
               className={cn(
@@ -137,13 +149,13 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
               label="Start Time"
               type="datetime-local"
               value={formatDateTime(ticket.start)}
-              onChange={(e) => handleUpdate('start', parseDateTime(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUpdate('start', parseDateTime(e.target.value))}
             />
             <Input
               label="End Time"
               type="datetime-local"
               value={formatDateTime(ticket.end)}
-              onChange={(e) => handleUpdate('end', parseDateTime(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUpdate('end', parseDateTime(e.target.value))}
             />
           </div>
 
@@ -151,7 +163,7 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
           <Input
             label="Category"
             value={ticket.category || ''}
-            onChange={(e) => handleUpdate('category', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUpdate('category', e.target.value)}
             placeholder="e.g., Work, Personal, Meeting"
           />
 

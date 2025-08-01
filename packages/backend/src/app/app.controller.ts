@@ -1,63 +1,43 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { SupabaseService } from './supabase.service.ts';
-import { SupabaseAuthGuard } from '../guards/jwt-auth.guard.ts';
-import { CurrentUser } from './decorators/current-user.decorator.ts';
-import type { SupabaseAuthUser } from 'nestjs-supabase-auth';
+import { JwtAuthGuard } from './jwt-auth.guard.ts';
+import { CurrentUser, type AuthenticatedUser } from './decorators/current-user.decorator.ts';
 
 @ApiTags('Application')
 @Controller()
 export class AppController {
-  constructor(
-    private readonly supabaseService: SupabaseService
-  ) {}
-
-  @Get('test-supabase')
-  @ApiOperation({ summary: 'Test Supabase connection' })
-  @ApiResponse({ status: 200, description: 'Supabase connection test result' })
-  async testSupabase() {
-    const supabase = this.supabaseService.getClient();
-    const { data, error } = await supabase.from('test_table').select('*');
-    
-    if (error) {
-      return { error: error.message };
-    }
-    
-    return { data };
-  }
 
   @Get('protected')
-  @UseGuards(SupabaseAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Access protected data' })
   @ApiResponse({ status: 200, description: 'Protected data retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  getProtectedData(@CurrentUser() user: SupabaseAuthUser) {
+  getProtectedData(@CurrentUser() user: AuthenticatedUser) {
     return {
       message: 'This is protected data',
       user: {
         id: user.id,
         email: user.email,
-        created_at: user.created_at,
+        firstName: user.firstName,
+        lastName: user.lastName,
       },
     };
   }
 
   @Get('profile')
-  @UseGuards(SupabaseAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({ status: 200, description: 'User profile retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  getUserProfile(@CurrentUser() user: SupabaseAuthUser) {
+  getUserProfile(@CurrentUser() user: AuthenticatedUser) {
     return {
       user: {
         id: user.id,
         email: user.email,
-        user_metadata: user.user_metadata,
-        app_metadata: user.app_metadata,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
+        firstName: user.firstName,
+        lastName: user.lastName,
       },
     };
   }
@@ -67,25 +47,31 @@ export class AppController {
   @ApiResponse({ status: 200, description: 'Backend structure information' })
   getBackendStructure() {
     return {
-      message: 'Welcome to the API backend with Supabase Auth!',
+      message: 'Welcome to the API backend with JWT Auth and Prisma!',
       modules: [
         'AppModule',
-        'AuthModule (with Supabase)',
+        'AuthModule (with JWT and Prisma)',
+        'TicketsModule',
       ],
       services: [
         'AppService',
-        'SupabaseService',
+        'AuthService (Prisma-based)',
+        'PrismaService',
+        'TicketsService',
       ],
       endpoints: [
         { path: '/', description: 'Backend structure overview' },
-        { path: '/test-supabase', description: 'Test Supabase connection' },
+        { path: '/auth/signup', description: 'Register new user' },
+        { path: '/auth/signin', description: 'Login user' },
         { path: '/protected', description: 'Protected endpoint requiring auth', auth: true },
-        { path: '/profile', description: 'Get user profile from Supabase auth', auth: true },
+        { path: '/profile', description: 'Get user profile', auth: true },
+        { path: '/tickets', description: 'Ticket management endpoints', auth: true },
       ],
       auth: {
-        strategy: 'Supabase Auth',
-        guard: 'SupabaseAuthGuard',
+        strategy: 'JWT Authentication',
+        guard: 'JwtAuthGuard',
         decorator: '@CurrentUser()',
+        database: 'PostgreSQL with Prisma',
       },
     };
   }

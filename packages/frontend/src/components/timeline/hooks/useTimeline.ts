@@ -1,24 +1,22 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { Ticket, TimeMarker, TicketWithPosition } from '../types';
-import { generateTicketsForTimeRange } from '../sampleData';
-import { useTimelineZoom } from './useTimelineZoom';
-import { useTimelineDrag } from './useTimelineDrag';
-import { useTimelinePanning } from './useTimelinePanning';
-import { useTimelineAutoCenter } from './useTimelineAutoCenter';
-import { useTimelineTooltip } from './useTimelineTooltip';
+import { FrontendTicket as Ticket, TimeMarker, TicketWithPosition } from '@wrm/types';
+import { useTimelineDrag } from './useTimelineDrag.ts';
+import { useTimelinePanning } from './useTimelinePanning.ts';
+import { useTimelineAutoCenter } from './useTimelineAutoCenter.ts';
+import { useTimelineTooltip } from './useTimelineTooltip.ts';
+import { useAppSelector, useAppDispatch } from '../../../store/hooks.ts';
+import { setView, setDateRange, navigateTimelinePrevious, navigateTimelineNext, setQuickRange, TimelineView } from '../../../store/slices/timelineSlice.ts';
 import { 
-  calculateTimeBounds, 
   calculateTicketPositions, 
   generateTimeMarkers,
   pixelsToTime,
   timeToPixels,
   laneToY 
-} from '../utils/timelineUtils';
-import { HEADER_HEIGHT, LANE_HEIGHT, MIN_TIMELINE_HEIGHT } from '../constants';
+} from '../utils/timelineUtils.ts';
+import { HEADER_HEIGHT, LANE_HEIGHT, MIN_TIMELINE_HEIGHT } from '../constants.ts';
 
 export function useTimeline(
   tickets: Ticket[],
-  useInfiniteTickets: boolean,
   onTicketUpdate?: (ticket: Ticket) => void,
   onTicketClick?: (ticket: Ticket) => void,
   autoCenterOnNow = false
@@ -26,6 +24,12 @@ export function useTimeline(
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [hoveredTicket, setHoveredTicket] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(Date.now());
+
+  // Redux state for view and date range management
+  const currentView = useAppSelector((state) => state.timeline.currentView);
+  const startDate = useAppSelector((state) => state.timeline.startDate);
+  const endDate = useAppSelector((state) => state.timeline.endDate);
+  const dispatch = useAppDispatch();
 
   // Update current time every 30 seconds for real-time "now" marker
   useEffect(() => {
@@ -36,32 +40,43 @@ export function useTimeline(
     return () => clearInterval(interval);
   }, []);
 
-  // Zoom functionality
-  const {
-    currentZoomConfig,
-    currentScale,
-    currentZoom,
-    isZooming,
-    handleWheel,
-  } = useTimelineZoom();
-
-  // Calculate time bounds and pixel ratio
+  // Calculate time bounds and pixel ratio based on date range
+  // Use Redux date range state instead of fixed view bounds
   const { startTime, endTime, pixelsPerMinute, totalWidth } = useMemo(() => {
-    return calculateTimeBounds(currentScale, currentZoom);
-  }, [currentScale, currentZoom]);
-
-  // Generate tickets based on visible time range when useInfiniteTickets is enabled
-  const allTickets = useMemo(() => {
-    if (useInfiniteTickets) {
-      return generateTicketsForTimeRange(startTime, endTime);
+    const rangeMs = endDate.getTime() - startDate.getTime();
+    const rangeMinutes = rangeMs / (1000 * 60);
+    
+    // Calculate appropriate pixels per minute based on range and view
+    let pixelsPerMin: number;
+    switch (currentView) {
+      case 'daily':
+        pixelsPerMin = Math.max(5, 600 / rangeMinutes);
+        break;
+      case 'weekly':
+        pixelsPerMin = Math.max(2, 300 / rangeMinutes);
+        break;
+      case 'monthly':
+        pixelsPerMin = Math.max(1, 150 / rangeMinutes);
+        break;
+      default:
+        pixelsPerMin = 5;
     }
-    return tickets;
-  }, [useInfiniteTickets, startTime, endTime, tickets]);
+    
+    const width = rangeMinutes * pixelsPerMin;
+    
+    return {
+      startTime: startDate.getTime(),
+      endTime: endDate.getTime(),
+      pixelsPerMinute: pixelsPerMin,
+      totalWidth: Math.max(800, width), // Minimum width
+    };
+  }, [currentView, startDate, endDate]);
+
 
   // Calculate ticket positioning with lane assignment
   const ticketsWithPositions = useMemo((): TicketWithPosition[] => {
-    return calculateTicketPositions(allTickets, startTime, pixelsPerMinute);
-  }, [allTickets, startTime, pixelsPerMinute]);
+    return calculateTicketPositions(tickets, startTime, pixelsPerMinute);
+  }, [tickets, startTime, pixelsPerMinute]);
 
   // Calculate total height based on maximum lane used
   const totalHeight = useMemo(() => {
@@ -73,8 +88,9 @@ export function useTimeline(
 
   // Generate time markers (includes real-time "now" marker)
   const timeMarkers = useMemo((): TimeMarker[] => {
-    return generateTimeMarkers(startTime, endTime, currentScale, currentZoom, pixelsPerMinute, currentTime);
-  }, [startTime, endTime, currentScale, currentZoom, pixelsPerMinute, currentTime]);
+    // No zoom scaling - using pixelsPerMinute directly for marker generation
+    return generateTimeMarkers(startTime, endTime, currentView, pixelsPerMinute, currentTime);
+  }, [startTime, endTime, currentView, pixelsPerMinute, currentTime]);
 
   // Panning functionality
   const {
@@ -94,9 +110,9 @@ export function useTimeline(
     handleTicketMouseDown,
     handleMouseMove: handleDragMouseMove,
     handleMouseUp: handleDragMouseUp,
-  } = useTimelineDrag(scrollLeft, allTickets, pixelsPerMinute, startTime, onTicketUpdate);
+  } = useTimelineDrag(scrollLeft, tickets, pixelsPerMinute, startTime, onTicketUpdate);
 
-  // Auto-center functionality
+  // Auto-center functionality (no longer requires zoom state)
   const {
     autoCenter,
     selectedDate,
@@ -104,7 +120,7 @@ export function useTimeline(
     handleDateChange,
     setSelectedDate,
     centerOnNow,
-  } = useTimelineAutoCenter(startTime, pixelsPerMinute, totalWidth, isZooming, autoCenterOnNow);
+  } = useTimelineAutoCenter(startTime, pixelsPerMinute, totalWidth, autoCenterOnNow);
 
   // Auto-center on now when currentTime changes (if auto-center is enabled)
   useEffect(() => {
@@ -184,6 +200,37 @@ export function useTimeline(
     handleDateChange(event, containerRef);
   }, [handleDateChange, containerRef]);
 
+  // Handle view change
+  const handleViewChange = useCallback((view: TimelineView) => {
+    dispatch(setView(view));
+  }, [dispatch]);
+
+  // Handle date range change with debouncing for performance
+  const handleDateRangeChange = useCallback((newStartDate: Date, newEndDate: Date) => {
+    // Immediate UI feedback
+    dispatch(setDateRange({ startDate: newStartDate, endDate: newEndDate }));
+  }, [dispatch]);
+
+  // Handle navigation
+  const handleNavigate = useCallback((direction: 'previous' | 'next') => {
+    if (direction === 'previous') {
+      dispatch(navigateTimelinePrevious());
+    } else {
+      dispatch(navigateTimelineNext());
+    }
+  }, [dispatch]);
+
+  // Handle quick range selection
+  const handleQuickRange = useCallback((range: string) => {
+    dispatch(setQuickRange(range));
+  }, [dispatch]);
+
+  // Handle wheel events for vertical scrolling only (no zoom)
+  const handleWheel = useCallback(() => {
+    // Allow normal vertical scrolling, no zoom functionality
+    // This lets the browser handle container scrolling naturally
+  }, []);
+
   return {
     // Refs
     containerRef,
@@ -200,10 +247,11 @@ export function useTimeline(
     autoCenter,
     selectedDate,
     setSelectedDate,
+    currentView,
+    startDate,
+    endDate,
     
     // Calculated values
-    currentZoomConfig,
-    currentScale,
     startTime,
     endTime,
     totalWidth,
@@ -222,6 +270,10 @@ export function useTimeline(
     handleScroll,
     handleToggleAutoCenter,
     handleDateChange: handleDateChangeFn,
+    handleViewChange,
+    handleDateRangeChange,
+    handleNavigate,
+    handleQuickRange,
     
     // Utility functions
     timeToPixels: timeToPixelsFn,

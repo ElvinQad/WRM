@@ -12,7 +12,6 @@ export function Timeline({
   tickets = [], 
   onTicketUpdate, 
   onTicketClick, 
-  useInfiniteTickets = false, 
   autoCenterOnNow = false 
 }: TimelineProps) {
   const {
@@ -24,10 +23,9 @@ export function Timeline({
     hoveredTime,
     isPanning,
     autoCenter,
-    selectedDate,
-    setSelectedDate,
-    currentZoomConfig,
-    currentScale,
+    currentView,
+    startDate,
+    endDate,
     totalWidth,
     totalHeight,
     ticketsWithPositions,
@@ -43,20 +41,24 @@ export function Timeline({
     handleTicketClick,
     handleScroll,
     handleToggleAutoCenter,
-    handleDateChange,
+    handleViewChange,
+    handleNavigate,
+    handleQuickRange,
     timeToPixels,
     laneToY,
-  } = useTimeline(tickets, useInfiniteTickets, onTicketUpdate, onTicketClick, autoCenterOnNow);
+  } = useTimeline(tickets, onTicketUpdate, onTicketClick, autoCenterOnNow);
 
   return (
     <div className="flex-1 flex flex-col">
       <TimelineHeader
-        currentZoomConfig={currentZoomConfig}
         autoCenter={autoCenter}
-        selectedDate={selectedDate}
+        currentView={currentView}
+        startDate={startDate}
+        endDate={endDate}
         onToggleAutoCenter={handleToggleAutoCenter}
-        onDateChange={handleDateChange}
-        onClearDate={() => setSelectedDate(null)}
+        onViewChange={handleViewChange}
+        onNavigate={handleNavigate}
+        onQuickRange={handleQuickRange}
       />
 
       {/* Timeline container */}
@@ -70,14 +72,38 @@ export function Timeline({
         onMouseLeave={handleMouseLeave}
         onScroll={handleScroll}
         style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
-      >          {/* Timeline content */}
-        <div
-          className="relative timeline-content"
-          style={{
-            width: `${totalWidth}px`,
-            height: `${totalHeight}px`,
-            minHeight: '100%',
-            backgroundImage: `
+      >
+        {currentView === 'monthly' ? (
+          /* Monthly Calendar View */
+          <div className="p-4">
+            <div className="grid grid-cols-7 gap-1 text-center">
+              {/* Calendar header */}
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <div key={day} className="p-2 font-semibold text-muted-foreground">
+                  {day}
+                </div>
+              ))}
+              
+              {/* Calendar days - simplified for now */}
+              {Array.from({ length: 42 }, (_, i) => (
+                <div
+                  key={i}
+                  className="aspect-square p-2 border border-border bg-card hover:bg-accent rounded text-sm"
+                >
+                  {((i % 31) + 1).toString()}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          /* Standard Timeline View */
+          <div
+            className="relative timeline-content"
+            style={{
+              width: `${totalWidth}px`,
+              height: `${totalHeight}px`,
+              minHeight: '100%',
+              backgroundImage: `
               linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
             `,
@@ -112,7 +138,7 @@ export function Timeline({
             sunTimes={sunTimes || null}
             startTime={startTime}
             endTime={endTime}
-            currentScale={currentScale}
+            currentScale={currentView}
             timeToPixels={timeToPixels}
           />
 
@@ -130,7 +156,8 @@ export function Timeline({
               laneToY={laneToY}
             />
           ))}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Tooltip */}
