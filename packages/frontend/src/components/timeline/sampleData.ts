@@ -45,6 +45,8 @@ export const generateSampleTickets = (): FrontendTicket[] => {
       customProperties: {
         description: `This is a detailed description for ${titles[i % titles.length]} - Task ${i + 1}`,
       },
+      status: 'FUTURE',
+      aiGenerated: false,
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
       color: colors[Math.floor(Math.random() * colors.length)],
@@ -68,6 +70,8 @@ export const generateSampleTickets = (): FrontendTicket[] => {
     customProperties: {
       description: 'Daily team standup meeting',
     },
+    status: 'FUTURE',
+    aiGenerated: false,
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),
     color: '#dbeafe',

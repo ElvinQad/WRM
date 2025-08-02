@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type TimelineView = 'daily' | 'weekly' | 'monthly';
+export type TimelineView = 'daily' | 'weekly';
 
 interface TimelineState {
   currentView: TimelineView;
@@ -36,10 +36,6 @@ const timelineSlice = createSlice({
         case 'weekly':
           state.startDate = new Date(now.getTime() - 10.5 * 24 * 60 * 60 * 1000); // 1.5 weeks ago
           state.endDate = new Date(now.getTime() + 10.5 * 24 * 60 * 60 * 1000); // 1.5 weeks from now (total 3 weeks)
-          break;
-        case 'monthly':
-          state.startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // 3 months ago
-          state.endDate = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000); // 3 months from now
           break;
       }
     },

@@ -22,11 +22,21 @@ import { getProfile } from "../store/slices/authSlice.ts";
 
 export default function Index() {
   const dispatch = useAppDispatch();
-  const { tickets, selectedTicket, error } = useAppSelector((state) => state.tickets);
+  const { tickets: rawTickets, selectedTicket, error } = useAppSelector((state) => state.tickets);
   const { isModalOpen, coords } = useAppSelector((state) => state.app);
   const { times: sunTimes } = useAppSelector((state) => state.sunTimes);
   const { user, isAuthenticated, accessToken } = useAppSelector((state) => state.auth);
   const { ticketTypes, defaultTypeId } = useAppSelector((state) => state.ticketTypes);
+  
+  // Enrich tickets with type information
+  const tickets = rawTickets.map(ticket => {
+    const ticketType = ticketTypes.find(type => type.id === ticket.typeId);
+    return {
+      ...ticket,
+      typeName: ticketType?.name || 'Unknown',
+      typeColor: ticketType?.color || '#3B82F6', // Default blue if no color
+    };
+  });
   
   // Load user profile when authenticated but user data is missing
   useEffect(() => {
@@ -82,35 +92,6 @@ export default function Index() {
     dispatch(updateTicketAsync(updatedTicket));
   }, [dispatch]);
 
-  // Handle ticket move operations
-  const handleTicketMove = useCallback((ticketId: string, newStartTime: Date, newEndTime?: Date) => {
-    const ticket = tickets.find((t: Ticket) => t.id === ticketId);
-    if (ticket) {
-      const updatedTicket = {
-        ...ticket,
-        startTime: newStartTime.toISOString(),
-        endTime: (newEndTime || ticket.end).toISOString(),
-        start: newStartTime,
-        end: newEndTime || ticket.end,
-        updatedAt: new Date().toISOString()
-      };
-      dispatch(updateTicketAsync(updatedTicket));
-    }
-  }, [tickets, dispatch]);
-
-  // Handle ticket resize operations
-  const handleTicketResize = useCallback((ticketId: string, newEndTime: Date) => {
-    const ticket = tickets.find((t: Ticket) => t.id === ticketId);
-    if (ticket) {
-      const updatedTicket = {
-        ...ticket,
-        endTime: newEndTime.toISOString(),
-        end: newEndTime,
-        updatedAt: new Date().toISOString()
-      };
-      dispatch(updateTicketAsync(updatedTicket));
-    }
-  }, [tickets, dispatch]);
 
   // Handle ticket click
   const handleTicketClick = useCallback((ticket: Ticket) => {

@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { FrontendTicket as Ticket } from '@wrm/types';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import { cn } from '../../lib/utils';
+import { RootState } from '../../store/store.ts';
+import { Button } from '../ui/Button.tsx';
+import { Input } from '../ui/Input.tsx';
+import { cn } from '../../lib/utils.ts';
 
 interface TicketDetailModalProps {
   ticket: Ticket | null;
@@ -16,6 +18,7 @@ interface TicketDetailModalProps {
 
 export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete }: TicketDetailModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const { ticketTypes } = useSelector((state: RootState) => state.ticketTypes);
 
   // Close modal on Escape key
   useEffect(() => {
@@ -69,18 +72,6 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
   const parseDateTime = (value: string) => {
     return new Date(value);
   };
-
-  const colorOptions = [
-    { value: '#ffffff', name: 'White' },
-    { value: '#fef3c7', name: 'Yellow' },
-    { value: '#dbeafe', name: 'Blue' },
-    { value: '#dcfce7', name: 'Green' },
-    { value: '#fce7f3', name: 'Pink' },
-    { value: '#f3e8ff', name: 'Purple' },
-    { value: '#fed7d7', name: 'Red' },
-    { value: '#e0f2fe', name: 'Cyan' },
-    { value: '#f0f9ff', name: 'Sky' },
-  ];
 
   return (
     <div 
@@ -143,6 +134,37 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
             />
           </div>
 
+          {/* Ticket Type Selection */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-foreground">
+              Ticket Type
+            </label>
+            <select
+              value={ticket.typeId}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleUpdate('typeId', e.target.value)}
+              className={cn(
+                "w-full px-3 py-2 border border-input rounded-lg text-sm bg-background text-foreground",
+                "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+                "transition-colors"
+              )}
+            >
+              {ticketTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+            {ticketTypes.find(t => t.id === ticket.typeId) && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div 
+                  className="w-3 h-3 rounded-full border border-border"
+                  style={{ backgroundColor: ticketTypes.find(t => t.id === ticket.typeId)?.color || '#3B82F6' }}
+                />
+                Current type color
+              </div>
+            )}
+          </div>
+
           {/* Time Range */}
           <div className="grid grid-cols-2 gap-4">
             <Input
@@ -167,30 +189,6 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
             placeholder="e.g., Work, Personal, Meeting"
           />
 
-          {/* Color Selection */}
-          <div className="space-y-3">
-            <label className="block text-sm font-medium text-foreground">
-              Color
-            </label>
-            <div className="grid grid-cols-5 gap-2">
-              {colorOptions.map((color) => (
-                <button
-                  type="button"
-                  key={color.value}
-                  onClick={() => handleUpdate('color', color.value)}
-                  className={cn(
-                    "w-10 h-10 rounded-lg border-2 transition-all duration-200",
-                    "hover:scale-105 hover:shadow-md",
-                    ticket.color === color.value 
-                      ? 'border-primary ring-2 ring-primary/20' 
-                      : 'border-border hover:border-border/60'
-                  )}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
-                />
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Footer */}

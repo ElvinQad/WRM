@@ -27,7 +27,6 @@ export function TimelineHeader({
   const viewOptions: SelectOption[] = [
     { value: 'daily', label: 'Daily' },
     { value: 'weekly', label: 'Weekly' },
-    { value: 'monthly', label: 'Monthly' },
   ];
 
   return (

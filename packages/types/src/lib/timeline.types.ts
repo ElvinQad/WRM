@@ -5,7 +5,7 @@ import { FrontendTicket, TicketStatus, TimelineConflict, TicketWithPosition } fr
 /**
  * Epic 1: Timeline view modes from PRD
  */
-export type TimelineView =  'daily' | 'weekly' | 'monthly';
+export type TimelineView =  'daily' | 'weekly';
 
 /**
  * Epic 1: Enhanced timeline component props

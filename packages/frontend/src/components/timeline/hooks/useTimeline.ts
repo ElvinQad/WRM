@@ -50,14 +50,12 @@ export function useTimeline(
     let pixelsPerMin: number;
     switch (currentView) {
       case 'daily':
-        pixelsPerMin = Math.max(5, 600 / rangeMinutes);
+        pixelsPerMin = Math.max(3, 600 / rangeMinutes);
         break;
       case 'weekly':
-        pixelsPerMin = Math.max(2, 300 / rangeMinutes);
-        break;
-      case 'monthly':
         pixelsPerMin = Math.max(1, 150 / rangeMinutes);
         break;
+
       default:
         pixelsPerMin = 5;
     }

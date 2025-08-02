@@ -19,5 +19,3 @@ export * from './types.ts';
 // Constants
 export * from './constants.ts';
 
-// Sample data
-export * from './sampleData.ts';

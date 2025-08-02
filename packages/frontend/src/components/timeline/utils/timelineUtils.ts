@@ -59,11 +59,6 @@ export function calculateTimeBounds(currentScale: TimelineView) {
       start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 21); // Show 3 weeks before
       end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 21);   // Show 3 weeks after
       break;
-    case 'monthly':
-      // Show 6 months: 3 before current month + current month + 2 after
-      start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-      end = new Date(now.getFullYear(), now.getMonth() + 3, 0); // Last day of 2 months ahead
-      break;
     default:
       // Default to days view
       start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);

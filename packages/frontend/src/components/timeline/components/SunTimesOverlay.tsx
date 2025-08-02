@@ -27,9 +27,8 @@ export function SunTimesOverlay({
       case 'weekly':
         alpha = 0.4; // Less prominent for weekly
         break;
-      case 'monthly':
       default:
-        alpha = 0.3; // Subtle for monthly
+        alpha = 0.3; 
         break;
     }
     return Math.min(1.0, alpha * baseOpacity); // Ensure we don't exceed 1.0

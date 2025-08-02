@@ -39,7 +39,7 @@ export function TicketComponent({
         top: `${laneToY(lane)}px`,
         width: `${width}px`,
         height: `${TICKET_HEIGHT}px`,
-        backgroundColor: ticketWithPosition.color || '#ffffff',
+        backgroundColor: ticketWithPosition.typeColor || ticketWithPosition.color || '#ffffff',
         minWidth: '20px',
       }}
       onMouseDown={onMouseDown}

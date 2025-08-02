@@ -89,30 +89,6 @@ export function Timeline({
         onScroll={handleScroll}
         style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
       >
-        {currentView === 'monthly' ? (
-          /* Monthly Calendar View */
-          <div className="p-4">
-            <div className="grid grid-cols-7 gap-1 text-center">
-              {/* Calendar header */}
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                <div key={day} className="p-2 font-semibold text-muted-foreground">
-                  {day}
-                </div>
-              ))}
-              
-              {/* Calendar days - simplified for now */}
-              {Array.from({ length: 42 }, (_, i) => (
-                <div
-                  key={i}
-                  className="aspect-square p-2 border border-border bg-card hover:bg-accent rounded text-sm"
-                >
-                  {((i % 31) + 1).toString()}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          /* Standard Timeline View */
           <div
             className="relative timeline-content"
             style={{
@@ -173,7 +149,6 @@ export function Timeline({
             />
           ))}
           </div>
-        )}
       </div>
 
       {/* Tooltip */}

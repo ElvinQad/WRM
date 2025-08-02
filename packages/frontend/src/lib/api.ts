@@ -210,6 +210,20 @@ class ApiClient {
   async getTicketTypes(): Promise<TicketType[]> {
     return await this.request<TicketType[]>('/ticket-types');
   }
+
+  async createTicketType(data: { name: string; color?: string }): Promise<TicketType> {
+    return await this.request<TicketType>('/ticket-types', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTicketType(id: string, data: { name?: string; color?: string }): Promise<TicketType> {
+    return await this.request<TicketType>(`/ticket-types/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
 }
 
 // Export singleton instance

@@ -34,8 +34,6 @@ export function ViewRelativeNavigator({
         return { prev: '← Previous Day', next: 'Next Day →', period: 'Day' };
       case 'weekly':
         return { prev: '← Previous Week', next: 'Next Week →', period: 'Week' };
-      case 'monthly':
-        return { prev: '← Previous Month', next: 'Next Month →', period: 'Month' };
       default:
         return { prev: '← Previous', next: 'Next →', period: 'Period' };
     }

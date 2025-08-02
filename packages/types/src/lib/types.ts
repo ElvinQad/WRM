@@ -115,7 +115,7 @@ export interface ResizeTicketDto {
 }
 
 export interface TimelineQueryDto {
-  view: 'hourly' | 'daily' | 'weekly' | 'monthly';
+  view: 'hourly' | 'daily' | 'weekly';
   startDate: string;
   endDate: string;
 }
