@@ -48,8 +48,8 @@ class AuthService {
     return await apiClient.signOut() as { message: string };
   }
 
-  async refreshToken(): Promise<AuthResponse> {
-    return await apiClient.refreshToken() as AuthResponse;
+  async refreshToken(refreshToken: string): Promise<AuthResponse> {
+    return await apiClient.refreshToken(refreshToken) as AuthResponse;
   }
 
   async getProfile(): Promise<UserProfile> {

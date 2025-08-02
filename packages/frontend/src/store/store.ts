@@ -112,6 +112,16 @@ apiClient.setTokenGetter(() => {
   return state.auth.accessToken;
 });
 
+// Initialize token refresh timer if user is already authenticated
+if (typeof window !== 'undefined') {
+  import('../lib/token-refresh.ts').then(({ startTokenRefreshTimer }) => {
+    const state = store.getState();
+    if (state.auth.isAuthenticated && state.auth.accessToken) {
+      startTokenRefreshTimer();
+    }
+  });
+}
+
 export const persistor = persistStore(store);
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

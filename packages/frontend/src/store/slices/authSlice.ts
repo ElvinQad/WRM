@@ -114,9 +114,16 @@ export const refreshToken = createAsyncThunk<
   { rejectValue: string }
 >(
   'auth/refreshToken',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const response = await apiClient.refreshToken() as AuthResponse;
+      const state = getState() as { auth: AuthState };
+      const currentRefreshToken = state.auth.refreshToken;
+      
+      if (!currentRefreshToken) {
+        return rejectWithValue('No refresh token available');
+      }
+      
+      const response = await apiClient.refreshToken(currentRefreshToken) as AuthResponse;
       return response;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Token refresh failed';

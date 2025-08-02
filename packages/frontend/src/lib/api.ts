@@ -80,6 +80,12 @@ class ApiClient {
         } catch {
           // Use default error message if JSON parsing fails
         }
+        
+        // Enhance error message for auth-related errors
+        if (response.status === 401) {
+          errorMessage = 'Unauthorized - ' + errorMessage;
+        }
+        
         throw new ApiError(response.status, errorMessage);
       }
 
@@ -127,10 +133,10 @@ class ApiClient {
     });
   }
 
-  async refreshToken(): Promise<unknown> {
+  async refreshToken(refreshToken: string): Promise<unknown> {
     return await this.request('/auth/refresh', {
       method: 'POST',
-      body: JSON.stringify({}),
+      body: JSON.stringify({ refreshToken }),
     });
   }
 

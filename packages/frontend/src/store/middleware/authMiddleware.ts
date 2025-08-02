@@ -1,65 +1,76 @@
 import { createListenerMiddleware } from '@reduxjs/toolkit';
-import { refreshToken, clearAuth } from '../slices/authSlice.ts';
+import { clearAuth } from '../slices/authSlice.ts';
 import { RootState } from '../store.ts';
+import { startTokenRefreshTimer, stopTokenRefreshTimer, attemptTokenRefresh } from '../../lib/token-refresh.ts';
 
 export const authListenerMiddleware = createListenerMiddleware();
 
 // Track last refresh attempt to prevent spam
 let lastRefreshAttempt = 0;
-const REFRESH_COOLDOWN = 60000; // 1 minute
+const REFRESH_COOLDOWN = 30000; // 30 seconds
 
-// Add listener for automatic token refresh - only on specific actions
+// Add listener for API response errors
 authListenerMiddleware.startListening({
-  // Fix: Use predicate instead of actionCreator
   predicate: (action) => {
-    // Listen to API calls or user interactions, not auth actions themselves
-    const actionType = action.type;
-    return (actionType.includes('api/') || actionType.includes('user/')) && 
-           !actionType.includes('auth/');
+    // Listen for any rejected actions that might indicate auth errors
+    return action.type.endsWith('/rejected') && !action.type.includes('auth/refreshToken');
   },
   
   effect: async (action, listenerApi) => {
     const state = listenerApi.getState() as RootState;
-    const now = Date.now();
     
-    // Prevent spam refreshes
-    if (now - lastRefreshAttempt < REFRESH_COOLDOWN) {
-      return;
-    }
-    
-    // Only refresh if user is authenticated and has tokens
-    if (!state.auth.isAuthenticated || !state.auth.accessToken || state.auth.isLoading) {
-      return;
-    }
-
-    // Check if we need to refresh
-    if (shouldRefreshToken(state.auth.accessToken)) {
-      lastRefreshAttempt = now;
-      try {
-        await listenerApi.dispatch(refreshToken()).unwrap();
-      } catch (error) {
-        // If refresh fails, clear auth
-        listenerApi.dispatch(clearAuth());
+    // Check if this is an auth-related error
+    if (action.payload && typeof action.payload === 'string') {
+      const errorMessage = action.payload.toLowerCase();
+      if (errorMessage.includes('unauthorized') || 
+          errorMessage.includes('token') || 
+          errorMessage.includes('401')) {
+        
+        // Try to refresh token if we have one
+        if (state.auth.refreshToken && state.auth.isAuthenticated) {
+          const now = Date.now();
+          if (now - lastRefreshAttempt > REFRESH_COOLDOWN) {
+            lastRefreshAttempt = now;
+            const refreshSuccess = await attemptTokenRefresh();
+            if (!refreshSuccess) {
+              // If refresh fails, clear auth
+              listenerApi.dispatch(clearAuth());
+            }
+          }
+        } else {
+          // No refresh token available, clear auth
+          listenerApi.dispatch(clearAuth());
+        }
       }
     }
   },
 });
 
-// Helper function to check if token should be refreshed
-function shouldRefreshToken(token: string): boolean {
-  try {
-    // Basic JWT token expiration check
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const currentTime = Date.now() / 1000;
-    const timeUntilExpiry = payload.exp - currentTime;
-    
-    // Refresh if token expires in less than 10 minutes
-    return timeUntilExpiry < 600;
-  } catch {
-    // If we can't parse the token, assume it needs refresh
-    return true;
-  }
-}
+// Add listener for successful login to start timer
+authListenerMiddleware.startListening({
+  predicate: (action) => {
+    return action.type === 'auth/signIn/fulfilled' || 
+           action.type === 'auth/signUp/fulfilled' ||
+           action.type === 'auth/refreshToken/fulfilled';
+  },
+  
+  effect: () => {
+    startTokenRefreshTimer();
+  },
+});
+
+// Add listener for logout to stop timer
+authListenerMiddleware.startListening({
+  predicate: (action) => {
+    return action.type === 'auth/signOut/fulfilled' || 
+           action.type === 'auth/clearAuth' ||
+           action.type === 'auth/refreshToken/rejected';
+  },
+  
+  effect: () => {
+    stopTokenRefreshTimer();
+  },
+});
 
 // API Response interceptor for handling auth errors
 export const handleApiAuthError = (error: unknown) => {

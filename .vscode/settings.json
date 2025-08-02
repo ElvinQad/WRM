@@ -4,5 +4,23 @@
   "github.copilot.chat.agent.runTasks": true,
   "chat.mcp.discovery.enabled": true,
   "github.copilot.chat.agent.autoFix": true,
-  "chat.tools.autoApprove": false
+  "chat.tools.autoApprove": false,
+  "folder-color.pathColors": [
+    {
+      "folderPath": "WRM/packages/frontend/",
+      "color": "foldercolorizer.color_6666ff"
+    },
+    {
+      "folderPath": "WRM/packages/backend/",
+      "color": "foldercolorizer.color_009933"
+    },
+    {
+      "folderPath": "WRM/packages/testing/",
+      "color": "foldercolorizer.color_cc6666"
+    },
+    {
+      "folderPath": "WRM/packages/types/",
+      "color": "foldercolorizer.color_00cccc"
+    }
+  ]
 }

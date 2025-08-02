@@ -1,5 +1,5 @@
-export { useTimeline } from './useTimeline';
-export { useTimelineDrag } from './useTimelineDrag';
-export { useTimelinePanning } from './useTimelinePanning';
-export { useTimelineAutoCenter } from './useTimelineAutoCenter';
-export { useTimelineTooltip } from './useTimelineTooltip';
+export { useTimeline } from './useTimeline.ts';
+export { useTimelineDrag } from './useTimelineDrag.ts';
+export { useTimelinePanning } from './useTimelinePanning.ts';
+export { useTimelineAutoCenter } from './useTimelineAutoCenter.ts';
+export { useTimelineTooltip } from './useTimelineTooltip.ts';
