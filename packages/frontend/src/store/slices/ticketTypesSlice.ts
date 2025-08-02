@@ -1,17 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { TicketType } from '@wrm/types';
 import { fetchTicketTypes } from '../thunks/ticketTypeThunks.ts';
-
-export interface TicketType {
-  id: string;
-  name: string;
-  description?: string;
-  propertiesSchema: Record<string, unknown>;
-  defaultDuration?: number;
-  color?: string;
-  userId?: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface TicketTypesState {
   ticketTypes: TicketType[];

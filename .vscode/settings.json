@@ -8,11 +8,13 @@
   "folder-color.pathColors": [
     {
       "folderPath": "WRM/packages/frontend/",
-      "color": "foldercolorizer.color_6666ff"
+      "color": "foldercolorizer.color_6666ff",
+      "badge": "💘"
     },
     {
       "folderPath": "WRM/packages/backend/",
-      "color": "foldercolorizer.color_009933"
+      "color": "foldercolorizer.color_009933",
+      "badge": "🧠"
     },
     {
       "folderPath": "WRM/packages/testing/",
@@ -21,6 +23,14 @@
     {
       "folderPath": "WRM/packages/types/",
       "color": "foldercolorizer.color_00cccc"
+    },
+    {
+      "folderPath": "WRM/packages/frontend/src/store/",
+      "color": "foldercolorizer.color_006699"
+    },
+    {
+      "folderPath": "WRM/docs/",
+      "badge": "👑"
     }
   ]
 }

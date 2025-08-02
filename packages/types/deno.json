@@ -10,7 +10,8 @@
     "build": "deno run --allow-read --allow-write --allow-env scripts/build.ts",
     "dev": "deno run --allow-read --allow-write --allow-env --watch scripts/build.ts",
     "clean": "deno run --allow-read --allow-write scripts/clean.ts",
-    "type-check": "deno check src/**/*.ts"
+    "type-check": "deno check src/**/*.ts",
+    "validate": "deno run --allow-read scripts/validate-types.ts"
   },
   "compilerOptions": {
     "strict": true,

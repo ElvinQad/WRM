@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Ticket } from '../types';
+import { FrontendTicket as Ticket } from '@wrm/types';
 
 interface UseEnhancedTicketProps {
   ticket: Ticket;

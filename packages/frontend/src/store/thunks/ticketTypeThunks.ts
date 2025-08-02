@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { TicketType } from '@wrm/types';
 import { apiClient } from '../../lib/api.ts';
-import { TicketType } from '../slices/ticketTypesSlice.ts';
 
 export const fetchTicketTypes = createAsyncThunk<TicketType[], void, { rejectValue: string }>(
   'ticketTypes/fetchTicketTypes',

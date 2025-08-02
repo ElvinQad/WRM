@@ -1,4 +1,4 @@
-import { TimeMarker } from '../types';
+import { TimeMarker } from '@wrm/types';
 
 interface TimeMarkersProps {
   markers: TimeMarker[];

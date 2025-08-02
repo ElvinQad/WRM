@@ -1,20 +1,6 @@
 // Core shared types for WRM application
 // These types should be used across frontend, backend, and any other packages
 
-// Forward declaration to avoid circular imports
-export interface TicketWithPosition extends FrontendTicket {
-  startX: number;
-  endX: number;
-  width: number;
-  lane: number;
-  statusBorderColor: string;
-  statusBackgroundColor: string;
-  isSelected?: boolean;
-  isHovered?: boolean;
-  hasConflict?: boolean;
-  conflictLevel?: 'warning' | 'error';
-}
-
 /**
  * Epic 1 & 2: Time-aware ticket states for timeline visualization
  */
@@ -73,6 +59,23 @@ export interface FrontendTicket extends BaseTicket {
   // Epic 1: Drag-and-drop properties
   isDragging?: boolean;
   isResizing?: boolean;
+}
+
+/**
+ * Ticket with calculated position for timeline rendering
+ * Enhanced for Epic 1 (Dynamic Timeline)
+ */
+export interface TicketWithPosition extends FrontendTicket {
+  startX: number;
+  endX: number;
+  width: number;
+  lane: number;
+  statusBorderColor: string;
+  statusBackgroundColor: string;
+  isSelected?: boolean;
+  isHovered?: boolean;
+  hasConflict?: boolean;
+  conflictLevel?: 'warning' | 'error';
 }
 
 /**
