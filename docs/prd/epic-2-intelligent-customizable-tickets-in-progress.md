@@ -32,6 +32,7 @@
         *   A ticket whose scheduled time is happening *now* has a distinct "Active" border color (e.g., green).
         *   A ticket whose time has passed and has had *no interaction* has a distinct "Untouched" border color (e.g., red).
         *   A ticket whose time has passed but *was interacted with* has a distinct "Confirmed" border color (e.g., amber).
+        *   **Interaction Definition:** "Interaction" means editing title, description, or custom properties only. Moving/resizing tickets or passive viewing does NOT count as interaction.
 
 *   **User Story 2.4 (Repeatable Tickets):**
     *   **As a user,** I want to mark tickets as repeatable with customizable recurrence patterns.
