@@ -115,8 +115,8 @@ export function calculateTicketPositions(
               timeRangesOverlap(
                 ticket.start.getTime(), 
                 ticket.end.getTime(),
-                positioned_ticket.ticket.start.getTime(),
-                positioned_ticket.ticket.end.getTime()
+                positioned_ticket.start.getTime(),
+                positioned_ticket.end.getTime()
               )) {
             foundConflict = true;
             break;
@@ -129,11 +129,13 @@ export function calculateTicketPositions(
     }
     
     positioned.push({
-      ticket: { ...ticket, lane },
+      ...ticket,
+      lane,
       startX,
       endX,
       width,
-      lane,
+      statusBorderColor: '#ccc', // Default border color
+      statusBackgroundColor: '#f0f0f0', // Default background color
     });
   }
   
@@ -187,6 +189,7 @@ export function generateTimeMarkers(
       label: format(current),
       x: timeToPixels(current.getTime(), startTime, pixelsPerMinute),
       type: 'major' as const,
+      isVisible: true,
     });
     current = new Date(current.getTime() + majorInterval);
   }
@@ -216,6 +219,7 @@ export function generateTimeMarkers(
           label: minorFormat(current),
           x: timeToPixels(current.getTime(), startTime, pixelsPerMinute),
           type: 'minor' as const,
+          isVisible: true,
         });
       }
       current = new Date(current.getTime() + minorInterval);
@@ -245,6 +249,7 @@ export function generateTimeMarkers(
       label: nowLabel,
       x: timeToPixels(nowTime, startTime, pixelsPerMinute),
       type: 'now' as const,
+      isVisible: true,
     });
   }
 

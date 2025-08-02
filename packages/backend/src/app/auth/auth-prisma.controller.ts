@@ -7,8 +7,13 @@ import {
   SignInDto, 
   RefreshTokenDto, 
   AuthResponseDto, 
-  TokenResponseDto 
-} from './dto/auth-prisma.dto.ts';
+  TokenResponseDto,
+  SendVerificationEmailDto,
+  VerifyEmailDto,
+  RequestPasswordResetDto,
+  ResetPasswordDto,
+  MessageResponseDto
+} from '../dto/auth-prisma.dto.ts';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -61,5 +66,38 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getMe(@Request() req: { user: { id: string } }) {
     return await this.authService.getUserProfile(req.user.id);
+  }
+
+  @Post('send-verification')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Send email verification' })
+  @ApiResponse({ status: 200, description: 'Verification email sent', type: MessageResponseDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async sendVerification(@Request() req: { user: { id: string } }): Promise<MessageResponseDto> {
+    return await this.authService.sendVerificationEmail(req.user.id);
+  }
+
+  @Post('verify-email')
+  @ApiOperation({ summary: 'Verify email address' })
+  @ApiResponse({ status: 200, description: 'Email verified successfully', type: MessageResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid verification token' })
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto): Promise<MessageResponseDto> {
+    return await this.authService.verifyEmail(verifyEmailDto.token);
+  }
+
+  @Post('request-password-reset')
+  @ApiOperation({ summary: 'Request password reset' })
+  @ApiResponse({ status: 200, description: 'Password reset email sent', type: MessageResponseDto })
+  async requestPasswordReset(@Body() requestPasswordResetDto: RequestPasswordResetDto): Promise<MessageResponseDto> {
+    return await this.authService.requestPasswordReset(requestPasswordResetDto.email);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password with token' })
+  @ApiResponse({ status: 200, description: 'Password reset successfully', type: MessageResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid or expired reset token' })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<MessageResponseDto> {
+    return await this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.newPassword);
   }
 }

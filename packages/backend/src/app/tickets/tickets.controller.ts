@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Query } fro
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { TicketsService } from './tickets.service.ts';
 import { CreateTicketDto, UpdateTicketDto, TicketResponseDto } from './dto/ticket.dto.ts';
-import { JwtAuthGuard } from '../jwt-auth.guard.ts';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.ts';
 import { CurrentUser, type AuthenticatedUser } from '../decorators/current-user.decorator.ts';
 
 @ApiTags('Tickets')

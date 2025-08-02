@@ -16,6 +16,7 @@ export interface TimelineProps {
   tickets?: FrontendTicket[];
   onTicketMove?: (ticketId: string, newStartTime: Date, newEndTime?: Date) => void;
   onTicketResize?: (ticketId: string, newEndTime: Date) => void;
+  onTicketUpdate?: (updatedTicket: FrontendTicket) => void; // New: for full ticket updates including lanes
   onTicketClick?: (ticket: FrontendTicket) => void;
   onTicketCreate?: (startTime: Date, endTime: Date, typeId?: string) => void;
   onViewChange?: (view: TimelineView) => void;

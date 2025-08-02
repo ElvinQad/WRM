@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -8,16 +9,20 @@ datasource db {
 }
 
 model User {
-  id                  String               @id @default(uuid())
-  email               String               @unique
-  password            String
-  firstName           String?              @map("first_name")
-  lastName            String?              @map("last_name")
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
-  agentCollaborations AgentCollaboration[]
-  ticketTypes         TicketType[]
-  tickets             Ticket[]
+  id                     String               @id @default(uuid())
+  email                  String               @unique
+  password               String
+  firstName              String?              @map("first_name")
+  lastName               String?              @map("last_name")
+  emailVerified          Boolean              @default(false) @map("email_verified")
+  emailVerificationToken String?              @unique @map("email_verification_token")
+  passwordResetToken     String?              @unique @map("password_reset_token")
+  passwordResetExpires   DateTime?            @map("password_reset_expires")
+  createdAt              DateTime             @default(now()) @map("created_at")
+  updatedAt              DateTime             @updatedAt @map("updated_at")
+  agentCollaborations    AgentCollaboration[]
+  ticketTypes            TicketType[]
+  tickets                Ticket[]
 
   @@map("users")
 }

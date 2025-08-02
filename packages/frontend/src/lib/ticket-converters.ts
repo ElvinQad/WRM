@@ -1,9 +1,9 @@
 // Type converters between frontend FrontendTicket interface and backend API types
 import { FrontendTicket, BaseTicket, CreateTicketDto, UpdateTicketDto, baseToFrontendTicket, frontendToBaseTicket } from '@wrm/types';
 
-// Default ticket type ID - we'll need this for tickets created without specifying a type
-// TODO: Make this configurable or fetch from API
-const DEFAULT_TICKET_TYPE_ID = '00000000-0000-0000-0000-000000000001';
+// Default ticket type ID - Using a valid UUID format that can be created as a fallback
+// TODO: Replace with actual API call to get/create default ticket types
+const DEFAULT_TICKET_TYPE_ID = 'a0000000-0000-4000-8000-000000000001';
 
 export function apiTicketToFrontend(apiTicket: BaseTicket): FrontendTicket {
   return baseToFrontendTicket(apiTicket);

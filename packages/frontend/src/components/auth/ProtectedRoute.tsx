@@ -11,7 +11,7 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  redirectTo = '/auth/signin',
+  redirectTo = '/auth?mode=signin',
   requireAuth = true
 }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading } = useAuth();

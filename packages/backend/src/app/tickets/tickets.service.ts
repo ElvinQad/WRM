@@ -84,7 +84,7 @@ export class TicketsService {
     return this.mapToResponseDto(ticket);
   }
 
-  async deleteTicket(userId: string, ticketId: string): Promise<void> {
+  async deleteTicket(userId: string, ticketId: string): Promise<{ message: string }> {
     const existingTicket = await this.prisma.ticket.findFirst({
       where: { 
         id: ticketId,
@@ -99,6 +99,8 @@ export class TicketsService {
     await this.prisma.ticket.delete({
       where: { id: ticketId },
     });
+
+    return { message: 'Ticket deleted successfully' };
   }
 
   // deno-lint-ignore no-explicit-any

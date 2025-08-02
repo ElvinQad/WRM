@@ -1,52 +1,25 @@
 'use client';
 
-import React, { Suspense } from 'react';
+import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SignUpForm } from '../../../components/auth/SignUpForm.tsx';
-import { ProtectedRoute } from '../../../components/auth/ProtectedRoute.tsx';
-import { getReturnUrl } from '../../../utils/auth-helpers.ts';
 
-function SignUpContent() {
+export default function SignUpPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleSignUpSuccess = () => {
-    router.push(getReturnUrl(searchParams));
-  };
+  useEffect(() => {
+    // Redirect to unified auth page with signup mode
+    const returnUrl = searchParams.get('returnUrl');
+    const authUrl = '/auth?mode=signup' + (returnUrl ? `&returnUrl=${encodeURIComponent(returnUrl)}` : '');
+    router.replace(authUrl);
+  }, [router, searchParams]);
 
   return (
-    <ProtectedRoute requireAuth={false}>
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-md">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-            Sign Up
-          </h1>
-          <SignUpForm onSuccess={handleSignUpSuccess} />
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Already have an account?{' '}
-              <a 
-                href="/auth/signin" 
-                className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                Sign in
-              </a>
-            </p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="flex flex-col items-center space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+        <p className="text-gray-600 dark:text-gray-400">Redirecting...</p>
       </div>
-    </ProtectedRoute>
-  );
-}
-
-export default function SignUpPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    }>
-      <SignUpContent />
-    </Suspense>
+    </div>
   );
 }

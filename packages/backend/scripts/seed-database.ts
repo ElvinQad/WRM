@@ -1,5 +1,5 @@
 // Database seed script for WRM Timeline application
-import { PrismaClient } from '../../../node_modules/.deno/@prisma+client@5.22.0/node_modules/.prisma/client/index.js';
+import { PrismaClient } from '@prisma/client';
 import { hash } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts';
 
 const prisma = new PrismaClient();

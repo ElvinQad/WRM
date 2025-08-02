@@ -6,12 +6,18 @@ import {
   signOut as signOutAction,
   refreshToken as refreshTokenAction,
   getProfile as getProfileAction,
+  sendVerificationEmail as sendVerificationEmailAction,
+  verifyEmail as verifyEmailAction,
+  requestPasswordReset as requestPasswordResetAction,
+  resetPassword as resetPasswordAction,
   clearError as clearErrorAction,
   selectAuth,
   selectUser,
   selectIsAuthenticated,
   selectIsLoading,
   selectError,
+  selectEmailVerificationStatus,
+  selectPasswordResetStatus,
 } from '../store/slices/authSlice.ts';
 
 export const useAuth = () => {
@@ -21,6 +27,8 @@ export const useAuth = () => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isLoading = useAppSelector(selectIsLoading);
   const error = useAppSelector(selectError);
+  const emailVerificationStatus = useAppSelector(selectEmailVerificationStatus);
+  const passwordResetStatus = useAppSelector(selectPasswordResetStatus);
 
   const signUp = useCallback(
     async (credentials: { email: string; password: string }) => {
@@ -52,6 +60,22 @@ export const useAuth = () => {
     dispatch(clearErrorAction());
   }, [dispatch]);
 
+  const sendVerificationEmail = useCallback(async () => {
+    return await dispatch(sendVerificationEmailAction()).unwrap();
+  }, [dispatch]);
+
+  const verifyEmail = useCallback(async (token: string) => {
+    return await dispatch(verifyEmailAction(token)).unwrap();
+  }, [dispatch]);
+
+  const requestPasswordReset = useCallback(async (email: string) => {
+    return await dispatch(requestPasswordResetAction(email)).unwrap();
+  }, [dispatch]);
+
+  const resetPassword = useCallback(async (token: string, newPassword: string) => {
+    return await dispatch(resetPasswordAction({ token, newPassword })).unwrap();
+  }, [dispatch]);
+
   return {
     // State
     auth,
@@ -59,6 +83,8 @@ export const useAuth = () => {
     isAuthenticated,
     isLoading,
     error,
+    emailVerificationStatus,
+    passwordResetStatus,
     // Actions
     signUp,
     signIn,
@@ -66,5 +92,9 @@ export const useAuth = () => {
     refreshToken,
     getProfile,
     clearError,
+    sendVerificationEmail,
+    verifyEmail,
+    requestPasswordReset,
+    resetPassword,
   };
 };

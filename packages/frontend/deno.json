@@ -10,9 +10,14 @@
     "lint:fix": "deno run -A npm:next@^15.1.6 lint --fix",
     "type-check": "deno check **/*.ts **/*.tsx",
     "clean": "rm -rf .next dist",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "deno test --allow-all",
+    "test:ui": "deno test --allow-all --reporter=pretty",
+    "test:run": "deno test --allow-all",
+    "test:timeline": "deno test src/components/timeline/ --allow-all --reporter=pretty",
+    "test:timeline:drag": "cd ../testing && deno test frontend/timeline-drag-drop.test.ts --allow-all --reporter=pretty"
   },
   "imports": {
+    "happy-dom": "npm:happy-dom@^18.0.1",
     "react": "npm:react@19.1.0",
     "react-dom": "npm:react-dom@19.1.0",
     "react/jsx-runtime": "npm:react@19.1.0/jsx-runtime",
@@ -40,7 +45,12 @@
     "suncalc": "npm:suncalc@^1.9.0",
     "tailwind-merge": "npm:tailwind-merge@^3.3.1",
     "tailwindcss": "npm:tailwindcss@^4.1.11",
-    "typescript": "npm:typescript@^5.8.0"
+    "typescript": "npm:typescript@^5.8.0",
+    "vitest": "npm:vitest@^3.2.4",
+    "@testing-library/react": "npm:@testing-library/react@^16.3.0",
+    "@testing-library/jest-dom": "npm:@testing-library/jest-dom@^6.6.3",
+    "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.7.0",
+    "jsdom": "npm:jsdom@^26.0.0"
   },
   "compilerOptions": {
     "allowJs": true,

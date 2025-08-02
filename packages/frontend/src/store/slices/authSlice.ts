@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { apiClient } from '../../lib/api.ts';
+import type { RootState } from '../store.ts';
 
 // Auth state interface
 export interface AuthState {
@@ -9,16 +10,19 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  emailVerificationStatus: 'idle' | 'pending' | 'success' | 'error';
+  passwordResetStatus: 'idle' | 'pending' | 'success' | 'error';
 }
 
-// User interface based on Supabase auth response
+// User interface based on backend auth response
 export interface User {
   id: string;
   email: string;
-  email_confirmed_at?: string;
-  last_sign_in_at?: string;
-  created_at: string;
-  updated_at: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  emailVerified?: boolean;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 // Auth response interface from backend
@@ -35,6 +39,9 @@ interface AuthResponse {
   refresh_token?: string;
   expires_in?: number;
   token_type?: string;
+  // Support camelCase format from current backend
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 // Initial state
@@ -45,6 +52,8 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  emailVerificationStatus: 'idle',
+  passwordResetStatus: 'idle',
 };
 
 // Async thunks for auth operations
@@ -133,6 +142,74 @@ export const getProfile = createAsyncThunk<
   }
 );
 
+export const sendVerificationEmail = createAsyncThunk<
+  { message: string },
+  void,
+  { rejectValue: string }
+>(
+  'auth/sendVerificationEmail',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.sendVerificationEmail() as { message: string };
+      return response;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to send verification email';
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const verifyEmail = createAsyncThunk<
+  { message: string },
+  string,
+  { rejectValue: string }
+>(
+  'auth/verifyEmail',
+  async (token, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.verifyEmail(token) as { message: string };
+      return response;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Email verification failed';
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const requestPasswordReset = createAsyncThunk<
+  { message: string },
+  string,
+  { rejectValue: string }
+>(
+  'auth/requestPasswordReset',
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.requestPasswordReset(email) as { message: string };
+      return response;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to request password reset';
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk<
+  { message: string },
+  { token: string; newPassword: string },
+  { rejectValue: string }
+>(
+  'auth/resetPassword',
+  async ({ token, newPassword }, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.resetPassword(token, newPassword) as { message: string };
+      return response;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Password reset failed';
+      return rejectWithValue(message);
+    }
+  }
+);
+
 // Auth slice
 const authSlice = createSlice({
   name: 'auth',
@@ -165,9 +242,9 @@ const authSlice = createSlice({
       .addCase(signUp.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
-        // Handle both nested session structure and flat structure
-        state.accessToken = action.payload.session?.access_token || action.payload.access_token || null;
-        state.refreshToken = action.payload.session?.refresh_token || action.payload.refresh_token || null;
+        // Handle multiple response formats: nested session, flat snake_case, and camelCase
+        state.accessToken = action.payload.session?.access_token || action.payload.access_token || action.payload.accessToken || null;
+        state.refreshToken = action.payload.session?.refresh_token || action.payload.refresh_token || action.payload.refreshToken || null;
         state.isAuthenticated = true;
         state.error = null;
       })
@@ -186,9 +263,9 @@ const authSlice = createSlice({
       .addCase(signIn.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
-        // Handle both nested session structure and flat structure
-        state.accessToken = action.payload.session?.access_token || action.payload.access_token || null;
-        state.refreshToken = action.payload.session?.refresh_token || action.payload.refresh_token || null;
+        // Handle multiple response formats: nested session, flat snake_case, and camelCase
+        state.accessToken = action.payload.session?.access_token || action.payload.access_token || action.payload.accessToken || null;
+        state.refreshToken = action.payload.session?.refresh_token || action.payload.refresh_token || action.payload.refreshToken || null;
         state.isAuthenticated = true;
         state.error = null;
       })
@@ -228,9 +305,9 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(refreshToken.fulfilled, (state, action) => {
-        // Handle both nested session structure and flat structure
-        state.accessToken = action.payload.session?.access_token || action.payload.access_token || null;
-        state.refreshToken = action.payload.session?.refresh_token || action.payload.refresh_token || null;
+        // Handle multiple response formats: nested session, flat snake_case, and camelCase
+        state.accessToken = action.payload.session?.access_token || action.payload.access_token || action.payload.accessToken || null;
+        state.refreshToken = action.payload.session?.refresh_token || action.payload.refresh_token || action.payload.refreshToken || null;
         state.user = action.payload.user;
         state.isAuthenticated = true;
         state.error = null;
@@ -257,6 +334,70 @@ const authSlice = createSlice({
       })
       .addCase(getProfile.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Send Verification Email
+    builder
+      .addCase(sendVerificationEmail.pending, (state) => {
+        state.emailVerificationStatus = 'pending';
+        state.error = null;
+      })
+      .addCase(sendVerificationEmail.fulfilled, (state) => {
+        state.emailVerificationStatus = 'success';
+        state.error = null;
+      })
+      .addCase(sendVerificationEmail.rejected, (state, action) => {
+        state.emailVerificationStatus = 'error';
+        state.error = action.payload as string;
+      });
+
+    // Verify Email
+    builder
+      .addCase(verifyEmail.pending, (state) => {
+        state.emailVerificationStatus = 'pending';
+        state.error = null;
+      })
+      .addCase(verifyEmail.fulfilled, (state) => {
+        state.emailVerificationStatus = 'success';
+        state.error = null;
+        // Update user's email verification status if user exists
+        if (state.user) {
+          state.user = { ...state.user, emailVerified: true };
+        }
+      })
+      .addCase(verifyEmail.rejected, (state, action) => {
+        state.emailVerificationStatus = 'error';
+        state.error = action.payload as string;
+      });
+
+    // Request Password Reset
+    builder
+      .addCase(requestPasswordReset.pending, (state) => {
+        state.passwordResetStatus = 'pending';
+        state.error = null;
+      })
+      .addCase(requestPasswordReset.fulfilled, (state) => {
+        state.passwordResetStatus = 'success';
+        state.error = null;
+      })
+      .addCase(requestPasswordReset.rejected, (state, action) => {
+        state.passwordResetStatus = 'error';
+        state.error = action.payload as string;
+      });
+
+    // Reset Password
+    builder
+      .addCase(resetPassword.pending, (state) => {
+        state.passwordResetStatus = 'pending';
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.passwordResetStatus = 'success';
+        state.error = null;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.passwordResetStatus = 'error';
         state.error = action.payload as string;
       });
 
@@ -301,6 +442,8 @@ export const selectIsAuthenticated = (state: RootState) => {
 export const selectIsLoading = (state: RootState) => state.auth?.isLoading || false;
 export const selectError = (state: RootState) => state.auth?.error || null;
 export const selectAccessToken = (state: RootState) => state.auth?.accessToken || null;
+export const selectEmailVerificationStatus = (state: RootState) => state.auth?.emailVerificationStatus || 'idle';
+export const selectPasswordResetStatus = (state: RootState) => state.auth?.passwordResetStatus || 'idle';
 
 // Export reducer
 export default authSlice.reducer;

@@ -15,7 +15,7 @@ export const LogoutButton: React.FC<LogoutButtonProps> = ({
   onError, 
   className = "",
   children = "Sign Out",
-  redirectTo = "/auth/signin"
+  redirectTo = "/auth?mode=signin"
 }) => {
   const { signOut, isLoading } = useAuth();
   const router = useRouter();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TicketWithPosition } from '../types';
+import { TicketWithPosition } from '../types.ts';
 import { TICKET_HEIGHT } from '../constants';
 
 interface TicketComponentProps {
@@ -23,7 +23,7 @@ export function TicketComponent({
   onMouseLeave,
   laneToY,
 }: TicketComponentProps) {
-  const { ticket, startX, width, lane } = ticketWithPosition;
+  const { startX, width, lane } = ticketWithPosition;
   
   return (
     <div
@@ -39,7 +39,7 @@ export function TicketComponent({
         top: `${laneToY(lane)}px`,
         width: `${width}px`,
         height: `${TICKET_HEIGHT}px`,
-        backgroundColor: ticket.color || '#ffffff',
+        backgroundColor: ticketWithPosition.color || '#ffffff',
         minWidth: '20px',
       }}
       onMouseDown={onMouseDown}
@@ -72,10 +72,10 @@ export function TicketComponent({
       {/* Ticket content */}
       <div className="px-4 py-2 h-full flex flex-col justify-center overflow-hidden cursor-move">
         <div className="text-sm font-medium text-gray-900 truncate">
-          {ticket.title}
+          {ticketWithPosition.title}
         </div>
         <div className="text-xs text-gray-600 truncate">
-          {ticket.category}
+          {ticketWithPosition.category}
         </div>
       </div>
     </div>

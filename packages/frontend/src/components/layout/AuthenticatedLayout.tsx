@@ -42,18 +42,6 @@ export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ childr
         
         {/* User Profile and Actions */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              Hi, {user?.email?.split('@')[0] || 'User'}
-            </span>
-            <img
-              src="https://randomuser.me/api/portraits/men/32.jpg"
-              alt="User Avatar"
-              width={40}
-              height={40}
-              className="w-10 h-10 rounded-full border-2 border-primary shadow-sm object-cover"
-            />
-          </div>
           
           <LogoutButton 
             className="px-3 py-1 text-xs"

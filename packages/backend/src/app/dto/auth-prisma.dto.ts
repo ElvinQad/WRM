@@ -63,3 +63,37 @@ export class TokenResponseDto {
   @ApiProperty({ description: 'JWT refresh token' })
   refreshToken!: string;
 }
+
+export class SendVerificationEmailDto {
+  @ApiProperty({ description: 'User ID to send verification email to' })
+  @IsString()
+  userId!: string;
+}
+
+export class VerifyEmailDto {
+  @ApiProperty({ description: 'Email verification token' })
+  @IsString()
+  token!: string;
+}
+
+export class RequestPasswordResetDto {
+  @ApiProperty({ description: 'User email address' })
+  @IsEmail()
+  email!: string;
+}
+
+export class ResetPasswordDto {
+  @ApiProperty({ description: 'Password reset token' })
+  @IsString()
+  token!: string;
+
+  @ApiProperty({ description: 'New password', minLength: 6 })
+  @IsString()
+  @MinLength(6)
+  newPassword!: string;
+}
+
+export class MessageResponseDto {
+  @ApiProperty({ description: 'Response message' })
+  message!: string;
+}

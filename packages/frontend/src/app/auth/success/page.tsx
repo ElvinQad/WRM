@@ -25,7 +25,7 @@ function AuthStatus() {
         </p>
         <div className="space-y-3">
           <a 
-            href="/auth/signin"
+            href="/auth?mode=signin"
             className="block w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Go to Sign In

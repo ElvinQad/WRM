@@ -9,6 +9,7 @@ import appReducer from './slices/appSlice.ts';
 import sunTimesReducer from './slices/sunTimesSlice.ts';
 import timelineReducer from './slices/timelineSlice.ts';
 import authReducer from './slices/authSlice.ts';
+import ticketTypesReducer from './slices/ticketTypesSlice.ts';
 import { authListenerMiddleware } from './middleware/authMiddleware.ts';
 
 // Custom storage implementation for Deno compatibility
@@ -52,6 +53,7 @@ const rootReducer = combineReducers({
   sunTimes: sunTimesReducer,
   timeline: timelineReducer,
   auth: authReducer,
+  ticketTypes: ticketTypesReducer,
 });
 
 // Create persisted reducer

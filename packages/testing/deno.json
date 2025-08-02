@@ -1,0 +1,26 @@
+{
+  "name": "@wrm/testing",
+  "version": "1.0.0",
+  "exports": "./scripts/run-tests.ts",
+  "description": "Comprehensive testing orchestration for WRM authentication and timeline systems",
+  "tasks": {
+    "test": "deno test --allow-all",
+    "test:auth": "deno test auth/ --allow-all",
+    "test:backend": "deno test auth/backend/ --allow-all", 
+    "test:frontend": "deno test auth/frontend/ --allow-all",
+    "test:integration": "deno test integration/ --allow-all",
+    "test:e2e": "deno test e2e/ --allow-all",
+    "test:watch": "deno test --watch --allow-all",
+    "test:coverage": "deno test --coverage=coverage --allow-all && deno coverage coverage",
+    "test:report": "deno run --allow-all scripts/generate-report.ts",
+    "test:timeline": "cd ../frontend && deno task test:timeline",
+    "test:timeline:drag-drop": "cd ../frontend && deno task test:timeline:drag",
+    "test:timeline:resize": "cd ../frontend && deno task test:timeline:drag --grep resize",
+    "test:timeline:integration": "cd ../frontend && deno task test:timeline",
+    "test:timeline:quick": "./test-timeline-drag-drop.sh",
+    "clean": "rm -rf coverage .coverage"
+  },
+  "imports": {
+    "@wrm/types": "../types/src/index.ts"
+  }
+}

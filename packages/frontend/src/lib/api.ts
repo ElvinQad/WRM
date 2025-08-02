@@ -1,7 +1,7 @@
 // API client configuration and utilities
-import { BaseTicket, CreateTicketDto, UpdateTicketDto } from '@wrm/types';
+import { BaseTicket, CreateTicketDto, UpdateTicketDto, TicketType } from '@wrm/types';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 // Keep ApiTicket for backward compatibility with legacy code, but it should match BaseTicket
 export interface ApiTicket extends BaseTicket {}
@@ -47,11 +47,18 @@ class ApiClient {
     
     const config: RequestInit = {
       headers: {
-        'Content-Type': 'application/json',
         ...options.headers,
       },
       ...options,
     };
+
+    // Only add Content-Type header if we have a body to send
+    if (options.body) {
+      config.headers = {
+        'Content-Type': 'application/json',
+        ...config.headers,
+      };
+    }
 
     // Add auth token if available
     const token = this.getAuthToken();
@@ -76,12 +83,20 @@ class ApiClient {
         throw new ApiError(response.status, errorMessage);
       }
 
-      // Handle empty responses
+      // Handle empty responses (204 No Content or empty body)
       if (response.status === 204) {
         return {} as T;
       }
 
-      return await response.json();
+      // Check if response has content before trying to parse JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const text = await response.text();
+        return text ? JSON.parse(text) : {} as T;
+      } else {
+        // For non-JSON responses, return empty object
+        return {} as T;
+      }
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
@@ -108,17 +123,47 @@ class ApiClient {
   async signOut(): Promise<unknown> {
     return await this.request('/auth/signout', {
       method: 'POST',
+      body: JSON.stringify({}),
     });
   }
 
   async refreshToken(): Promise<unknown> {
     return await this.request('/auth/refresh', {
       method: 'POST',
+      body: JSON.stringify({}),
     });
   }
 
   async getProfile(): Promise<unknown> {
     return await this.request('/auth/me');
+  }
+
+  async sendVerificationEmail(): Promise<unknown> {
+    return await this.request('/auth/send-verification', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
+
+  async verifyEmail(token: string): Promise<unknown> {
+    return await this.request('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    });
+  }
+
+  async requestPasswordReset(email: string): Promise<unknown> {
+    return await this.request('/auth/request-password-reset', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<unknown> {
+    return await this.request('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword }),
+    });
   }
 
   // Tickets API methods
@@ -153,6 +198,11 @@ class ApiClient {
     return await this.request<{ message: string }>(`/tickets/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  // Ticket Types API methods
+  async getTicketTypes(): Promise<TicketType[]> {
+    return await this.request<TicketType[]>('/ticket-types');
   }
 }
 

@@ -17,6 +17,7 @@ import {
 } from "../store/slices/appSlice.ts";
 import { setSunTimes } from "../store/slices/sunTimesSlice.ts";
 import { fetchTickets, createTicketAsync, updateTicketAsync, deleteTicketAsync } from "../store/thunks/ticketThunks.ts";
+import { fetchTicketTypes } from "../store/thunks/ticketTypeThunks.ts";
 import { getProfile } from "../store/slices/authSlice.ts";
 
 export default function Index() {
@@ -25,6 +26,7 @@ export default function Index() {
   const { isModalOpen, coords } = useAppSelector((state) => state.app);
   const { times: sunTimes } = useAppSelector((state) => state.sunTimes);
   const { user, isAuthenticated, accessToken } = useAppSelector((state) => state.auth);
+  const { ticketTypes, defaultTypeId } = useAppSelector((state) => state.ticketTypes);
   
   // Load user profile when authenticated but user data is missing
   useEffect(() => {
@@ -33,10 +35,13 @@ export default function Index() {
     }
   }, [isAuthenticated, accessToken, user, dispatch]);
   
-  // Load tickets from API on mount
+  // Load tickets from API only when authenticated
   useEffect(() => {
-    dispatch(fetchTickets({}));
-  }, [dispatch]);
+    if (isAuthenticated && accessToken) {
+      dispatch(fetchTickets({}));
+      dispatch(fetchTicketTypes());
+    }
+  }, [isAuthenticated, accessToken, dispatch]);
 
   // Handle API errors
   useEffect(() => {
@@ -77,6 +82,36 @@ export default function Index() {
     dispatch(updateTicketAsync(updatedTicket));
   }, [dispatch]);
 
+  // Handle ticket move operations
+  const handleTicketMove = useCallback((ticketId: string, newStartTime: Date, newEndTime?: Date) => {
+    const ticket = tickets.find((t: Ticket) => t.id === ticketId);
+    if (ticket) {
+      const updatedTicket = {
+        ...ticket,
+        startTime: newStartTime.toISOString(),
+        endTime: (newEndTime || ticket.end).toISOString(),
+        start: newStartTime,
+        end: newEndTime || ticket.end,
+        updatedAt: new Date().toISOString()
+      };
+      dispatch(updateTicketAsync(updatedTicket));
+    }
+  }, [tickets, dispatch]);
+
+  // Handle ticket resize operations
+  const handleTicketResize = useCallback((ticketId: string, newEndTime: Date) => {
+    const ticket = tickets.find((t: Ticket) => t.id === ticketId);
+    if (ticket) {
+      const updatedTicket = {
+        ...ticket,
+        endTime: newEndTime.toISOString(),
+        end: newEndTime,
+        updatedAt: new Date().toISOString()
+      };
+      dispatch(updateTicketAsync(updatedTicket));
+    }
+  }, [tickets, dispatch]);
+
   // Handle ticket click
   const handleTicketClick = useCallback((ticket: Ticket) => {
     dispatch(setSelectedTicket(ticket));
@@ -97,6 +132,14 @@ export default function Index() {
       return;
     }
 
+    // Use the first available ticket type ID, or a fallback
+    const typeId = defaultTypeId || (ticketTypes.length > 0 ? ticketTypes[0].id : null);
+    
+    if (!typeId) {
+      console.error('No ticket types available. Please ensure ticket types are loaded.');
+      return;
+    }
+
     const now = new Date();
     const newTicket: Omit<Ticket, 'id'> = {
       userId: user.id, // ✅ FIXED: Use authenticated user ID
@@ -105,8 +148,10 @@ export default function Index() {
       endTime: new Date(now.getTime() + 60 * 60 * 1000).toISOString(), // 1 hour duration
       start: now,
       end: new Date(now.getTime() + 60 * 60 * 1000), // 1 hour duration
-      typeId: 'default-type', // ✅ FIXED: Use a default type ID or fetch from backend
+      typeId: typeId, // ✅ FIXED: Use actual ticket type ID from backend
       customProperties: {},
+      status: 'FUTURE', // ✅ FIXED: Add required status property
+      aiGenerated: false, // ✅ FIXED: Add required aiGenerated property
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
       color: '#ffffff',
@@ -119,14 +164,10 @@ export default function Index() {
     }).catch((error: { message: string }) => {
       console.error('Failed to create ticket:', error);
     });
-  }, [dispatch, user]);
+  }, [dispatch, user, defaultTypeId, ticketTypes]);
 
   return (
     <ProtectedRoute>
-      {/* Temporary Debug */}
-      <div style={{position: 'fixed', top: '10px', right: '10px', background: 'black', color: 'white', padding: '10px', zIndex: 1000, fontSize: '12px'}}>
-        Auth: {isAuthenticated ? 'YES' : 'NO'} | User: {user?.email || 'None'} | Token: {accessToken ? 'YES' : 'NO'}
-      </div>
       <div className="flex flex-col h-full w-full">
         <header className="p-4 border-b border-border flex bg-card shadow-sm flex-shrink-0">
           <div className="flex items-center justify-between w-full">
@@ -160,6 +201,8 @@ export default function Index() {
         
         <div className="flex-1 overflow-hidden">
           <Timeline
+            view="daily"
+            dateRange={{ start: new Date(), end: new Date(Date.now() + 24 * 60 * 60 * 1000) }}
             sunTimes={sunTimes}
             tickets={tickets}
             onTicketUpdate={handleTicketUpdate}

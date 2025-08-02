@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { TimelineProps } from '../types.ts';
 import { useTimeline } from '../hooks/useTimeline.ts';
 import { HEADER_HEIGHT, LANE_HEIGHT } from '../constants.ts';
@@ -6,14 +7,29 @@ import { TimeMarkers } from './TimeMarkers.tsx';
 import { SunTimesOverlay } from './SunTimesOverlay.tsx';
 import { TicketComponent } from './TicketComponent.tsx';
 import { TimelineTooltip } from './TimelineTooltip.tsx';
+import { FrontendTicket } from '@wrm/types';
 
 export function Timeline({ 
   sunTimes, 
   tickets = [], 
+  onTicketMove,
+  onTicketResize: _onTicketResize,
   onTicketUpdate, 
   onTicketClick, 
   autoCenterOnNow = false 
 }: TimelineProps) {
+  // Use onTicketUpdate if available (preferred for full ticket updates including lanes),
+  // otherwise fall back to onTicketMove for time-only updates
+  const handleTicketUpdate = useCallback((updatedTicket: FrontendTicket) => {
+    if (onTicketUpdate) {
+      // Use the full ticket update callback (handles lanes, time, everything)
+      onTicketUpdate(updatedTicket);
+    } else if (onTicketMove) {
+      // Fall back to time-only update (legacy)
+      onTicketMove(updatedTicket.id, updatedTicket.start, updatedTicket.end);
+    }
+  }, [onTicketUpdate, onTicketMove]);
+
   const {
     containerRef,
     selectedTicket,
@@ -46,7 +62,7 @@ export function Timeline({
     handleQuickRange,
     timeToPixels,
     laneToY,
-  } = useTimeline(tickets, onTicketUpdate, onTicketClick, autoCenterOnNow);
+  } = useTimeline(tickets, handleTicketUpdate, onTicketClick, autoCenterOnNow);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -145,13 +161,13 @@ export function Timeline({
           {/* Tickets */}
           {ticketsWithPositions.map((ticketWithPosition) => (
             <TicketComponent
-              key={ticketWithPosition.ticket.id}
+              key={ticketWithPosition.id}
               ticketWithPosition={ticketWithPosition}
-              isSelected={selectedTicket === ticketWithPosition.ticket.id}
-              isHovered={hoveredTicket === ticketWithPosition.ticket.id}
-              onMouseDown={(e) => handleTicketMouseDown(e, ticketWithPosition.ticket, ticketWithPosition.lane)}
-              onClick={(e) => handleTicketClick(e, ticketWithPosition.ticket)}
-              onMouseEnter={() => setHoveredTicket(ticketWithPosition.ticket.id)}
+              isSelected={selectedTicket === ticketWithPosition.id}
+              isHovered={hoveredTicket === ticketWithPosition.id}
+              onMouseDown={(e) => handleTicketMouseDown(e, ticketWithPosition, ticketWithPosition.lane)}
+              onClick={(e) => handleTicketClick(e, ticketWithPosition)}
+              onMouseEnter={() => setHoveredTicket(ticketWithPosition.id)}
               onMouseLeave={() => setHoveredTicket(null)}
               laneToY={laneToY}
             />

@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
-import { DragState, Ticket } from '../types';
+import { DragState, Ticket } from '../types.ts';
 import { HEADER_HEIGHT, LANE_HEIGHT } from '../constants';
-import { yToLane, pixelsToTime, timeToPixels } from '../utils/timelineUtils';
+import { yToLane, pixelsToTime, timeToPixels } from '../utils/timelineUtils.ts';
 
 export function useTimelineDrag(
   scrollLeft: number,
@@ -17,6 +17,8 @@ export function useTimelineDrag(
     dragType: null,
     startX: 0,
     startY: 0,
+    currentX: 0,
+    currentY: 0,
     startTime: 0,
     startLane: 0,
     originalStart: 0,
@@ -56,6 +58,8 @@ export function useTimelineDrag(
       dragType,
       startX: clientX,
       startY: clientY,
+      currentX: clientX,
+      currentY: clientY,
       startTime: pixelsToTime(clientX, startTime, pixelsPerMinute),
       startLane: currentLane,
       originalStart: ticket.start.getTime(),
@@ -134,6 +138,8 @@ export function useTimelineDrag(
       dragType: null,
       startX: 0,
       startY: 0,
+      currentX: 0,
+      currentY: 0,
       startTime: 0,
       startLane: 0,
       originalStart: 0,

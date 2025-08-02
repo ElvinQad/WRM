@@ -2,7 +2,8 @@
   "workspace": [
     "./packages/backend",
     "./packages/frontend", 
-    "./packages/types"
+    "./packages/types",
+    "./packages/testing"
   ],
   "nodeModulesDir": "auto",
   "tasks": {
@@ -15,15 +16,26 @@
     "build:frontend": "cd packages/frontend && deno task build",
     "build:backend": "cd packages/backend && deno task build",
     "test": "deno test",
+    "test:auth": "cd packages/testing && deno run --allow-all scripts/run-tests.ts",
+    "test:auth:unit": "cd packages/testing && deno run --allow-all scripts/run-tests.ts --category unit",
+    "test:auth:integration": "cd packages/testing && deno run --allow-all scripts/run-tests.ts --category integration",
+    "test:auth:e2e": "cd packages/testing && deno run --allow-all scripts/run-tests.ts --category e2e",
+    "test:auth:performance": "cd packages/testing && deno run --allow-all scripts/run-tests.ts --category performance",
+    "test:timeline": "cd packages/testing && deno task test:timeline",
+    "test:timeline:drag-drop": "cd packages/testing && deno task test:timeline:drag-drop",
+    "test:timeline:resize": "cd packages/testing && deno task test:timeline:resize",
+    "test:timeline:integration": "cd packages/testing && deno task test:timeline:integration",
+    "test:timeline:quick": "cd packages/testing && deno task test:timeline:quick",
     "lint": "deno lint",
     "lint:fix": "deno lint --fix",
     "format": "deno fmt",
     "format:check": "deno fmt --check",
     "type-check": "deno check **/*.ts **/*.tsx",
-    "clean": "deno task clean:types && deno task clean:backend && deno task clean:frontend",
+    "clean": "deno task clean:types && deno task clean:backend && deno task clean:frontend && deno task clean:testing",
     "clean:types": "cd packages/types && deno task clean",
     "clean:frontend": "cd packages/frontend && deno task clean",
-    "clean:backend": "cd packages/backend && deno task clean"
+    "clean:backend": "cd packages/backend && deno task clean",
+    "clean:testing": "cd packages/testing && deno task clean"
   },
   "imports": {
     "@deno/shim-deno": "npm:@deno/shim-deno@^0.19.2",

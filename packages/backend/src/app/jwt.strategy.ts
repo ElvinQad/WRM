@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AuthService, JwtPayload } from './auth-prisma.service.ts';
+import { AuthService, JwtPayload } from './auth/auth-prisma.service.ts';
 import process from "node:process";
 
 @Injectable()

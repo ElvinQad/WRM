@@ -3,13 +3,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth-prisma.service.ts';
 import { AuthController } from './auth-prisma.controller.ts';
-import { JwtStrategy } from './jwt.strategy.ts';
-import { PrismaService } from './prisma.service.ts';
+import { JwtStrategy } from '../jwt.strategy.ts';
+import { PrismaService } from '../prisma.service.ts';
+import { EmailModule } from '../email/email.module.ts';
 import process from "node:process";
 
 @Module({
   imports: [
     PassportModule,
+    EmailModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your-secret-key',
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '15m' },
