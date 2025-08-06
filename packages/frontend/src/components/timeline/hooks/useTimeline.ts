@@ -4,7 +4,6 @@ import { useTimelineDrag } from './useTimelineDrag.ts';
 import { useTimelinePanning } from './useTimelinePanning.ts';
 import { useTimelineAutoCenter } from './useTimelineAutoCenter.ts';
 import { useTimelineTooltip } from './useTimelineTooltip.ts';
-import { useTimelinePrefetch } from './useTimelinePrefetch.ts';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks.ts';
 import { setView, setDateRange, navigateTimelinePrevious, navigateTimelineNext, setQuickRange, TimelineView } from '../../../store/slices/timelineSlice.ts';
 import { 
@@ -33,10 +32,6 @@ export function useTimeline(
   const endDate = useAppSelector((state) => state.timeline.endDate);
   const dispatch = useAppDispatch();
 
-  // Background prefetching for adjacent periods (AC 3)
-  const prefetchHook = loadTimelineData 
-    ? useTimelinePrefetch(loadTimelineData, 500) // 500ms debounce
-    : null;
 
   // Handle data loading when scrolling approaches boundaries
   const handleDataLoadingNeeded = useCallback((direction: 'previous' | 'next') => {
@@ -78,7 +73,7 @@ export function useTimeline(
         pixelsPerMin = Math.max(3, 600 / rangeMinutes);
         break;
       case 'weekly':
-        pixelsPerMin = Math.max(1, 150 / rangeMinutes);
+        pixelsPerMin = Math.max(0.6, 150 / rangeMinutes);
         break;
 
       default:
@@ -119,7 +114,6 @@ export function useTimeline(
   const {
     isPanning,
     scrollLeft,
-    isTouch,
     boundaries,
     handleWheel: handlePanningWheel,
     handleTouchStart,

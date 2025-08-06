@@ -62,8 +62,6 @@ export function Timeline({
     handleScroll,
     handleToggleAutoCenter,
     handleViewChange,
-    handleNavigate,
-    handleQuickRange,
     timeToPixels,
     laneToY,
   } = useTimeline(tickets, handleTicketUpdate, onTicketClick, autoCenterOnNow);
@@ -73,12 +71,8 @@ export function Timeline({
       <TimelineHeader
         autoCenter={autoCenter}
         currentView={currentView}
-        startDate={startDate}
-        endDate={endDate}
         onToggleAutoCenter={handleToggleAutoCenter}
         onViewChange={handleViewChange}
-        onNavigate={handleNavigate}
-        onQuickRange={handleQuickRange}
       />
 
       {/* Timeline container */}
@@ -161,7 +155,8 @@ export function Timeline({
       {/* Tooltip */}
       <TimelineTooltip 
         mousePosition={mousePosition} 
-        hoveredTime={hoveredTime} 
+        hoveredTime={hoveredTime}
+        hoveredTicket={hoveredTicket ? ticketsWithPositions.find(t => t.id === hoveredTicket) || null : null}
       />
 
       {/* Heat Map Navigator - Enhanced view below timeline */}

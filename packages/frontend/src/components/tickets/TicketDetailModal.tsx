@@ -8,6 +8,7 @@ import { Button } from '../ui/Button.tsx';
 import { cn } from '../../lib/utils.ts';
 import { DynamicFormField } from '../forms/DynamicFormField.tsx';
 import { CustomFieldDefinition } from './CustomPropertyForm.tsx';
+import { getTicketDuration } from '../timeline/utils/duration.ts';
 
 interface TicketDetailModalProps {
   ticket: Ticket | null;
@@ -145,6 +146,21 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
                 "transition-colors resize-none"
               )}
             />
+          </div>
+
+          {/* Duration Information */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-foreground">
+              Duration
+            </label>
+            <div className="p-3 bg-muted/50 rounded-lg border border-border">
+              <div className="text-sm text-foreground">
+                {getTicketDuration(ticket).detailed}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {ticket.start.toLocaleString()} - {ticket.end.toLocaleString()}
+              </div>
+            </div>
           </div>
 
           {/* Ticket Type Selection */}

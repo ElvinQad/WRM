@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Select, SelectOption } from '../../ui/index.ts';
 import { TimelineView } from '../../../store/slices/timelineSlice.ts';
 
