@@ -7,6 +7,8 @@ import { RootState } from '../../store/store.ts';
 import { Button } from '../ui/Button.tsx';
 import { Input } from '../ui/Input.tsx';
 import { cn } from '../../lib/utils.ts';
+import { DynamicFormField } from '../forms/DynamicFormField.tsx';
+import { CustomFieldDefinition } from './CustomPropertyForm.tsx';
 
 interface TicketDetailModalProps {
   ticket: Ticket | null;
@@ -63,6 +65,18 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
     } else {
       onUpdate({ ...ticket, [field]: value });
     }
+  };
+
+  const handleCustomPropertyUpdate = (fieldName: string, value: string | number | boolean | undefined) => {
+    if (!ticket || !onUpdate) return;
+    
+    onUpdate({
+      ...ticket,
+      customProperties: {
+        ...ticket.customProperties,
+        [fieldName]: value
+      }
+    });
   };
 
   const formatDateTime = (date: Date) => {
@@ -188,6 +202,32 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUpdate('category', e.target.value)}
             placeholder="e.g., Work, Personal, Meeting"
           />
+
+          {/* Custom Properties */}
+          {(() => {
+            const selectedTicketType = ticketTypes.find(t => t.id === ticket.typeId);
+            const propertiesSchema = selectedTicketType?.propertiesSchema;
+            const customFields = (Array.isArray(propertiesSchema) ? propertiesSchema : []) as CustomFieldDefinition[];
+            
+            if (customFields.length > 0) {
+              return (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium text-foreground border-b border-border pb-2">
+                    Custom Properties
+                  </h3>
+                  {customFields.map((field) => (
+                    <DynamicFormField
+                      key={field.name}
+                      field={field}
+                      value={ticket.customProperties?.[field.name]}
+                      onChange={(value) => handleCustomPropertyUpdate(field.name, value as string | number | boolean | undefined)}
+                    />
+                  ))}
+                </div>
+              );
+            }
+            return null;
+          })()}
 
         </div>
 

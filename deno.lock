@@ -60,6 +60,7 @@
     "npm:suncalc@^1.9.0": "1.9.0",
     "npm:tailwind-merge@^3.3.1": "3.3.1",
     "npm:tailwindcss@^4.1.11": "4.1.11",
+    "npm:typescript@^5.7.2": "5.8.3",
     "npm:typescript@^5.8.0": "5.8.3",
     "npm:vitest@*": "3.2.4_@types+node@22.15.15_vite@7.0.6__@types+node@22.15.15__picomatch@4.0.3_jsdom@26.1.0_happy-dom@18.0.1",
     "npm:vitest@^3.2.4": "3.2.4_@types+node@22.15.15_vite@7.0.6__@types+node@22.15.15__picomatch@4.0.3_jsdom@26.1.0_happy-dom@18.0.1"
@@ -5940,6 +5941,8 @@
     "https://deno.land/std@0.208.0/path/windows/separator.ts": "ae21f27015f10510ed1ac4a0ba9c4c9c967cbdd9d9e776a3e4967553c397bd5d",
     "https://deno.land/std@0.208.0/path/windows/to_file_url.ts": "8e9ea9e1ff364aa06fa72999204229952d0a279dbb876b7b838b2b2fea55cce3",
     "https://deno.land/std@0.208.0/path/windows/to_namespaced_path.ts": "e0f4d4a5e77f28a5708c1a33ff24360f35637ba6d8f103d19661255ef7bfd50d",
+    "https://deno.land/std@0.208.0/testing/_test_suite.ts": "30f018feeb3835f12ab198d8a518f9089b1bcb2e8c838a8b615ab10d5005465c",
+    "https://deno.land/std@0.208.0/testing/bdd.ts": "c41f019786c4a9112aadb7e5a7bbcc711f58429ac5904b3855fa248ba5fa0ba6",
     "https://deno.land/std@0.210.0/assert/_constants.ts": "8a9da298c26750b28b326b297316cdde860bc237533b07e1337c021379e6b2a9",
     "https://deno.land/std@0.210.0/assert/_diff.ts": "2c9371f17cf08cbb843c924bc31ca77af422ec4fe162f73d42c651d547573fa8",
     "https://deno.land/std@0.210.0/assert/_format.ts": "335ce8e15c65b679ad142dbc9e5e97e5d58602c39dd3c9175cef6c85fe22d6d5",

@@ -98,7 +98,7 @@ model AgentCollaboration {
   ticket    Ticket                   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([ticketId, agentId])
+    @@unique([ticketId, agentId])
   @@index([ticketId])
   @@index([agentId])
   @@index([status])

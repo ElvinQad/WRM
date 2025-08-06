@@ -168,7 +168,7 @@ export interface TicketType {
   id: string;
   name: string;
   description?: string;
-  propertiesSchema: Record<string, unknown>;
+  propertiesSchema: unknown; // Changed from Record<string, unknown> to allow arrays
   
   // Epic 2: Enhanced ticket type features
   defaultDuration?: number; // Duration in minutes

@@ -29,8 +29,8 @@ export default function Index() {
   const { ticketTypes, defaultTypeId } = useAppSelector((state) => state.ticketTypes);
   
   // Enrich tickets with type information
-  const tickets = rawTickets.map(ticket => {
-    const ticketType = ticketTypes.find(type => type.id === ticket.typeId);
+  const tickets = rawTickets.map((ticket: Ticket) => {
+    const ticketType = ticketTypes.find((type: { id: string; name?: string; color?: string }) => type.id === ticket.typeId);
     return {
       ...ticket,
       typeName: ticketType?.name || 'Unknown',
@@ -121,6 +121,20 @@ export default function Index() {
       return;
     }
 
+    // Get the selected ticket type to apply default values for custom properties
+    const selectedTicketType = ticketTypes.find((t: { id: string }) => t.id === typeId);
+    const customFields = (Array.isArray(selectedTicketType?.propertiesSchema) 
+      ? selectedTicketType.propertiesSchema 
+      : []) as Array<{ name: string; defaultValue?: unknown }>;
+    
+    // Build default custom properties
+    const defaultCustomProperties: Record<string, unknown> = {};
+    customFields.forEach(field => {
+      if (field.defaultValue !== undefined) {
+        defaultCustomProperties[field.name] = field.defaultValue;
+      }
+    });
+
     const now = new Date();
     const newTicket: Omit<Ticket, 'id'> = {
       userId: user.id, // ✅ FIXED: Use authenticated user ID
@@ -130,7 +144,7 @@ export default function Index() {
       start: now,
       end: new Date(now.getTime() + 60 * 60 * 1000), // 1 hour duration
       typeId: typeId, // ✅ FIXED: Use actual ticket type ID from backend
-      customProperties: {},
+      customProperties: defaultCustomProperties,
       status: 'FUTURE', // ✅ FIXED: Add required status property
       aiGenerated: false, // ✅ FIXED: Add required aiGenerated property
       createdAt: now.toISOString(),

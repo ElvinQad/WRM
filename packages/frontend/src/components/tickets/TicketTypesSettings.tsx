@@ -7,16 +7,19 @@ import { fetchTicketTypes, createTicketType, updateTicketType } from '../../stor
 import { clearError } from '../../store/slices/ticketTypesSlice.ts';
 import { Button } from '../ui/Button.tsx';
 import { Input } from '../ui/Input.tsx';
+import { CustomPropertyForm, CustomFieldDefinition } from './CustomPropertyForm.tsx';
 
 export const TicketTypesSettings = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { ticketTypes, isLoading, error } = useSelector((state: RootState) => state.ticketTypes);
   const [newTypeName, setNewTypeName] = useState('');
   const [newTypeColor, setNewTypeColor] = useState('#3B82F6');
+  const [newTypeCustomFields, setNewTypeCustomFields] = useState<CustomFieldDefinition[]>([]);
   const [formError, setFormError] = useState('');
   const [editingTypeId, setEditingTypeId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [editingColor, setEditingColor] = useState('#3B82F6');
+  const [editingCustomFields, setEditingCustomFields] = useState<CustomFieldDefinition[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [optimisticTicketTypes, setOptimisticTicketTypes] = useState<typeof ticketTypes>([]);
 
@@ -33,7 +36,14 @@ export const TicketTypesSettings = () => {
     if (name.length < 3) return 'Name must be at least 3 characters long';
     if (name.length > 50) return 'Name must be no more than 50 characters long';
     if (!/^[a-zA-Z0-9\s]+$/.test(name)) return 'Name can only contain letters, numbers, and spaces';
-    if (optimisticTicketTypes.some(type => type.name.toLowerCase() === name.toLowerCase())) {
+    
+    // Check for duplicates, excluding the currently editing type
+    const isDuplicate = optimisticTicketTypes.some(type => 
+      type.name.toLowerCase() === name.toLowerCase() && 
+      type.id !== editingTypeId
+    );
+    
+    if (isDuplicate) {
       return 'A ticket type with this name already exists';
     }
     return null;
@@ -53,6 +63,8 @@ export const TicketTypesSettings = () => {
     setIsSubmitting(true);
     setFormError('');
 
+    console.log('Creating ticket type with custom fields:', newTypeCustomFields);
+
     // Optimistic update - add immediately to UI
     const optimisticType: typeof ticketTypes[0] = {
       id: `temp-${Date.now()}`,
@@ -68,11 +80,13 @@ export const TicketTypesSettings = () => {
     setOptimisticTicketTypes(prev => [...prev, optimisticType]);
     setNewTypeName(''); // Clear form immediately
     setNewTypeColor('#3B82F6'); // Reset color to default
+    setNewTypeCustomFields([]); // Reset custom fields
 
     try {
       const result = await dispatch(createTicketType({ 
         name: trimmedName, 
-        color: newTypeColor 
+        color: newTypeColor,
+        customFieldSchema: newTypeCustomFields
       })).unwrap();
       // Replace optimistic entry with real data
       setOptimisticTicketTypes(prev => 
@@ -87,6 +101,7 @@ export const TicketTypesSettings = () => {
       setFormError(error instanceof Error ? error.message : 'Failed to create ticket type');
       setNewTypeName(trimmedName); // Restore form value
       setNewTypeColor('#3B82F6'); // Reset color
+      // Note: Keep custom fields as they were since user put effort into them
     } finally {
       setIsSubmitting(false);
     }
@@ -96,6 +111,26 @@ export const TicketTypesSettings = () => {
     setEditingTypeId(type.id);
     setEditingName(type.name);
     setEditingColor(type.color || '#3B82F6');
+    // Convert propertiesSchema back to CustomFieldDefinition format
+    console.log('Loading type for edit:', type);
+    console.log('Properties schema:', type.propertiesSchema);
+    console.log('Properties schema type:', typeof type.propertiesSchema);
+    console.log('Is array:', Array.isArray(type.propertiesSchema));
+    
+    let customFields: CustomFieldDefinition[] = [];
+    
+    if (Array.isArray(type.propertiesSchema)) {
+      customFields = type.propertiesSchema as CustomFieldDefinition[];
+    } else if (type.propertiesSchema && typeof type.propertiesSchema === 'object') {
+      // Handle case where it might be stored as an object with field definitions
+      const schema = type.propertiesSchema as Record<string, unknown>;
+      if (schema && Array.isArray(schema)) {
+        customFields = schema as CustomFieldDefinition[];
+      }
+    }
+    
+    console.log('Converted custom fields:', customFields);
+    setEditingCustomFields(customFields);
   };
 
   const handleSaveEdit = async (typeId: string) => {
@@ -105,16 +140,21 @@ export const TicketTypesSettings = () => {
       return;
     }
 
+    console.log('Saving custom fields:', editingCustomFields);
+
     try {
       await dispatch(updateTicketType({
         id: typeId,
         name: editingName.trim(),
         color: editingColor,
+        customFieldSchema: editingCustomFields,
       })).unwrap();
       setEditingTypeId(null);
       setEditingName('');
       setEditingColor('#3B82F6');
+      setEditingCustomFields([]);
     } catch (error) {
+      console.error('Save error:', error);
       setFormError(error instanceof Error ? error.message : 'Failed to update ticket type');
     }
   };
@@ -123,6 +163,7 @@ export const TicketTypesSettings = () => {
     setEditingTypeId(null);
     setEditingName('');
     setEditingColor('#3B82F6');
+    setEditingCustomFields([]);
     setFormError('');
   };
 
@@ -187,6 +228,15 @@ export const TicketTypesSettings = () => {
             </p>
           </div>
           
+          {/* Custom Properties Section */}
+          <div>
+            <CustomPropertyForm
+              customFields={newTypeCustomFields}
+              onFieldsChange={setNewTypeCustomFields}
+              disabled={isSubmitting}
+            />
+          </div>
+          
           {formError && (
             <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-3">
               {formError}
@@ -232,29 +282,59 @@ export const TicketTypesSettings = () => {
                 }`}
               >
                 {editingTypeId === type.id ? (
-                  // Edit mode
-                  <div className="flex items-center gap-3 flex-1">
-                    <input
-                      type="color"
-                      value={editingColor}
-                      onChange={(e) => setEditingColor(e.target.value)}
-                      className="w-8 h-8 rounded cursor-pointer border border-border"
-                    />
-                    <input
-                      type="text"
-                      value={editingName}
-                      onChange={(e) => setEditingName(e.target.value)}
-                      className="flex-1 px-3 py-1 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder="Ticket type name"
-                      autoFocus
-                    />
+                  // Edit mode - Full form
+                  <div className="w-full">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Type Name
+                        </label>
+                        <input
+                          type="text"
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                          placeholder="Ticket type name"
+                          autoFocus
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Color
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={editingColor}
+                            onChange={(e) => setEditingColor(e.target.value)}
+                            className="w-10 h-10 rounded cursor-pointer border border-border"
+                          />
+                          <input
+                            type="text"
+                            value={editingColor}
+                            onChange={(e) => setEditingColor(e.target.value)}
+                            className="flex-1 px-3 py-2 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="#3B82F6"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <CustomPropertyForm
+                        customFields={editingCustomFields}
+                        onFieldsChange={setEditingCustomFields}
+                        disabled={false}
+                      />
+                    </div>
+                    
                     <div className="flex gap-2">
                       <Button
                         size="sm"
                         onClick={() => handleSaveEdit(type.id)}
                         disabled={!editingName.trim()}
                       >
-                        Save
+                        Save Changes
                       </Button>
                       <Button
                         size="sm"

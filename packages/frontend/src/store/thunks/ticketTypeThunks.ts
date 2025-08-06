@@ -1,15 +1,18 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { TicketType } from '@wrm/types';
 import { apiClient } from '../../lib/api.ts';
+import { CustomFieldDefinition } from '../../components/tickets/CustomPropertyForm.tsx';
 
 export interface CreateTicketTypeRequest {
   name: string;
   color?: string;
+  customFieldSchema?: CustomFieldDefinition[];
 }
 
 export interface UpdateTicketTypeRequest {
   name?: string;
   color?: string;
+  customFieldSchema?: CustomFieldDefinition[];
 }
 
 export const fetchTicketTypes = createAsyncThunk<TicketType[], void, { rejectValue: string }>(

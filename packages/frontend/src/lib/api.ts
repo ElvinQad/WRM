@@ -1,5 +1,6 @@
 // API client configuration and utilities
 import { BaseTicket, CreateTicketDto, UpdateTicketDto, TicketType } from '@wrm/types';
+import { CustomFieldDefinition } from '../components/tickets/CustomPropertyForm.tsx';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
@@ -211,14 +212,14 @@ class ApiClient {
     return await this.request<TicketType[]>('/ticket-types');
   }
 
-  async createTicketType(data: { name: string; color?: string }): Promise<TicketType> {
+  async createTicketType(data: { name: string; color?: string; customFieldSchema?: CustomFieldDefinition[] }): Promise<TicketType> {
     return await this.request<TicketType>('/ticket-types', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updateTicketType(id: string, data: { name?: string; color?: string }): Promise<TicketType> {
+  async updateTicketType(id: string, data: { name?: string; color?: string; customFieldSchema?: CustomFieldDefinition[] }): Promise<TicketType> {
     return await this.request<TicketType>(`/ticket-types/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
