@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { DragState, Ticket } from '../types.ts';
-import { HEADER_HEIGHT, LANE_HEIGHT } from '../constants';
+import { HEADER_HEIGHT, LANE_HEIGHT } from '../constants.ts';
 import { yToLane, pixelsToTime, timeToPixels } from '../utils/timelineUtils.ts';
 
 export function useTimelineDrag(

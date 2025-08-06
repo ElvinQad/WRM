@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 import { FrontendTicket as Ticket } from '@wrm/types';
 import { RootState } from '../../store/store.ts';
 import { Button } from '../ui/Button.tsx';
-import { Input } from '../ui/Input.tsx';
 import { cn } from '../../lib/utils.ts';
 import { DynamicFormField } from '../forms/DynamicFormField.tsx';
 import { CustomFieldDefinition } from './CustomPropertyForm.tsx';
@@ -79,13 +78,13 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
     });
   };
 
-  const formatDateTime = (date: Date) => {
-    return date.toISOString().slice(0, 16);
-  };
+  // const formatDateTime = (date: Date) => {
+  //   return date.toISOString().slice(0, 16);
+  // };
 
-  const parseDateTime = (value: string) => {
-    return new Date(value);
-  };
+  // const parseDateTime = (value: string) => {
+  //   return new Date(value);
+  // };
 
   return (
     <div 
@@ -179,7 +178,7 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
             )}
           </div>
 
-          {/* Time Range */}
+          {/* Time Range
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="Start Time"
@@ -193,15 +192,7 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
               value={formatDateTime(ticket.end)}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUpdate('end', parseDateTime(e.target.value))}
             />
-          </div>
-
-          {/* Category */}
-          <Input
-            label="Category"
-            value={ticket.category || ''}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUpdate('category', e.target.value)}
-            placeholder="e.g., Work, Personal, Meeting"
-          />
+          </div> */}
 
           {/* Custom Properties */}
           {(() => {

@@ -4,12 +4,18 @@
 
 import { useMemo } from 'react';
 import { FrontendTicket } from '@wrm/types';
+import { calculateTicketState, TicketState } from './ticketState.ts';
 
 export interface ActivityData {
-  date: Date;
-  completionCount: number;
-  totalTickets: number;
-  productivity: 'low' | 'medium' | 'high';
+  date: string;
+  count: number;
+  intensity: number;
+  level: number; // 0-4 scale for color intensity
+  completionRate: number; // New: percentage of tickets completed/interacted with
+  hasActiveTickets: boolean; // New: indicates if there are currently active tickets
+  totalTickets: number; // Total number of tickets for the period
+  completionCount: number; // Number of completed/interacted tickets
+  productivity?: number; // Productivity level based on completion rate
 }
 
 export interface ActivityCalculationOptions {
@@ -153,12 +159,15 @@ export class ActivityCalculationService {
   }
 
   /**
-   * Determine if a ticket is completed based on its status
+   * Determine if a ticket is completed based on its time-aware state
+   * Enhanced for Story 2.3: State-based completion indicators
    */
   private static isTicketCompleted(ticket: FrontendTicket): boolean {
-    // For now, consider PAST_CONFIRMED as completed
-    // ACTIVE could be partially completed, FUTURE and PAST_UNTOUCHED are not completed
-    return ticket.status === 'PAST_CONFIRMED';
+    const state = calculateTicketState(ticket);
+    
+    // Only CONFIRMED tickets (past tickets that were interacted with) are considered completed
+    // ACTIVE tickets are in progress, FUTURE tickets are pending, UNTOUCHED tickets are missed
+    return state === TicketState.CONFIRMED;
   }
 
   /**

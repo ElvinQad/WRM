@@ -1,6 +1,7 @@
 import React from 'react';
 import { TicketWithPosition } from '../types.ts';
-import { TICKET_HEIGHT } from '../constants';
+import { TICKET_HEIGHT } from '../constants.ts';
+import { calculateTicketStateWithColors } from '../utils/ticketState.ts';
 
 interface TicketComponentProps {
   ticketWithPosition: TicketWithPosition;
@@ -25,14 +26,24 @@ export function TicketComponent({
 }: TicketComponentProps) {
   const { startX, width, lane } = ticketWithPosition;
   
+  // Calculate time-aware state and colors
+  const stateInfo = calculateTicketStateWithColors(ticketWithPosition);
+  
+  // Apply state-based border color as inline style for precise control
+  const stateBorderStyle = {
+    borderColor: stateInfo.borderColor,
+    borderWidth: '2px',
+    borderStyle: 'solid'
+  };
+  
   return (
     <div
-      className={`absolute rounded-lg shadow-sm border transition-all duration-200 ${
+      className={`absolute rounded-lg shadow-sm transition-all duration-200 ${
         isSelected
           ? 'border-primary shadow-lg z-30'
           : isHovered
           ? 'border-muted-foreground shadow-md z-20'
-          : 'border-border hover:border-muted-foreground z-10'
+          : 'z-10'
       }`}
       style={{
         left: `${startX}px`,
@@ -41,6 +52,8 @@ export function TicketComponent({
         height: `${TICKET_HEIGHT}px`,
         backgroundColor: ticketWithPosition.typeColor || ticketWithPosition.color || '#ffffff',
         minWidth: '20px',
+        // Apply state-based border unless overridden by selection/hover
+        ...(!(isSelected || isHovered) && stateBorderStyle)
       }}
       onMouseDown={onMouseDown}
       onClick={onClick}

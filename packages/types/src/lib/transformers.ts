@@ -188,7 +188,7 @@ export function ticketTypeToEntity(ticketType: TicketType): TicketTypeEntity {
     id: ticketType.id,
     name: ticketType.name,
     description: ticketType.description || null,
-    properties_schema: ticketType.propertiesSchema,
+    properties_schema: ticketType.propertiesSchema as Record<string, unknown>,
     default_duration: ticketType.defaultDuration || null,
     color: ticketType.color || null,
     user_id: ticketType.userId || null,
