@@ -10,7 +10,7 @@
 
 **Frontend Implementation:**
 1. Build TimelineGrid component with drag-and-drop
-2. Implement view controls (hourly/daily/weekly/monthly)
+2. Implement view controls (daily/weekly)
 3. Create date range slider component
 4. Add Redux state management for timeline operations
 

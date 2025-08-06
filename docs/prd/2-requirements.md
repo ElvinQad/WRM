@@ -2,8 +2,9 @@
 
 ### **Functional Requirements**
 
-*   **FR1:** Users must be able to view the timeline in 'Hourly', 'Daily', 'Weekly', and 'Monthly' scales.
-*   **FR2:** Users must be able to select a custom date range for the timeline using a slider.
+*   **FR1:** Users must be able to view the timeline in 'Hourly', 'Daily', and 'Weekly' scales.
+*   **FR2:** Users must be able to select dates using a heat map interface that visualizes activity completion status.
+*   **FR2a:** Users must be able to scroll the timeline horizontally using mouse wheel and touch gestures.
 *   **FR3:** Users must be able to move tickets to new time slots via drag-and-drop.
 *   **FR4:** Users must be able to change a ticket's duration by resizing its edges.
 *   **FR5:** Users must be able to create custom ticket types with unique names and properties (e.g., Text, Number, Checkbox).
@@ -29,7 +30,10 @@
 ### **Performance Requirements**
 
 *   **Response Time Requirements:**
-    *   **Timeline Loading:** Initial load under 2 seconds, subsequent navigation under 500ms
+    *   **Timeline Loading:** Initial load under 1 second, subsequent navigation under 200ms
+    *   **Heat Map Performance:** Render within 300ms, status updates within 100ms
+    *   **Selective Loading:** Daily mode 3-day window, Weekly mode 2-week window
+    *   **Scroll Performance:** 60fps smooth scrolling, 16ms response time
     *   **Ticket Operations:** Drag-and-drop feedback within 50ms, save operations under 300ms
     *   **AI Processing:** Text queries respond within 2 seconds, voice transcription within 3 seconds
     *   **Real-time Updates:** WebSocket updates propagate within 500ms

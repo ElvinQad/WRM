@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service.ts';
 import { CreateTicketDto, UpdateTicketDto, TicketResponseDto } from './dto/ticket.dto.ts';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TicketsService {
@@ -14,7 +15,7 @@ export class TicketsService {
         startTime: new Date(createTicketDto.startTime),
         endTime: new Date(createTicketDto.endTime),
         typeId: createTicketDto.typeId,
-        customProperties: createTicketDto.customProperties as any || {},
+        customProperties: createTicketDto.customProperties as Prisma.JsonObject || {},
       },
       include: {
         ticketType: true,
@@ -24,13 +25,42 @@ export class TicketsService {
     return this.mapToResponseDto(ticket);
   }
 
-  async getTickets(userId: string): Promise<TicketResponseDto[]> {
+  async getTickets(userId: string, startDate?: Date, endDate?: Date): Promise<TicketResponseDto[]> {
+    const whereClause: Prisma.TicketWhereInput = { userId };
+
+    // Add date range filtering if provided
+    if (startDate || endDate) {
+      whereClause.OR = [
+        // Tickets that start within the date range
+        {
+          startTime: {
+            ...(startDate && { gte: startDate }),
+            ...(endDate && { lte: endDate }),
+          },
+        },
+        // Tickets that end within the date range
+        {
+          endTime: {
+            ...(startDate && { gte: startDate }),
+            ...(endDate && { lte: endDate }),
+          },
+        },
+        // Tickets that span the entire date range (start before, end after)
+        {
+          AND: [
+            ...(startDate ? [{ startTime: { lte: startDate } }] : []),
+            ...(endDate ? [{ endTime: { gte: endDate } }] : []),
+          ],
+        },
+      ];
+    }
+
     const tickets = await this.prisma.ticket.findMany({
-      where: { userId },
+      where: whereClause,
       include: {
         ticketType: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { startTime: 'asc' }, // Order by start time for timeline display
     });
 
     return tickets.map(ticket => this.mapToResponseDto(ticket));
@@ -66,12 +96,18 @@ export class TicketsService {
       throw new NotFoundException(`Ticket with ID ${ticketId} not found`);
     }
 
-    const updateData: any = {};
+    const updateData: {
+      title?: string;
+      startTime?: Date;
+      endTime?: Date;
+      typeId?: string;
+      customProperties?: Prisma.JsonObject;
+    } = {};
     if (updateTicketDto.title !== undefined) updateData.title = updateTicketDto.title;
     if (updateTicketDto.startTime !== undefined) updateData.startTime = new Date(updateTicketDto.startTime);
     if (updateTicketDto.endTime !== undefined) updateData.endTime = new Date(updateTicketDto.endTime);
     if (updateTicketDto.typeId !== undefined) updateData.typeId = updateTicketDto.typeId;
-    if (updateTicketDto.customProperties !== undefined) updateData.customProperties = updateTicketDto.customProperties as any;
+    if (updateTicketDto.customProperties !== undefined) updateData.customProperties = updateTicketDto.customProperties as Prisma.JsonObject;
 
     const ticket = await this.prisma.ticket.update({
       where: { id: ticketId },

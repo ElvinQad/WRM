@@ -39,7 +39,7 @@
     *   **So that** I can automatically schedule recurring activities without manual duplication.
     *   **Acceptance Criteria:**
         *   Tickets have a "Repeat" toggle option in their settings.
-        *   Users can configure repeat patterns (daily, weekly, monthly, custom intervals).
+        *   Users can configure repeat patterns (daily, weekly, custom intervals).
         *   The system automatically creates future instances based on the pattern.
         *   Users can modify individual instances without affecting the entire series.
         *   **Local Testing:** CLI command `deno test packages/testing/backend/recurring-tickets.test.ts` validates recurrence logic.

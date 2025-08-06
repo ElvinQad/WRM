@@ -13,14 +13,17 @@ export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all tickets for the current user' })
+  @ApiOperation({ summary: 'Get all tickets for the current user with optional date range filtering' })
   @ApiResponse({ status: 200, description: 'List of tickets', type: [TicketResponseDto] })
   async getTickets(
     @CurrentUser() user: AuthenticatedUser,
     @Query('start') start?: string,
     @Query('end') end?: string
   ) {
-    return await this.ticketsService.getTickets(user.id);
+    const startDate = start ? new Date(start) : undefined;
+    const endDate = end ? new Date(end) : undefined;
+    
+    return await this.ticketsService.getTickets(user.id, startDate, endDate);
   }
 
   @Post()

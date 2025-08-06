@@ -42,7 +42,7 @@ Individuals currently lack a deeply personal and intelligent tool to track their
 
 #### **Functional Requirements**
 
-*   **FR1:** Users must be able to view the timeline in 'Hourly', 'Daily', 'Weekly', and 'Monthly' scales.
+*   **FR1:** Users must be able to view the timeline in  'Daily', 'Weekly' scales.
 *   **FR2:** Users must be able to select a custom date range for the timeline using a slider.
 *   **FR3:** Users must be able to move tickets to new time slots via drag-and-drop.
 *   **FR4:** Users must be able to change a ticket's duration by resizing its edges.

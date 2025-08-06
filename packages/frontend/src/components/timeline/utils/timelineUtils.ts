@@ -2,6 +2,47 @@ import { FrontendTicket as Ticket, TicketWithPosition, TimeMarker } from '@wrm/t
 import { TimelineView } from '../../../store/slices/timelineSlice.ts';
 
 /**
+ * Calculates date range for daily view according to Story 1.5.2 AC 1
+ * Daily mode loads 3-day window: yesterday, today, tomorrow (48 hours total)
+ * Implementation: 12h from yesterday + 24h from today + 12h from tomorrow
+ */
+export function calculateDailyDateRange(baseDate: Date = new Date()): { start: Date; end: Date } {
+  const start = new Date(baseDate.getTime() - 12 * 60 * 60 * 1000); // 12 hours before baseDate
+  const end = new Date(baseDate.getTime() + 36 * 60 * 60 * 1000); // 36 hours after baseDate (12h tomorrow + 24h today)
+  return { start, end };
+}
+
+/**
+ * Calculates date range for weekly view according to Story 1.5.2 AC 2
+ * Weekly mode loads 2-week window: current week + next week
+ */
+export function calculateWeeklyDateRange(baseDate: Date = new Date()): { start: Date; end: Date } {
+  const startOfWeek = new Date(baseDate);
+  const day = startOfWeek.getDay();
+  const daysFromSunday = day === 0 ? 0 : day; // Sunday = 0, Monday = 1, etc.
+  startOfWeek.setDate(startOfWeek.getDate() - daysFromSunday);
+  startOfWeek.setHours(0, 0, 0, 0);
+  
+  const start = startOfWeek;
+  const end = new Date(startOfWeek.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days (2 weeks)
+  return { start, end };
+}
+
+/**
+ * Calculates the optimal date range based on timeline view and base date
+ */
+export function calculateSelectiveDateRange(view: TimelineView, baseDate: Date = new Date()): { start: Date; end: Date } {
+  switch (view) {
+    case 'daily':
+      return calculateDailyDateRange(baseDate);
+    case 'weekly':
+      return calculateWeeklyDateRange(baseDate);
+    default:
+      return calculateDailyDateRange(baseDate);
+  }
+}
+
+/**
  * Converts time to pixel position
  */
 export function timeToPixels(time: number, startTime: number, pixelsPerMinute: number): number {

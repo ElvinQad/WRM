@@ -68,7 +68,7 @@ This enhancement builds upon an existing authentication system and basic ticket 
 **Key Technical Achievements:**
 1. **Drag-and-Drop Implementation**: Three distinct drag operations (move, resize-start, resize-end) with 5-minute minimum duration enforcement
 2. **Real-time Performance**: Sub-50ms visual feedback, smooth 60fps interactions, optimized for 500+ tickets
-3. **Multi-View Timeline**: Seamless switching between hourly, daily, weekly, and monthly views with proper time calculations
+3. **Multi-View Timeline**: Seamless switching between hourly, daily, weekly views with proper time calculations
 4. **Type Safety Enhancement**: Complete type system overhaul with `TYPE_SYSTEM.md` documentation and validation scripts
 
 **Frontend Structure Transformation:**
@@ -166,7 +166,7 @@ docs/
 ### Epic 1 Completion Status ✅
 
 **Fully Implemented Features:**
-- **Dynamic Timeline Grid**: Complete timeline visualization with hourly/daily/weekly/monthly views
+- **Dynamic Timeline Grid**: Complete timeline visualization with daily/weekly views
 - **Drag-and-Drop System**: Full ticket manipulation with real-time feedback and conflict detection
 - **Ticket Resizing**: Edge-based duration modification with 5-minute minimum duration
 - **View Management**: Comprehensive view switching and date range navigation
@@ -326,7 +326,7 @@ packages/
 │   │   ├── components/
 │   │   │   ├── TimelineGrid.tsx     # NEW - Main timeline display
 │   │   │   ├── TicketCard.tsx       # NEW - Draggable ticket component  
-│   │   │   ├── ViewControls.tsx     # NEW - Hourly/Daily/Weekly/Monthly
+│   │   │   ├── ViewControls.tsx     # NEW - Hourly/Daily/Weekly
 │   │   │   ├── DateSlider.tsx       # NEW - Date range selector
 │   │   │   └── TicketDetailModal.tsx # ENHANCE - Custom properties
 │   │   ├── hooks/
@@ -454,7 +454,7 @@ enum AIInteractionType {
 ### Epic 1 Achievement Summary ✅
 
 **Successfully Implemented Components:**
-- **Timeline Core**: Complete timeline visualization with multi-view support (hourly/daily/weekly/monthly)
+- **Timeline Core**: Complete timeline visualization with multi-view support (daily/weekly)
 - **Drag-and-Drop System**: Sophisticated drag-drop with move, resize-start, and resize-end operations
 - **Navigation Controls**: Date range management, auto-centering, and view switching
 - **Real-time Features**: Live "now" marker, time-aware state visualization, optimistic updates
@@ -502,7 +502,7 @@ Hook Architecture:
 ```typescript
 // packages/frontend/src/components/timeline/components/TimelineGrid.tsx
 interface TimelineGridProps {
-  view: 'hourly' | 'daily' | 'weekly' | 'monthly';
+  view: 'hourly' | 'daily' | 'weekly';
   dateRange: { start: Date; end: Date };
   tickets: TicketWithPosition[];
   onTicketMove: (ticketId: string, newStartTime: Date) => void;

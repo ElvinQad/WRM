@@ -11,7 +11,7 @@
 **Key Technical Achievements:**
 1. **Drag-and-Drop Implementation**: Three distinct drag operations (move, resize-start, resize-end) with 5-minute minimum duration enforcement
 2. **Real-time Performance**: Sub-50ms visual feedback, smooth 60fps interactions, optimized for 500+ tickets
-3. **Multi-View Timeline**: Seamless switching between hourly, daily, weekly, and monthly views with proper time calculations
+3. **Multi-View Timeline**: Seamless switching between daily, weekly views with proper time calculations
 4. **Type Safety Enhancement**: Complete type system overhaul with `TYPE_SYSTEM.md` documentation and validation scripts
 
 **Frontend Structure Transformation:**

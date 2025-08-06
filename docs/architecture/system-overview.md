@@ -99,7 +99,7 @@ WRM/
 ### ✅ Epic 1: Dynamic Timeline (COMPLETE)
 
 **Implementation Scope:**
-- Multi-view timeline (hourly/daily/weekly/monthly)
+- Multi-view timeline (daily/weekly)
 - Drag-and-drop ticket manipulation
 - Real-time visual feedback and conflict detection
 - Time-aware state visualization

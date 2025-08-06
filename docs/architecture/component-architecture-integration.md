@@ -3,7 +3,7 @@
 ## Epic 1 Achievement Summary ✅
 
 **Successfully Implemented Components:**
-- **Timeline Core**: Complete timeline visualization with multi-view support (hourly/daily/weekly/monthly)
+- **Timeline Core**: Complete timeline visualization with multi-view support (daily/weekly)
 - **Drag-and-Drop System**: Sophisticated drag-drop with move, resize-start, and resize-end operations
 - **Navigation Controls**: Date range management, auto-centering, and view switching
 - **Real-time Features**: Live "now" marker, time-aware state visualization, optimistic updates
@@ -51,7 +51,7 @@ Hook Architecture:
 ```typescript
 // packages/frontend/src/components/timeline/components/TimelineGrid.tsx
 interface TimelineGridProps {
-  view: 'hourly' | 'daily' | 'weekly' | 'monthly';
+  view: 'daily' | 'weekly';
   dateRange: { start: Date; end: Date };
   tickets: TicketWithPosition[];
   onTicketMove: (ticketId: string, newStartTime: Date) => void;

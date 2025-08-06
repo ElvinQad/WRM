@@ -19,7 +19,7 @@ Individuals lack a deeply personal and intelligent tool to track their daily act
 #### **4. Core Features & Epics**
 
 * **Epic 1: The Dynamic Timeline**
-    * Interactive timeline interface with hourly, daily, weekly, and monthly views.
+    * Interactive timeline interface with  daily, weekly.
     * Navigation via a resizable date-range slider.
     * Direct manipulation of tickets on the timeline (drag to move, resize).
 

@@ -1,28 +1,19 @@
 import React from 'react';
-import { Button, Select, SelectOption, ViewRelativeNavigator } from '../../ui/index.ts';
+import { Button, Select, SelectOption } from '../../ui/index.ts';
 import { TimelineView } from '../../../store/slices/timelineSlice.ts';
-import { QuickRangeOption } from '../../ui/ViewRelativeNavigator.tsx';
 
 interface TimelineHeaderProps {
   autoCenter: boolean;
   currentView: TimelineView;
-  startDate: Date;
-  endDate: Date;
   onToggleAutoCenter: () => void;
   onViewChange: (view: TimelineView) => void;
-  onNavigate: (direction: 'previous' | 'next') => void;
-  onQuickRange: (range: QuickRangeOption) => void;
 }
 
 export function TimelineHeader({
   autoCenter,
   currentView,
-  startDate,
-  endDate,
   onToggleAutoCenter,
   onViewChange,
-  onNavigate,
-  onQuickRange,
 }: TimelineHeaderProps) {
   const viewOptions: SelectOption[] = [
     { value: 'daily', label: 'Daily' },
@@ -54,17 +45,6 @@ export function TimelineHeader({
           📍 {autoCenter ? 'Auto-Center ON' : 'Center Now'}
         </Button>
         
-        {/* View Relative Navigator */}
-        <ViewRelativeNavigator
-          currentView={currentView}
-          startDate={startDate}
-          endDate={endDate}
-          onNavigate={onNavigate}
-          onQuickRange={onQuickRange}
-        />
-        
-       
-        
         {/* Day/Night Legend */}
         <div className="flex items-center space-x-2 text-xs">
           <span className="text-muted-foreground">Legend:</span>
@@ -79,7 +59,7 @@ export function TimelineHeader({
         </div>
       </div>
       <div className="text-sm text-muted-foreground flex items-center space-x-4">
-        <span>Use dropdown to change view. Drag tickets to move/resize. Drag vertically to change lanes.</span>
+        <span>Use heat map below to navigate. Drag tickets to move/resize. Drag vertically to change lanes.</span>
       </div>
     </div>
   );

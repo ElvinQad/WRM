@@ -4,6 +4,7 @@ import { useTimelineDrag } from './useTimelineDrag.ts';
 import { useTimelinePanning } from './useTimelinePanning.ts';
 import { useTimelineAutoCenter } from './useTimelineAutoCenter.ts';
 import { useTimelineTooltip } from './useTimelineTooltip.ts';
+import { useTimelinePrefetch } from './useTimelinePrefetch.ts';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks.ts';
 import { setView, setDateRange, navigateTimelinePrevious, navigateTimelineNext, setQuickRange, TimelineView } from '../../../store/slices/timelineSlice.ts';
 import { 
@@ -19,7 +20,8 @@ export function useTimeline(
   tickets: Ticket[],
   onTicketUpdate?: (ticket: Ticket) => void,
   onTicketClick?: (ticket: Ticket) => void,
-  autoCenterOnNow = false
+  autoCenterOnNow = false,
+  loadTimelineData?: (startDate: Date, endDate: Date) => Promise<void>
 ) {
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [hoveredTicket, setHoveredTicket] = useState<string | null>(null);
@@ -30,6 +32,29 @@ export function useTimeline(
   const startDate = useAppSelector((state) => state.timeline.startDate);
   const endDate = useAppSelector((state) => state.timeline.endDate);
   const dispatch = useAppDispatch();
+
+  // Background prefetching for adjacent periods (AC 3)
+  const prefetchHook = loadTimelineData 
+    ? useTimelinePrefetch(loadTimelineData, 500) // 500ms debounce
+    : null;
+
+  // Handle data loading when scrolling approaches boundaries
+  const handleDataLoadingNeeded = useCallback((direction: 'previous' | 'next') => {
+    if (!loadTimelineData) return;
+    
+    // Calculate adjacent time periods based on current view
+    const rangeDuration = endDate.getTime() - startDate.getTime();
+    
+    if (direction === 'previous') {
+      const prevStart = new Date(startDate.getTime() - rangeDuration);
+      const prevEnd = new Date(startDate.getTime());
+      loadTimelineData(prevStart, prevEnd);
+    } else {
+      const nextStart = new Date(endDate.getTime());
+      const nextEnd = new Date(endDate.getTime() + rangeDuration);
+      loadTimelineData(nextStart, nextEnd);
+    }
+  }, [loadTimelineData, startDate, endDate]);
 
   // Update current time every 30 seconds for real-time "now" marker
   useEffect(() => {
@@ -94,12 +119,18 @@ export function useTimeline(
   const {
     isPanning,
     scrollLeft,
+    isTouch,
+    boundaries,
+    handleWheel: handlePanningWheel,
+    handleTouchStart,
+    handleTouchMove, 
+    handleTouchEnd,
     handleTimelineMouseDown,
     handleMouseMove: handlePanningMouseMove,
     handleMouseUp: handlePanningMouseUp,
     handleMouseLeave: handlePanningMouseLeave,
     handleScroll,
-  } = useTimelinePanning(totalWidth);
+  } = useTimelinePanning(totalWidth, startTime, pixelsPerMinute, handleDataLoadingNeeded);
 
   // Drag functionality
   const {
@@ -223,11 +254,10 @@ export function useTimeline(
     dispatch(setQuickRange(range));
   }, [dispatch]);
 
-  // Handle wheel events for vertical scrolling only (no zoom)
-  const handleWheel = useCallback(() => {
-    // Allow normal vertical scrolling, no zoom functionality
-    // This lets the browser handle container scrolling naturally
-  }, []);
+  // Handle wheel events for horizontal scrolling
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    handlePanningWheel(e, containerRef);
+  }, [handlePanningWheel, containerRef]);
 
   return {
     // Refs
@@ -241,6 +271,7 @@ export function useTimeline(
     hoveredTime,
     isPanning,
     scrollLeft,
+    boundaries,
     dragState,
     autoCenter,
     selectedDate,
@@ -259,6 +290,9 @@ export function useTimeline(
     
     // Event handlers
     handleWheel,
+    handleTouchStart: (e: React.TouchEvent) => handleTouchStart(e, containerRef),
+    handleTouchMove: (e: React.TouchEvent) => handleTouchMove(e, containerRef),
+    handleTouchEnd: (e: React.TouchEvent) => handleTouchEnd(e, containerRef),
     handleMouseMove,
     handleMouseUp,
     handleMouseLeave,

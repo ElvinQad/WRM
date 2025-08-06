@@ -7,6 +7,7 @@ import { TimeMarkers } from './TimeMarkers.tsx';
 import { SunTimesOverlay } from './SunTimesOverlay.tsx';
 import { TicketComponent } from './TicketComponent.tsx';
 import { TimelineTooltip } from './TimelineTooltip.tsx';
+import { HeatMapNavigator } from './HeatMapNavigator.tsx';
 import { FrontendTicket } from '@wrm/types';
 
 export function Timeline({ 
@@ -49,6 +50,9 @@ export function Timeline({
     startTime,
     endTime,
     handleWheel,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
     handleMouseMove,
     handleMouseUp,
     handleMouseLeave,
@@ -82,6 +86,9 @@ export function Timeline({
         ref={containerRef}
         className="flex-1 overflow-auto relative bg-background timeline-container"
         onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseDown={handleTimelineMouseDown}
@@ -156,6 +163,17 @@ export function Timeline({
         mousePosition={mousePosition} 
         hoveredTime={hoveredTime} 
       />
+
+      {/* Heat Map Navigator - Enhanced view below timeline */}
+      <div className="border-t border-border bg-card/50 backdrop-blur-sm">
+        <div className="p-6">
+          <HeatMapNavigator
+            tickets={tickets}
+            currentView={currentView}
+            className="max-w-4xl mx-auto"
+          />
+        </div>
+      </div>
     </div>
   );
 }

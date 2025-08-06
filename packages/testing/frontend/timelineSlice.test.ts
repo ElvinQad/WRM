@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import timelineReducer, { setView, setDateRange, TimelineView } from '@/store/slices/timelineSlice.ts';
+import timelineReducer, { setView, TimelineView } from '@/store/slices/timelineSlice.ts';
 
 describe('timelineSlice', () => {
   // Mock a consistent initial state for testing
@@ -7,6 +7,9 @@ describe('timelineSlice', () => {
     currentView: 'daily' as TimelineView,
     startDate: new Date('2025-01-01T00:00:00.000Z'),
     endDate: new Date('2025-01-07T00:00:00.000Z'),
+    heatMapEnabled: true,
+    selectedHeatMapDate: null,
+    activityCacheVersion: 0,
   };
 
   it('should handle initial state with date range', () => {
@@ -23,9 +26,9 @@ describe('timelineSlice', () => {
     const actual = timelineReducer(mockInitialState, setView('daily'));
     expect(actual.currentView).toBe('daily');
     
-    // Daily view should have a 6-day range (3 days before + 3 days after)
+    // Daily view should have a 48-hour range (12h yesterday + 24h today + 12h tomorrow)
     const rangeDuration = actual.endDate.getTime() - actual.startDate.getTime();
-    const expectedDuration = 6 * 24 * 60 * 60 * 1000; // 6 days
+    const expectedDuration = 48 * 60 * 60 * 1000; // 48 hours
     expect(rangeDuration).toBe(expectedDuration);
   });
 
@@ -33,9 +36,9 @@ describe('timelineSlice', () => {
     const actual = timelineReducer(mockInitialState, setView('daily'));
     expect(actual.currentView).toBe('daily');
     
-    // Daily view should have a 6-day range (3 days each side)
+    // Daily view should have a 48-hour range (12h yesterday + 24h today + 12h tomorrow)
     const rangeDuration = actual.endDate.getTime() - actual.startDate.getTime();
-    const expectedDuration = 6 * 24 * 60 * 60 * 1000; // 6 days
+    const expectedDuration = 48 * 60 * 60 * 1000; // 48 hours
     expect(rangeDuration).toBe(expectedDuration);
   });
 
@@ -43,38 +46,14 @@ describe('timelineSlice', () => {
     const actual = timelineReducer(mockInitialState, setView('weekly'));
     expect(actual.currentView).toBe('weekly');
     
-    // Weekly view should have a 21-day range (1.5 weeks each side = 3 weeks total)
+    // Weekly view should have a 7-day range (current week only)
     const rangeDuration = actual.endDate.getTime() - actual.startDate.getTime();
-    const expectedDuration = 21 * 24 * 60 * 60 * 1000; // 21 days
+    const expectedDuration = 7 * 24 * 60 * 60 * 1000; // 7 days
     expect(rangeDuration).toBe(expectedDuration);
-  });
-
-  it('should handle setView to monthly and adjust date range', () => {
-    const actual = timelineReducer(mockInitialState, setView('monthly'));
-    expect(actual.currentView).toBe('monthly');
-    
-    // Monthly view should have a 180-day range (3 months each side)
-    const rangeDuration = actual.endDate.getTime() - actual.startDate.getTime();
-    const expectedDuration = 180 * 24 * 60 * 60 * 1000; // 180 days
-    expect(rangeDuration).toBe(expectedDuration);
-  });
-
-  it('should handle setDateRange action', () => {
-    const newStartDate = new Date('2025-02-01T00:00:00.000Z');
-    const newEndDate = new Date('2025-02-15T00:00:00.000Z');
-    
-    const actual = timelineReducer(
-      mockInitialState, 
-      setDateRange({ startDate: newStartDate, endDate: newEndDate })
-    );
-    
-    expect(actual.startDate).toEqual(newStartDate);
-    expect(actual.endDate).toEqual(newEndDate);
-    expect(actual.currentView).toBe('daily'); // Should remain unchanged
   });
 
   it('should ensure all views have valid date ranges', () => {
-        const views: TimelineView[] = ['daily', 'weekly', 'monthly'];
+    const views: TimelineView[] = ['daily', 'weekly'];
     
     views.forEach(view => {
       const actual = timelineReducer(mockInitialState, setView(view));
@@ -91,6 +70,35 @@ describe('timelineSlice', () => {
     expect(actual).toHaveProperty('currentView');
     expect(actual).toHaveProperty('startDate');
     expect(actual).toHaveProperty('endDate');
-    expect(Object.keys(actual)).toHaveLength(3);
+    expect(actual).toHaveProperty('heatMapEnabled');
+    expect(actual).toHaveProperty('selectedHeatMapDate');
+    expect(actual).toHaveProperty('activityCacheVersion');
+  });
+
+  it('should calculate daily view time ranges correctly across different hours', () => {
+    // Test that daily view calculation works correctly regardless of current time
+    const mockStateAfternoon = {
+      ...mockInitialState,
+      startDate: new Date('2025-01-01T14:00:00.000Z'), // 2 PM
+    };
+    
+    const actual = timelineReducer(mockStateAfternoon, setView('daily'));
+    
+    // Should still be 48 hours total
+    const rangeDuration = actual.endDate.getTime() - actual.startDate.getTime();
+    const expectedDuration = 48 * 60 * 60 * 1000; // 48 hours
+    expect(rangeDuration).toBe(expectedDuration);
+  });
+
+  it('should calculate weekly view to start on Sunday', () => {
+    const actual = timelineReducer(mockInitialState, setView('weekly'));
+    
+    // Weekly view should start on Sunday (day 0)
+    expect(actual.startDate.getDay()).toBe(0);
+    
+    // Should be exactly 7 days
+    const rangeDuration = actual.endDate.getTime() - actual.startDate.getTime();
+    const expectedDuration = 7 * 24 * 60 * 60 * 1000; // 7 days
+    expect(rangeDuration).toBe(expectedDuration);
   });
 });
