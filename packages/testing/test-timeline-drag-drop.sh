@@ -1,7 +1,24 @@
 #!/bin/bash
 
-# 🧪 Timeline Drag & Drop Test Script
-# Quick script to run frontend timeline drag and drop tests
+# 🧪 Timeline Drag & Drop Test Screcho ""
+echo "🎯 Testing: Timeline state management"
+deno run -A npm:vitest run src/store/slices/timelineSlice.test.ts --reporter=verbose
+
+echo ""
+echo "🎯 Testing: Tickets Pool functionality (Story 1.5.4)"
+deno run -A npm:vitest run src/components/timeline/components/__tests__/TicketsPool.test.tsx --reporter=verbose
+
+echo ""
+echo "🎯 Testing: Tickets Pool hook"
+deno run -A npm:vitest run src/components/timeline/hooks/useTicketsPool.test.ts --reporter=verbose
+
+echo ""
+echo "🎯 Testing: Pool state management integration"
+deno run -A npm:vitest run src/store/slices/timelineSlice.pool.test.ts --reporter=verbose
+
+echo ""
+echo "✅ All Timeline Tests Complete (including Pool functionality)!"
+echo "==============================================================="uick script to run frontend timeline drag and drop tests
 
 set -e
 

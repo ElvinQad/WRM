@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma.service.ts';
 import { Prisma } from '@prisma/client';
 import { TimelineCacheService } from './timeline-cache.service.ts';
-import { MonitorDatabasePerformance, MonitorCachePerformance } from './performance-monitor.decorator.ts';
+import { MonitorDatabasePerformance } from './performance-monitor.decorator.ts';
 import { 
   TimelineResponseDto, 
   TicketWithPositionDto, 

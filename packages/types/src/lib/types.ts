@@ -29,6 +29,10 @@ export interface BaseTicket {
   aiContext?: string;
   priority?: number;
   
+  // Story 1.5.4: Pool functionality
+  isInPool: boolean;
+  poolOrder?: number;
+  
   createdAt: string;
   updatedAt: string;
 }
@@ -102,6 +106,9 @@ export interface UpdateTicketDto {
   status?: TicketStatus;
   lastInteraction?: string;
   priority?: number;
+  // Story 1.5.4: Pool functionality
+  isInPool?: boolean;
+  poolOrder?: number;
 }
 
 // Epic 1: Timeline-specific DTOs
@@ -155,6 +162,10 @@ export interface TicketEntity {
   ai_generated: boolean;
   ai_context: string | null;
   priority: number | null;
+  
+  // Story 1.5.4: Pool functionality
+  is_in_pool: boolean;
+  pool_order: number | null;
   
   created_at: string;
   updated_at: string;

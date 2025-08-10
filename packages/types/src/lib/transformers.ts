@@ -36,6 +36,10 @@ export function entityToTicket(entity: TicketEntity): BaseTicket {
     aiContext: entity.ai_context || undefined,
     priority: entity.priority || undefined,
     
+    // Story 1.5.4: Pool functionality
+    isInPool: entity.is_in_pool,
+    poolOrder: entity.pool_order || undefined,
+    
     createdAt: entity.created_at,
     updatedAt: entity.updated_at,
   };
@@ -64,6 +68,10 @@ export function ticketToEntity(ticket: BaseTicket): TicketEntity {
     ai_generated: ticket.aiGenerated,
     ai_context: ticket.aiContext || null,
     priority: ticket.priority || null,
+    
+    // Story 1.5.4: Pool functionality
+    is_in_pool: ticket.isInPool,
+    pool_order: ticket.poolOrder || null,
     
     created_at: ticket.createdAt,
     updated_at: ticket.updatedAt,

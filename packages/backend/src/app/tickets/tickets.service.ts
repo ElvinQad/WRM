@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma.service.ts';
 import { CreateTicketDto, UpdateTicketDto, TicketResponseDto } from './dto/ticket.dto.ts';
 import { Prisma } from '@prisma/client';
+import { mapToResponseDto } from './utils/map-to-response.ts';
 
 @Injectable()
 export class TicketsService {
@@ -22,7 +23,7 @@ export class TicketsService {
       },
     });
 
-    return this.mapToResponseDto(ticket);
+  return mapToResponseDto(ticket);
   }
 
   async getTickets(userId: string, startDate?: Date, endDate?: Date): Promise<TicketResponseDto[]> {
@@ -63,7 +64,7 @@ export class TicketsService {
       orderBy: { startTime: 'asc' }, // Order by start time for timeline display
     });
 
-    return tickets.map(ticket => this.mapToResponseDto(ticket));
+  return tickets.map(ticket => mapToResponseDto(ticket));
   }
 
   async getTicketById(userId: string, ticketId: string): Promise<TicketResponseDto> {
@@ -81,7 +82,7 @@ export class TicketsService {
       throw new NotFoundException(`Ticket with ID ${ticketId} not found`);
     }
 
-    return this.mapToResponseDto(ticket);
+  return mapToResponseDto(ticket);
   }
 
   async updateTicket(userId: string, ticketId: string, updateTicketDto: UpdateTicketDto): Promise<TicketResponseDto> {
@@ -117,7 +118,7 @@ export class TicketsService {
       },
     });
 
-    return this.mapToResponseDto(ticket);
+  return mapToResponseDto(ticket);
   }
 
   async deleteTicket(userId: string, ticketId: string): Promise<{ message: string }> {
@@ -139,43 +140,137 @@ export class TicketsService {
     return { message: 'Ticket deleted successfully' };
   }
 
-  // deno-lint-ignore no-explicit-any
-  private mapToResponseDto(ticket: any): TicketResponseDto {
-    const now = new Date();
-    const startTime = new Date(ticket.startTime);
-    const endTime = new Date(ticket.endTime);
-    
-    // Calculate status based on time
-    let status: 'FUTURE' | 'ACTIVE' | 'PAST_UNTOUCHED' | 'PAST_CONFIRMED';
-    if (startTime > now) {
-      status = 'FUTURE';
-    } else if (startTime <= now && endTime >= now) {
-      status = 'ACTIVE';
-    } else {
-      // For past tickets, we'll default to PAST_UNTOUCHED
-      // In a real implementation, this would be based on user interaction
-      status = 'PAST_UNTOUCHED';
+  // Pool-related methods for Story 1.5.4 - Tickets Pool
+  async moveTicketToPool(userId: string, ticketId: string): Promise<TicketResponseDto> {
+    const existingTicket = await this.prisma.ticket.findFirst({
+      where: { 
+        id: ticketId,
+        userId,
+      },
+    });
+
+    if (!existingTicket) {
+      throw new NotFoundException(`Ticket with ID ${ticketId} not found`);
     }
 
-    return {
-      id: ticket.id,
-      userId: ticket.userId,
-      title: ticket.title,
-      description: ticket.description,
-      startTime: ticket.startTime.toISOString(),
-      endTime: ticket.endTime.toISOString(),
-      typeId: ticket.typeId,
-      customProperties: ticket.customProperties || {},
-      status,
-      lastInteraction: ticket.lastInteraction?.toISOString(),
-      aiGenerated: ticket.aiGenerated || false,
-      aiContext: ticket.aiContext,
-      priority: ticket.priority,
-      createdAt: ticket.createdAt.toISOString(),
-      updatedAt: ticket.updatedAt.toISOString(),
-      typeName: ticket.ticketType?.name,
-      color: ticket.customProperties?.color,
-      category: ticket.customProperties?.category,
-    };
+    if (existingTicket.isInPool) {
+      throw new BadRequestException(`Ticket ${ticketId} is already in the pool`);
+    }
+
+    // Get the highest pool order for FIFO queue (add to end)
+    const lastPoolTicket = await this.prisma.ticket.findFirst({
+      where: { userId, isInPool: true },
+      orderBy: { poolOrder: 'desc' },
+    });
+
+    const newPoolOrder = (lastPoolTicket?.poolOrder ?? -1) + 1;
+
+    const ticket = await this.prisma.ticket.update({
+      where: { id: ticketId },
+      data: {
+        isInPool: true,
+        poolOrder: newPoolOrder,
+      },
+      include: {
+        ticketType: true,
+      },
+    });
+
+  return mapToResponseDto(ticket);
   }
+
+  async scheduleTicketFromPool(userId: string, ticketId: string, startTime: Date, endTime: Date): Promise<TicketResponseDto> {
+    const existingTicket = await this.prisma.ticket.findFirst({
+      where: { 
+        id: ticketId,
+        userId,
+      },
+    });
+
+    if (!existingTicket) {
+      throw new NotFoundException(`Ticket with ID ${ticketId} not found`);
+    }
+
+    if (!existingTicket.isInPool) {
+      throw new BadRequestException(`Ticket ${ticketId} is not in the pool`);
+    }
+
+    const ticket = await this.prisma.ticket.update({
+      where: { id: ticketId },
+      data: {
+        isInPool: false,
+        poolOrder: null,
+        startTime,
+        endTime,
+      },
+      include: {
+        ticketType: true,
+      },
+    });
+
+  return mapToResponseDto(ticket);
+  }
+
+  async reorderTicketInPool(userId: string, ticketId: string, newPosition: number): Promise<TicketResponseDto> {
+    const existingTicket = await this.prisma.ticket.findFirst({
+      where: { 
+        id: ticketId,
+        userId,
+        isInPool: true,
+      },
+    });
+
+    if (!existingTicket) {
+      throw new NotFoundException(`Ticket with ID ${ticketId} not found in pool`);
+    }
+
+    // Get all pool tickets to reorder
+    const poolTickets = await this.prisma.ticket.findMany({
+      where: { userId, isInPool: true },
+      orderBy: { poolOrder: 'asc' },
+    });
+
+    if (newPosition < 0 || newPosition >= poolTickets.length) {
+      throw new BadRequestException(`Invalid position: ${newPosition}. Must be between 0 and ${poolTickets.length - 1}`);
+    }
+
+    // Reorder the tickets
+    const reorderedTickets = poolTickets.filter(t => t.id !== ticketId);
+    const targetTicket = poolTickets.find(t => t.id === ticketId)!;
+    reorderedTickets.splice(newPosition, 0, targetTicket);
+
+    // Update pool orders in transaction
+    await this.prisma.$transaction(
+      reorderedTickets.map((ticket, index) =>
+        this.prisma.ticket.update({
+          where: { id: ticket.id },
+          data: { poolOrder: index },
+        })
+      )
+    );
+
+    const updatedTicket = await this.prisma.ticket.findFirst({
+      where: { id: ticketId },
+      include: { ticketType: true },
+    });
+
+  return mapToResponseDto(updatedTicket);
+  }
+
+  async getPoolTickets(userId: string): Promise<TicketResponseDto[]> {
+    const tickets = await this.prisma.ticket.findMany({
+      where: { 
+        userId,
+        isInPool: true,
+      },
+      include: {
+        ticketType: true,
+      },
+      orderBy: { poolOrder: 'asc' }, // FIFO order
+    });
+
+  return tickets.map(ticket => mapToResponseDto(ticket));
+  }
+
+  // mapToResponseDto now lives in ./utils/map-to-response.ts
 }

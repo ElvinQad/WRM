@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -14,12 +13,12 @@ model User {
   password               String
   firstName              String?              @map("first_name")
   lastName               String?              @map("last_name")
-  emailVerified          Boolean              @default(false) @map("email_verified")
-  emailVerificationToken String?              @unique @map("email_verification_token")
-  passwordResetToken     String?              @unique @map("password_reset_token")
-  passwordResetExpires   DateTime?            @map("password_reset_expires")
   createdAt              DateTime             @default(now()) @map("created_at")
   updatedAt              DateTime             @updatedAt @map("updated_at")
+  emailVerificationToken String?              @unique @map("email_verification_token")
+  emailVerified          Boolean              @default(false) @map("email_verified")
+  passwordResetExpires   DateTime?            @map("password_reset_expires")
+  passwordResetToken     String?              @unique @map("password_reset_token")
   agentCollaborations    AgentCollaboration[]
   ticketTypes            TicketType[]
   tickets                Ticket[]
@@ -60,6 +59,8 @@ model Ticket {
   priority         Int?
   createdAt        DateTime             @default(now()) @map("created_at")
   updatedAt        DateTime             @updatedAt @map("updated_at")
+  isInPool         Boolean              @default(false) @map("is_in_pool")
+  poolOrder        Int?                 @map("pool_order")
   collaborations   AgentCollaboration[]
   ticketType       TicketType           @relation(fields: [typeId], references: [id])
   user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -68,11 +69,12 @@ model Ticket {
   @@index([typeId])
   @@index([startTime])
   @@index([endTime])
-  // Compound indexes for optimized timeline queries (Story 1.5.2 - Subtask 4.2)
   @@index([userId, startTime])
   @@index([userId, endTime])
   @@index([userId, startTime, endTime])
-  @@index([startTime, endTime]) // For date range queries
+  @@index([startTime, endTime])
+  @@index([userId, isInPool])
+  @@index([userId, isInPool, poolOrder])
   @@map("tickets")
 }
 
@@ -103,7 +105,7 @@ model AgentCollaboration {
   ticket    Ticket                   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([ticketId, agentId])
+  @@unique([ticketId, agentId])
   @@index([ticketId])
   @@index([agentId])
   @@index([status])

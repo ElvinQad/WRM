@@ -1,5 +1,5 @@
-# **Epic 1.5: Enhanced Navigation & Performance** ✅ **COMPLETED**
-*This epic enhances the timeline interface with heat map navigation, selective loading, and improved scrolling behavior.*
+# **Epic 1.5: Enhanced Navigation & Performance** 🚧 **IN PROGRESS**
+*This epic enhances the timeline interface with heat map navigation, selective loading, improved scrolling behavior, and tickets pool staging.*
 
 *   **User Story 1.5.1 (Heat Map Navigation):**
     *   **As a user,** I want to see a heat map showing my activity completion status across dates.
@@ -30,3 +30,18 @@
         *   Scroll behavior respects selective loading boundaries.
         *   Smooth scrolling animation with momentum on touch devices.
         *   **Performance:** Scroll response within 16ms for 60fps smoothness.
+
+*   **User Story 1.5.4 (Tickets Pool):**
+    *   **As a user,** I want a FIFO tickets pool where I can queue tickets that I'm not ready to schedule on the timeline.
+    *   **So that** I can organize my tickets in a first-in, first-out queue before committing them to specific time slots.
+    *   **Acceptance Criteria:**
+        *   Tickets pool panel is positioned below the main timeline interface and is foldable/collapsible.
+        *   Pool operates as a FIFO queue - newest tickets are added to the end, oldest are retrieved from the front.
+        *   Users can move tickets from timeline to pool via button/menu action (unscheduling them).
+        *   Users can move tickets from pool to timeline via button/menu action (scheduling them).
+        *   Within the pool, users can drag-drop to reorder tickets for priority management.
+        *   Pool tickets use existing visual design but indicate "unscheduled/queued" status.
+        *   Pool panel can be collapsed/expanded to save screen space.
+        *   Existing timeline-to-timeline drag-drop functionality continues unchanged.
+        *   **Local Testing:** Extended `./packages/testing/test-timeline-drag-drop.sh` validates pool operations and FIFO behavior.
+        *   **Performance:** Pool operations maintain 50ms response time, backend updates within 500ms.

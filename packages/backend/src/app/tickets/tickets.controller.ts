@@ -66,4 +66,48 @@ export class TicketsController {
   ) {
     return await this.ticketsService.deleteTicket(user.id, id);
   }
+
+  // Pool-specific endpoints for Story 1.5.4
+  @Post(':id/move-to-pool')
+  @ApiOperation({ summary: 'Move a ticket to the pool (unschedule it)' })
+  @ApiResponse({ status: 200, description: 'Ticket moved to pool successfully', type: TicketResponseDto })
+  async moveTicketToPool(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string
+  ) {
+    return await this.ticketsService.moveTicketToPool(user.id, id);
+  }
+
+  @Post(':id/schedule-from-pool')
+  @ApiOperation({ summary: 'Schedule a ticket from the pool (move it back to timeline)' })
+  @ApiResponse({ status: 200, description: 'Ticket scheduled from pool successfully', type: TicketResponseDto })
+  async scheduleTicketFromPool(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() scheduleDto: { startTime: string; endTime: string }
+  ) {
+    const startTime = new Date(scheduleDto.startTime);
+    const endTime = new Date(scheduleDto.endTime);
+    return await this.ticketsService.scheduleTicketFromPool(user.id, id, startTime, endTime);
+  }
+
+  @Put(':id/reorder-in-pool')
+  @ApiOperation({ summary: 'Reorder a ticket within the pool' })
+  @ApiResponse({ status: 200, description: 'Ticket reordered in pool successfully', type: TicketResponseDto })
+  async reorderTicketInPool(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() reorderDto: { newPosition: number }
+  ) {
+    return await this.ticketsService.reorderTicketInPool(user.id, id, reorderDto.newPosition);
+  }
+
+  @Get('pool')
+  @ApiOperation({ summary: 'Get all tickets currently in the pool for the current user' })
+  @ApiResponse({ status: 200, description: 'List of pool tickets ordered by pool position', type: [TicketResponseDto] })
+  async getPoolTickets(
+    @CurrentUser() user: AuthenticatedUser
+  ) {
+    return await this.ticketsService.getPoolTickets(user.id);
+  }
 }

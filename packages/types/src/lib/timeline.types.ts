@@ -26,6 +26,12 @@ export interface TimelineProps {
   enableRealTimeUpdates?: boolean;
   showConflicts?: boolean;
   
+  // Epic 1.5: Pool-related props
+  poolTickets?: FrontendTicket[];
+  onTicketSchedule?: (ticket: FrontendTicket) => void;
+  onTicketMoveToPool?: (ticket: FrontendTicket) => void;
+  onPoolTicketReorder?: (ticketId: string, newPosition: number) => void;
+  
   // Optional legacy props
   sunTimes?: { sunrise: Date; sunset: Date; nextSunrise: Date } | null;
   autoCenterOnNow?: boolean;

@@ -90,6 +90,13 @@ export class TicketResponseDto implements BaseTicket {
   @ApiPropertyOptional({ description: 'Ticket priority' })
   priority?: number;
 
+  // Pool-related fields for Story 1.5.4
+  @ApiPropertyOptional({ description: 'Pool order position (null if not in pool)' })
+  poolOrder?: number;
+
+  @ApiProperty({ description: 'Whether ticket is currently in the pool' })
+  isInPool!: boolean;
+
   @ApiProperty({ description: 'Creation timestamp' })
   createdAt!: string;
 

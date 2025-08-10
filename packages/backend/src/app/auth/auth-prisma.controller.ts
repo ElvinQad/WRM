@@ -8,7 +8,6 @@ import {
   RefreshTokenDto, 
   AuthResponseDto, 
   TokenResponseDto,
-  SendVerificationEmailDto,
   VerifyEmailDto,
   RequestPasswordResetDto,
   ResetPasswordDto,
