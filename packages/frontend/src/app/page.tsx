@@ -6,7 +6,7 @@ import { type FrontendTicket as Ticket } from "@wrm/types";
 import { TicketDetailModal } from "../components/tickets/TicketDetailModal.tsx";
 import { Button } from "../components/ui/index.ts";
 import { ProtectedRoute } from "../components/auth/ProtectedRoute.tsx";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import SunCalc from "suncalc";
 import { useAppDispatch, useAppSelector } from "../store/hooks.ts";
 import {
@@ -22,6 +22,7 @@ import { fetchTicketTypes } from "../store/thunks/ticketTypeThunks.ts";
 import { getProfile } from "../store/slices/authSlice.ts";
 
 export default function Index() {
+  const [isMounted, setIsMounted] = useState(false);
   const dispatch = useAppDispatch();
   const { tickets: rawTickets, selectedTicket, error } = useAppSelector((state) => state.tickets);
   const { isModalOpen, coords } = useAppSelector((state) => state.app);
@@ -47,6 +48,16 @@ export default function Index() {
     !poolTickets.some(poolTicket => poolTicket.id === ticket.id)
   );
 
+  // Enrich pool tickets with type data (ensures colors persist after refresh)
+  const enrichedPoolTickets = poolTickets.map((ticket: Ticket) => {
+    const ticketType = ticketTypes.find((type: { id: string; name?: string; color?: string }) => type.id === ticket.typeId);
+    return {
+      ...ticket,
+      typeName: ticketType?.name || 'Unknown',
+      typeColor: ticketType?.color || '#3B82F6',
+    } as Ticket;
+  });
+
   // Handle moving ticket to pool
   const handleMoveToPool = useCallback(async (ticket: Ticket) => {
     try {
@@ -71,6 +82,11 @@ export default function Index() {
       dispatch(getProfile());
     }
   }, [isAuthenticated, accessToken, user, dispatch]);
+
+  // Avoid hydration mismatch by rendering Timeline only after mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   // Load tickets from API only when authenticated
   useEffect(() => {
@@ -190,6 +206,11 @@ export default function Index() {
     });
   }, [dispatch, user, defaultTypeId, ticketTypes]);
 
+  // Prevent SSR/client divergence entirely until mount
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <ProtectedRoute>
       <div className="flex flex-col h-full w-full">
@@ -229,7 +250,7 @@ export default function Index() {
             dateRange={{ start: new Date(), end: new Date(Date.now() + 24 * 60 * 60 * 1000) }}
             sunTimes={sunTimes}
             tickets={timelineTickets}
-            poolTickets={poolTickets}
+            poolTickets={enrichedPoolTickets}
             onTicketUpdate={handleTicketUpdate}
             onTicketClick={handleTicketClick}
             onTicketMoveToPool={handleMoveToPool}

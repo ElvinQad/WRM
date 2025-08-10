@@ -5,7 +5,6 @@ import { Button } from '../../ui/Button.tsx';
 import { TicketComponent } from './TicketComponent.tsx';
 import { TimelineTooltip } from './TimelineTooltip.tsx';
 import { setPoolExpanded, reorderPoolTickets } from '../../../store/slices/timelineSlice.ts';
-import { useTicketsPool } from '../hooks/useTicketsPool.ts';
 import type { RootState } from '../../../store/index.ts';
 
 interface TicketsPoolProps {
@@ -37,7 +36,6 @@ export function TicketsPool({
 }: TicketsPoolProps) {
   const dispatch = useDispatch();
   const poolExpanded = useSelector((state: RootState) => state.timeline.poolExpanded);
-  const { scheduleTicketFromPool } = useTicketsPool();
   
   // Drag state for pool reordering
   const [dragState, setDragState] = useState<DragState>({
@@ -59,25 +57,12 @@ export function TicketsPool({
 
   const handleScheduleTicket = useCallback(async (ticket: FrontendTicket) => {
     try {
-      // Use the pool hook's async method which schedules to current time
-      await scheduleTicketFromPool(ticket);
-      
-      // Optional: Call the parent callback with the updated ticket if provided
-      if (onTicketSchedule) {
-        const now = new Date();
-        const defaultDuration = 60 * 60 * 1000; // 1 hour default duration
-        const updatedTicket: FrontendTicket = {
-          ...ticket,
-          start: now,
-          end: new Date(now.getTime() + defaultDuration),
-        };
-        onTicketSchedule(updatedTicket);
-      }
+      // Delegate scheduling to parent callback to avoid duplicate API calls
+      await Promise.resolve(onTicketSchedule?.(ticket));
     } catch (error) {
       console.error('Failed to schedule ticket from pool:', error);
-      // Could show a toast or error message here
     }
-  }, [scheduleTicketFromPool, onTicketSchedule]);
+  }, [onTicketSchedule]);
 
   // Handle ticket clicks to open modal
   const handleTicketClick = useCallback((ticket: FrontendTicket) => {
