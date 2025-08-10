@@ -8,15 +8,20 @@ import { SunTimesOverlay } from './SunTimesOverlay.tsx';
 import { TicketComponent } from './TicketComponent.tsx';
 import { TimelineTooltip } from './TimelineTooltip.tsx';
 import { HeatMapNavigator } from './HeatMapNavigator.tsx';
+import { TicketsPool } from './TicketsPool.tsx';
 import { FrontendTicket } from '@wrm/types';
 
 export function Timeline({ 
   sunTimes, 
   tickets = [], 
+  poolTickets = [],
   onTicketMove,
   onTicketResize: _onTicketResize,
   onTicketUpdate, 
   onTicketClick, 
+  onTicketSchedule,
+  onTicketMoveToPool,
+  onPoolTicketReorder,
   autoCenterOnNow = false 
 }: TimelineProps) {
   // Use onTicketUpdate if available (preferred for full ticket updates including lanes),
@@ -41,8 +46,8 @@ export function Timeline({
     isPanning,
     autoCenter,
     currentView,
-    startDate,
-    endDate,
+    startDate: _startDate,
+    endDate: _endDate,
     totalWidth,
     totalHeight,
     ticketsWithPositions,
@@ -75,21 +80,23 @@ export function Timeline({
         onViewChange={handleViewChange}
       />
 
-      {/* Timeline container */}
-      <div
-        ref={containerRef}
-        className="flex-1 overflow-auto relative bg-background timeline-container"
-        onWheel={handleWheel}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseDown={handleTimelineMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onScroll={handleScroll}
-        style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
-      >
+      {/* Main content area with timeline and pool */}
+      <div className="flex-1 flex">
+        {/* Timeline container */}
+        <div
+          ref={containerRef}
+          className="flex-1 overflow-auto relative bg-background timeline-container"
+          onWheel={handleWheel}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseDown={handleTimelineMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onScroll={handleScroll}
+          style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
+        >
           <div
             className="relative timeline-content"
             style={{
@@ -147,9 +154,13 @@ export function Timeline({
               onMouseEnter={() => setHoveredTicket(ticketWithPosition.id)}
               onMouseLeave={() => setHoveredTicket(null)}
               laneToY={laneToY}
+              onMoveToPool={onTicketMoveToPool ? (ticket) => onTicketMoveToPool(ticket) : undefined}
+              showPoolAction // Timeline tickets show "Move to Pool" action
             />
           ))}
           </div>
+      </div>
+
       </div>
 
       {/* Tooltip */}
@@ -169,6 +180,14 @@ export function Timeline({
           />
         </div>
       </div>
+
+      {/* Tickets Pool - Below heat map */}
+      <TicketsPool
+        tickets={poolTickets}
+        onTicketSchedule={onTicketSchedule || (() => {})}
+        onTicketReorder={onPoolTicketReorder}
+        onTicketClick={onTicketClick}
+      />
     </div>
   );
 }

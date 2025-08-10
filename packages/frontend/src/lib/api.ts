@@ -225,6 +225,31 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  // Pool API methods for Story 1.5.4 - Tickets Pool
+  async moveTicketToPool(ticketId: string): Promise<ApiTicket> {
+    return await this.request<ApiTicket>(`/tickets/${ticketId}/move-to-pool`, {
+      method: 'POST',
+    });
+  }
+
+  async scheduleTicketFromPool(ticketId: string, startTime: string, endTime: string): Promise<ApiTicket> {
+    return await this.request<ApiTicket>(`/tickets/${ticketId}/schedule-from-pool`, {
+      method: 'POST',
+      body: JSON.stringify({ startTime, endTime }),
+    });
+  }
+
+  async reorderTicketInPool(ticketId: string, newPosition: number): Promise<ApiTicket> {
+    return await this.request<ApiTicket>(`/tickets/${ticketId}/reorder-in-pool`, {
+      method: 'PUT',
+      body: JSON.stringify({ newPosition }),
+    });
+  }
+
+  async getPoolTickets(): Promise<ApiTicket[]> {
+    return await this.request<ApiTicket[]>('/tickets/pool');
+  }
 }
 
 // Export singleton instance

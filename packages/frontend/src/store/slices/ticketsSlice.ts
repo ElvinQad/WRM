@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { FrontendTicket } from '@wrm/types';
-import { fetchTickets, createTicketAsync, updateTicketAsync, deleteTicketAsync } from '../thunks/ticketThunks.ts';
+import { fetchTickets, createTicketAsync, updateTicketAsync, deleteTicketAsync, moveTicketToPoolAsync, scheduleTicketFromPoolAsync, reorderTicketInPoolAsync } from '../thunks/ticketThunks.ts';
 
 // Type for error payload from async thunks
 interface AsyncThunkError {
@@ -122,6 +122,77 @@ const ticketsSlice = createSlice({
       .addCase(deleteTicketAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = (action.payload as AsyncThunkError)?.message || 'Failed to delete ticket';
+      });
+
+    // Pool operations for Story 1.5.4 - Tickets Pool
+    
+    // Move ticket to pool
+    builder
+      .addCase(moveTicketToPoolAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(moveTicketToPoolAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        // Update ticket in main tickets array
+        const index = state.tickets.findIndex(t => t.id === action.payload.id);
+        if (index !== -1) {
+          state.tickets[index] = action.payload;
+        }
+        // Update selected ticket if it matches
+        if (state.selectedTicket?.id === action.payload.id) {
+          state.selectedTicket = action.payload;
+        }
+      })
+      .addCase(moveTicketToPoolAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as AsyncThunkError)?.message || 'Failed to move ticket to pool';
+      });
+
+    // Schedule ticket from pool
+    builder
+      .addCase(scheduleTicketFromPoolAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(scheduleTicketFromPoolAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        // Update ticket in main tickets array
+        const index = state.tickets.findIndex(t => t.id === action.payload.id);
+        if (index !== -1) {
+          state.tickets[index] = action.payload;
+        }
+        // Update selected ticket if it matches
+        if (state.selectedTicket?.id === action.payload.id) {
+          state.selectedTicket = action.payload;
+        }
+      })
+      .addCase(scheduleTicketFromPoolAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as AsyncThunkError)?.message || 'Failed to schedule ticket from pool';
+      });
+
+    // Reorder ticket in pool
+    builder
+      .addCase(reorderTicketInPoolAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(reorderTicketInPoolAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        // Update ticket in main tickets array
+        const index = state.tickets.findIndex(t => t.id === action.payload.id);
+        if (index !== -1) {
+          state.tickets[index] = action.payload;
+        }
+        // Update selected ticket if it matches
+        if (state.selectedTicket?.id === action.payload.id) {
+          state.selectedTicket = action.payload;
+        }
+      })
+      .addCase(reorderTicketInPoolAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as AsyncThunkError)?.message || 'Failed to reorder ticket in pool';
       });
   },
 });

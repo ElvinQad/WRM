@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { FrontendTicket } from '@wrm/types';
+import { fetchTickets } from '../thunks/ticketThunks.ts';
 
 export type TimelineView = 'daily' | 'weekly';
 
@@ -14,6 +16,9 @@ interface TimelineState {
   heatMapEnabled: boolean;
   selectedHeatMapDate: Date | null;
   activityCacheVersion: number; // Increment to invalidate activity cache
+  // Pool state - FIFO queue for unscheduled tickets
+  poolTickets: FrontendTicket[]; // Ordered array - first element is first out
+  poolExpanded: boolean; // Track pool expansion state
 }
 
 // Default to daily view range: 48 hours total (12h yesterday + 24h today + 12h tomorrow)
@@ -31,6 +36,8 @@ const initialState: TimelineState = {
   heatMapEnabled: true,
   selectedHeatMapDate: null,
   activityCacheVersion: 0,
+  poolTickets: [], // Empty FIFO queue initially
+  poolExpanded: true, // Start expanded by default
 };
 
 const timelineSlice = createSlice({
@@ -170,6 +177,57 @@ const timelineSlice = createSlice({
     clearLoadedDateRanges: (state) => {
       state.loadedDateRanges = [];
     },
+    
+    // Pool management actions - FIFO operations
+    addTicketToPool: (state, action: PayloadAction<FrontendTicket>) => {
+      // Add to end of queue (FIFO - First In, First Out)
+      state.poolTickets.push(action.payload);
+    },
+    
+    removeTicketFromPool: (state, action: PayloadAction<string>) => {
+      // Remove by ticket ID (can be from any position for manual scheduling)
+      state.poolTickets = state.poolTickets.filter(ticket => ticket.id !== action.payload);
+    },
+    
+    scheduleFirstTicketFromPool: (state) => {
+      // Remove first ticket from pool (FIFO)
+      if (state.poolTickets.length > 0) {
+        state.poolTickets.shift();
+      }
+    },
+    
+    reorderPoolTickets: (state, action: PayloadAction<{ ticketId: string; newPosition: number }>) => {
+      const { ticketId, newPosition } = action.payload;
+      const ticketIndex = state.poolTickets.findIndex(ticket => ticket.id === ticketId);
+      
+      if (ticketIndex !== -1) {
+        // Remove ticket from current position
+        const [ticket] = state.poolTickets.splice(ticketIndex, 1);
+        
+        // Insert at new position (clamped to valid range)
+        const targetPosition = Math.max(0, Math.min(newPosition, state.poolTickets.length));
+        state.poolTickets.splice(targetPosition, 0, ticket);
+      }
+    },
+    
+    setPoolExpanded: (state, action: PayloadAction<boolean>) => {
+      state.poolExpanded = action.payload;
+    },
+    
+    clearPool: (state) => {
+      state.poolTickets = [];
+    },
+  },
+  extraReducers: (builder) => {
+    // Update pool tickets when main tickets are fetched
+    builder.addCase(fetchTickets.fulfilled, (state, action) => {
+      // Filter tickets that are in pool and sort by pool order
+      const poolTickets = action.payload
+        .filter(ticket => ticket.isInPool)
+        .sort((a, b) => (a.poolOrder || 0) - (b.poolOrder || 0));
+      
+      state.poolTickets = poolTickets;
+    });
   },
 });
 
@@ -186,6 +244,13 @@ export const {
   setSelectiveLoadingEnabled,
   setPrefetchEnabled,
   addLoadedDateRange,
-  clearLoadedDateRanges
+  clearLoadedDateRanges,
+  // Pool actions
+  addTicketToPool,
+  removeTicketFromPool,
+  scheduleFirstTicketFromPool,
+  reorderPoolTickets,
+  setPoolExpanded,
+  clearPool
 } = timelineSlice.actions;
 export default timelineSlice.reducer;

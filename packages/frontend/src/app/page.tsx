@@ -1,6 +1,7 @@
 "use client";
 
 import { Timeline } from "../components/timeline/index.ts";
+import { useTicketsPool } from "../components/timeline/hooks/useTicketsPool.ts";
 import { type FrontendTicket as Ticket } from "@wrm/types";
 import { TicketDetailModal } from "../components/tickets/TicketDetailModal.tsx";
 import { Button } from "../components/ui/index.ts";
@@ -28,6 +29,9 @@ export default function Index() {
   const { user, isAuthenticated, accessToken } = useAppSelector((state) => state.auth);
   const { ticketTypes, defaultTypeId } = useAppSelector((state) => state.ticketTypes);
   
+  // Use tickets pool hook for pool operations
+  const { poolTickets, moveTicketToPool, scheduleTicketFromPool } = useTicketsPool();
+  
   // Enrich tickets with type information
   const tickets = rawTickets.map((ticket: Ticket) => {
     const ticketType = ticketTypes.find((type: { id: string; name?: string; color?: string }) => type.id === ticket.typeId);
@@ -37,6 +41,29 @@ export default function Index() {
       typeColor: ticketType?.color || '#3B82F6', // Default blue if no color
     };
   });
+  
+  // Filter out tickets that are in the pool from timeline display
+  const timelineTickets = tickets.filter((ticket: Ticket) => 
+    !poolTickets.some(poolTicket => poolTicket.id === ticket.id)
+  );
+
+  // Handle moving ticket to pool
+  const handleMoveToPool = useCallback(async (ticket: Ticket) => {
+    try {
+      await moveTicketToPool(ticket);
+    } catch (error) {
+      console.error('Failed to move ticket to pool:', error);
+    }
+  }, [moveTicketToPool]);
+
+  // Handle scheduling ticket from pool
+  const handleScheduleFromPool = useCallback(async (ticket: Ticket) => {
+    try {
+      await scheduleTicketFromPool(ticket);
+    } catch (error) {
+      console.error('Failed to schedule ticket from pool:', error);
+    }
+  }, [scheduleTicketFromPool]);
   
   // Load user profile when authenticated but user data is missing
   useEffect(() => {
@@ -151,6 +178,8 @@ export default function Index() {
       updatedAt: now.toISOString(),
       color: '#ffffff',
       category: 'Work',
+      // Story 1.5.4: Pool functionality - new tickets start on timeline, not in pool
+      isInPool: false,
     };
     
     dispatch(createTicketAsync(newTicket)).unwrap().then((createdTicket: Ticket) => {
@@ -199,9 +228,12 @@ export default function Index() {
             view="daily"
             dateRange={{ start: new Date(), end: new Date(Date.now() + 24 * 60 * 60 * 1000) }}
             sunTimes={sunTimes}
-            tickets={tickets}
+            tickets={timelineTickets}
+            poolTickets={poolTickets}
             onTicketUpdate={handleTicketUpdate}
             onTicketClick={handleTicketClick}
+            onTicketMoveToPool={handleMoveToPool}
+            onTicketSchedule={handleScheduleFromPool}
           />
         </div>
 

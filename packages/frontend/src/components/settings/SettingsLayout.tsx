@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { TicketTypesSettings } from '../tickets/TicketTypesSettings.tsx';
 
 export const SettingsLayout = () => {
@@ -12,7 +12,8 @@ export const SettingsLayout = () => {
   ];
 
   return (
-    <div className="flex h-full bg-background">
+    <React.Suspense fallback={<div className="flex h-full bg-background" />}> 
+      <div className="flex h-full bg-background">
       {/* Settings Navigation Sidebar */}
       <div className="w-64 bg-card border-r border-border p-4 flex-shrink-0">
         <h1 className="text-xl font-semibold text-foreground mb-6">Settings</h1>
@@ -39,6 +40,7 @@ export const SettingsLayout = () => {
       <div className="flex-1 p-6 overflow-auto">
         {activeSection === 'ticket-types' && <TicketTypesSettings />}
       </div>
-    </div>
+      </div>
+    </React.Suspense>
   );
 };

@@ -4,3 +4,4 @@ export { TimeMarkers } from './TimeMarkers.tsx';
 export { SunTimesOverlay } from './SunTimesOverlay.tsx';
 export { TicketComponent } from './TicketComponent.tsx';
 export { TimelineTooltip } from './TimelineTooltip.tsx';
+export { TicketsPool } from './TicketsPool.tsx';

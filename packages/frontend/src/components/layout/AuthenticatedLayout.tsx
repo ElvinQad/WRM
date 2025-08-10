@@ -4,14 +4,21 @@ import React from 'react';
 import { useAuth } from '../../hooks/use-auth.ts';
 import { LogoutButton } from '../auth/LogoutButton.tsx';
 import { usePathname } from 'next/navigation';
+import { useAppSelector } from '../../store/hooks.ts';
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
 }
 
 export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ children }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const pathname = usePathname();
+  const rehydrated = useAppSelector((state: { _persist?: { rehydrated?: boolean } }) => state._persist?.rehydrated ?? false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
   
   // Allow auth pages to render without the authenticated layout
   const isAuthPage = pathname?.startsWith('/auth/');
@@ -22,8 +29,8 @@ export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ childr
   }
 
   // For non-auth pages, always render children (let ProtectedRoute handle auth logic)
-  // But only show the nav bar if user is authenticated
-  if (!isAuthenticated) {
+  // Avoid hydration mismatch: defer nav decisions until after mount + rehydration
+  if (!mounted || !rehydrated || !isAuthenticated) {
     return <>{children}</>;
   }
 

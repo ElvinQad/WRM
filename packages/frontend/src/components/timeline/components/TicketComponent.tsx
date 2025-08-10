@@ -12,6 +12,8 @@ interface TicketComponentProps {
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   laneToY: (lane: number) => number;
+  onMoveToPool?: (ticket: TicketWithPosition) => void; // New prop for moving tickets to pool
+  showPoolAction?: boolean; // Control whether to show pool action (timeline vs pool context)
 }
 
 export function TicketComponent({
@@ -23,6 +25,8 @@ export function TicketComponent({
   onMouseEnter,
   onMouseLeave,
   laneToY,
+  onMoveToPool: _onMoveToPool,
+  showPoolAction: _showPoolAction = true,
 }: TicketComponentProps) {
   const { startX, width, lane } = ticketWithPosition;
   

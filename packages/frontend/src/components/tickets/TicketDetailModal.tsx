@@ -9,6 +9,7 @@ import { cn } from '../../lib/utils.ts';
 import { DynamicFormField } from '../forms/DynamicFormField.tsx';
 import { CustomFieldDefinition } from './CustomPropertyForm.tsx';
 import { getTicketDuration } from '../timeline/utils/duration.ts';
+import { useTicketsPool } from '../timeline/hooks/useTicketsPool.ts';
 
 interface TicketDetailModalProps {
   ticket: Ticket | null;
@@ -21,6 +22,7 @@ interface TicketDetailModalProps {
 export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete }: TicketDetailModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const { ticketTypes } = useSelector((state: RootState) => state.ticketTypes);
+  const { moveTicketToPool, isTicketInPool } = useTicketsPool();
 
   // Close modal on Escape key
   useEffect(() => {
@@ -77,6 +79,17 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
         [fieldName]: value
       }
     });
+  };
+
+  const handleMoveToPool = async () => {
+    if (!ticket) return;
+    try {
+      await moveTicketToPool(ticket);
+      onClose(); // Close modal after successfully moving to pool
+    } catch (error) {
+      console.error('Failed to move ticket to pool:', error);
+      // Could show a toast or error message here
+    }
   };
 
   // const formatDateTime = (date: Date) => {
@@ -240,16 +253,30 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
 
         {/* Footer */}
         <div className="flex justify-between items-center p-6 border-t border-border/50 bg-card/50">
-          <Button
-            variant="outline"
-            onClick={() => onDelete?.(ticket.id)}
-            className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:border-destructive/30"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            Delete
-          </Button>
+          <div className="flex space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => onDelete?.(ticket.id)}
+              className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:border-destructive/30"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete
+            </Button>
+            {!isTicketInPool(ticket.id) && (
+              <Button
+                variant="outline"
+                onClick={handleMoveToPool}
+                className="text-orange-600 border-orange-300 hover:bg-orange-50 hover:border-orange-400"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                Move to Pool
+              </Button>
+            )}
+          </div>
           <div className="flex space-x-3">
             <Button
               variant="outline"
