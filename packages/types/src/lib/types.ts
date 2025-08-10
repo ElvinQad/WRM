@@ -33,6 +33,14 @@ export interface BaseTicket {
   isInPool: boolean;
   poolOrder?: number;
   
+  // Story 2.4: Recurrence support
+  isRecurring?: boolean;
+  recurrenceId?: string;
+  parentTicketId?: string;
+  recurrenceRule?: string;
+  recurrenceEnd?: string; // ISO string format
+  maxOccurrences?: number;
+  
   createdAt: string;
   updatedAt: string;
 }
@@ -63,6 +71,12 @@ export interface FrontendTicket extends BaseTicket {
   // Epic 1: Drag-and-drop properties
   isDragging?: boolean;
   isResizing?: boolean;
+  
+  // Story 2.4: Recurrence UI properties
+  isRecurringParent?: boolean; // True if this is the original recurring ticket
+  isRecurringInstance?: boolean; // True if this is a generated instance
+  nextInstanceDate?: Date; // For parent tickets, when next instance occurs
+  seriesTitle?: string; // For instances, the title of the parent series
 }
 
 /**
@@ -166,6 +180,14 @@ export interface TicketEntity {
   // Story 1.5.4: Pool functionality
   is_in_pool: boolean;
   pool_order: number | null;
+  
+  // Story 2.4: Recurrence fields
+  is_recurring?: boolean;
+  recurrence_id?: string | null;
+  parent_ticket_id?: string | null;
+  recurrence_rule?: string | null;
+  recurrence_end?: string | null;
+  max_occurrences?: number | null;
   
   created_at: string;
   updated_at: string;

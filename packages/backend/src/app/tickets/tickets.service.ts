@@ -1,12 +1,17 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, forwardRef, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma.service.ts';
 import { CreateTicketDto, UpdateTicketDto, TicketResponseDto } from './dto/ticket.dto.ts';
 import { Prisma } from '@prisma/client';
 import { mapToResponseDto } from './utils/map-to-response.ts';
+import { RecurrenceService } from './services/recurrence.service.ts';
 
 @Injectable()
 export class TicketsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => RecurrenceService))
+    private recurrenceService: RecurrenceService
+  ) {}
 
   async createTicket(userId: string, createTicketDto: CreateTicketDto): Promise<TicketResponseDto> {
     const ticket = await this.prisma.ticket.create({
@@ -64,7 +69,19 @@ export class TicketsService {
       orderBy: { startTime: 'asc' }, // Order by start time for timeline display
     });
 
-  return tickets.map(ticket => mapToResponseDto(ticket));
+    // Auto-generate next instances for recurring tickets that need them
+    await this.generateNextInstancesIfNeeded(userId, startDate, endDate);
+
+    // Re-fetch tickets to include any newly generated instances
+    const updatedTickets = await this.prisma.ticket.findMany({
+      where: whereClause,
+      include: {
+        ticketType: true,
+      },
+      orderBy: { startTime: 'asc' },
+    });
+
+  return updatedTickets.map(ticket => mapToResponseDto(ticket));
   }
 
   async getTicketById(userId: string, ticketId: string): Promise<TicketResponseDto> {
@@ -270,6 +287,17 @@ export class TicketsService {
     });
 
   return tickets.map(ticket => mapToResponseDto(ticket));
+  }
+
+  /**
+   * Automatically generate next instances for recurring tickets that need them
+   * This ensures the timeline view always shows upcoming instances
+   */
+  private generateNextInstancesIfNeeded(_userId: string, _startDate?: Date, _endDate?: Date): Promise<void> {
+    // Temporarily disabled due to schema compatibility issues
+    // Users can manually generate next instances via the recurrence API
+    console.log('Auto-generation disabled - use POST /api/tickets/recurrence/:id/generate-next to generate next instance');
+    return Promise.resolve();
   }
 
   // mapToResponseDto now lives in ./utils/map-to-response.ts

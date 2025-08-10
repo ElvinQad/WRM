@@ -61,9 +61,20 @@ model Ticket {
   updatedAt        DateTime             @updatedAt @map("updated_at")
   isInPool         Boolean              @default(false) @map("is_in_pool")
   poolOrder        Int?                 @map("pool_order")
+  // Recurrence fields
+  isRecurring      Boolean              @default(false) @map("is_recurring")
+  recurrenceId     String?              @map("recurrence_id")
+  parentTicketId   String?              @map("parent_ticket_id")
+  recurrenceRule   String?              @map("recurrence_rule")
+  recurrenceEnd    DateTime?            @map("recurrence_end")
+  maxOccurrences   Int?                 @map("max_occurrences")
   collaborations   AgentCollaboration[]
   ticketType       TicketType           @relation(fields: [typeId], references: [id])
   user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Recurrence relationships
+  parentTicket     Ticket?              @relation("RecurringInstances", fields: [parentTicketId], references: [id])
+  childInstances   Ticket[]             @relation("RecurringInstances")
+  recurrencePattern RecurrencePattern?
 
   @@index([userId])
   @@index([typeId])
@@ -75,7 +86,24 @@ model Ticket {
   @@index([startTime, endTime])
   @@index([userId, isInPool])
   @@index([userId, isInPool, poolOrder])
+  @@index([recurrenceId])
+  @@index([parentTicketId])
+  @@index([isRecurring])
   @@map("tickets")
+}
+
+model RecurrencePattern {
+  id          String                 @id @default(uuid())
+  ticketId    String                 @unique @map("ticket_id")
+  frequency   RecurrenceFrequency
+  interval    Int                    @default(1)
+  skipDates   DateTime[]             @map("skip_dates")
+  createdAt   DateTime               @default(now()) @map("created_at")
+  
+  ticket      Ticket                 @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("recurrence_patterns")
 }
 
 model Agent {
@@ -123,4 +151,11 @@ enum TicketStatus {
   ACTIVE
   PAST_UNTOUCHED
   PAST_CONFIRMED
+}
+
+enum RecurrenceFrequency {
+  DAILY
+  WEEKLY  
+  MONTHLY
+  CUSTOM
 }

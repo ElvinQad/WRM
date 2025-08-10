@@ -250,6 +250,80 @@ class ApiClient {
   async getPoolTickets(): Promise<ApiTicket[]> {
     return await this.request<ApiTicket[]>('/tickets/pool');
   }
+
+  // Recurrence API methods for Story 2.4 - Repeatable Tickets
+  async createRecurrence(ticketId: string, pattern: {
+    frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'CUSTOM';
+    interval: number;
+    endDate?: string;
+    maxOccurrences?: number;
+    skipDates?: string[];
+  }): Promise<{
+    id: string;
+    frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'CUSTOM';
+    interval: number;
+    endDate?: Date;
+    maxOccurrences?: number;
+    skipDates?: Date[];
+    createdAt: Date;
+  }> {
+    return await this.request(`/tickets/recurrence/${ticketId}`, {
+      method: 'POST',
+      body: JSON.stringify(pattern),
+    });
+  }
+
+  async getRecurrence(ticketId: string): Promise<{
+    id: string;
+    frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'CUSTOM';
+    interval: number;
+    endDate?: Date;
+    maxOccurrences?: number;
+    skipDates?: Date[];
+    createdAt: Date;
+  }> {
+    return await this.request(`/tickets/recurrence/${ticketId}`);
+  }
+
+  async updateRecurrence(ticketId: string, pattern: {
+    frequency?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'CUSTOM';
+    interval?: number;
+    endDate?: string;
+    maxOccurrences?: number;
+    skipDates?: string[];
+  }): Promise<{
+    id: string;
+    frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'CUSTOM';
+    interval: number;
+    endDate?: Date;
+    maxOccurrences?: number;
+    skipDates?: Date[];
+    createdAt: Date;
+  }> {
+    return await this.request(`/tickets/recurrence/${ticketId}`, {
+      method: 'PUT',
+      body: JSON.stringify(pattern),
+    });
+  }
+
+  async deleteRecurrence(ticketId: string): Promise<void> {
+    await this.request(`/tickets/recurrence/${ticketId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async generateRecurrenceInstances(ticketId: string, count: number = 10): Promise<ApiTicket[]> {
+    return await this.request(`/tickets/recurrence/${ticketId}/generate-instances`, {
+      method: 'POST',
+      body: JSON.stringify({ count }),
+    });
+  }
+
+  async detachRecurrenceInstance(ticketId: string): Promise<void> {
+    await this.request(`/tickets/recurrence/${ticketId}/detach`, {
+      method: 'POST',
+    });
+  }
 }
 
 // Export singleton instance

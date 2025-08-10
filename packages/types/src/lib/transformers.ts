@@ -73,6 +73,14 @@ export function ticketToEntity(ticket: BaseTicket): TicketEntity {
     is_in_pool: ticket.isInPool,
     pool_order: ticket.poolOrder || null,
     
+    // Story 2.4: Recurrence fields
+    is_recurring: ticket.isRecurring || false,
+    recurrence_id: ticket.recurrenceId || null,
+    parent_ticket_id: ticket.parentTicketId || null,
+    recurrence_rule: ticket.recurrenceRule || null,
+    recurrence_end: ticket.recurrenceEnd || null,
+    max_occurrences: ticket.maxOccurrences || null,
+    
     created_at: ticket.createdAt,
     updated_at: ticket.updatedAt,
   };
@@ -118,6 +126,12 @@ export function baseToFrontendTicket(
     // Epic 1: Initialize interaction states
     isDragging: false,
     isResizing: false,
+    
+    // Story 2.4: Recurrence UI properties
+    isRecurringParent: base.isRecurring && !base.parentTicketId,
+    isRecurringInstance: !!(base.parentTicketId && base.recurrenceId),
+    nextInstanceDate: undefined, // Will be calculated by service if needed
+    seriesTitle: base.parentTicketId ? base.title : undefined, // For instances
   };
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { FrontendTicket as Ticket } from '@wrm/types';
 import { RootState } from '../../store/store.ts';
@@ -10,6 +10,8 @@ import { DynamicFormField } from '../forms/DynamicFormField.tsx';
 import { CustomFieldDefinition } from './CustomPropertyForm.tsx';
 import { getTicketDuration } from '../timeline/utils/duration.ts';
 import { useTicketsPool } from '../timeline/hooks/useTicketsPool.ts';
+import { RecurrenceConfigModal, RecurrencePatternConfig } from './RecurrenceConfigModal.tsx';
+import { recurrenceApi, RecurrencePattern } from '../../services/recurrenceApi.ts';
 
 interface TicketDetailModalProps {
   ticket: Ticket | null;
@@ -19,10 +21,51 @@ interface TicketDetailModalProps {
   onDelete?: (ticketId: string) => void;
 }
 
+interface RepeatFormValue {
+  enabled: boolean;
+  pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'CUSTOM';
+  interval: number;
+  byWeekday: string[];
+  skipDates: Date[];
+}
+
 export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete }: TicketDetailModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const { ticketTypes } = useSelector((state: RootState) => state.ticketTypes);
   const { moveTicketToPool, isTicketInPool } = useTicketsPool();
+
+  // Recurrence modal state
+  const [isRecurrenceModalOpen, setIsRecurrenceModalOpen] = useState(false);
+  const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern | null>(null);
+
+  // Load recurrence pattern when ticket changes
+  useEffect(() => {
+    if (ticket && isOpen) {
+      // Try to load recurrence pattern regardless of isRecurring flag
+      recurrenceApi.get(ticket.id)
+        .then(pattern => {
+          setRecurrencePattern(pattern);
+        })
+        .catch((error) => {
+          // If no recurrence pattern found (404), that's expected
+          if (error.status !== 404) {
+            console.error('Error loading recurrence pattern:', error);
+          }
+          setRecurrencePattern(null);
+        });
+    } else {
+      setRecurrencePattern(null);
+    }
+  }, [ticket?.id, isOpen]);
+
+  // Repeat form local state (not persisted yet) - MUST be called before any conditional returns
+  const [_repeat, _setRepeat] = React.useState<RepeatFormValue>({ 
+    enabled: false, 
+    pattern: 'DAILY', 
+    interval: 1, 
+    byWeekday: [], 
+    skipDates: [] 
+  });
 
   // Close modal on Escape key
   useEffect(() => {
@@ -92,13 +135,77 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
     }
   };
 
-  // const formatDateTime = (date: Date) => {
-  //   return date.toISOString().slice(0, 16);
-  // };
+  // Handle recurrence configuration
+  const handleRecurrenceClick = () => {
+    setIsRecurrenceModalOpen(true);
+  };
 
-  // const parseDateTime = (value: string) => {
-  //   return new Date(value);
-  // };
+  const handleRecurrenceSave = async (pattern: RecurrencePatternConfig) => {
+    if (!ticket) return;
+    
+    try {
+      if (recurrencePattern) {
+        // Update existing recurrence
+        await recurrenceApi.update(ticket.id, {
+          frequency: pattern.frequency,
+          interval: pattern.interval,
+          endDate: pattern.endDate?.toISOString(),
+          maxOccurrences: pattern.maxOccurrences,
+          skipDates: pattern.skipDates?.map((d: Date) => d.toISOString())
+        });
+      } else {
+        // Create new recurrence
+        try {
+          await recurrenceApi.create(ticket.id, {
+            frequency: pattern.frequency,
+            interval: pattern.interval,
+            endDate: pattern.endDate?.toISOString(),
+            maxOccurrences: pattern.maxOccurrences,
+            skipDates: pattern.skipDates?.map((d: Date) => d.toISOString())
+          });
+        } catch (createError: unknown) {
+          // If ticket already has recurrence, try to update instead
+          if (createError instanceof Error && createError.message?.includes('already has recurrence pattern')) {
+            await recurrenceApi.update(ticket.id, {
+              frequency: pattern.frequency,
+              interval: pattern.interval,
+              endDate: pattern.endDate?.toISOString(),
+              maxOccurrences: pattern.maxOccurrences,
+              skipDates: pattern.skipDates?.map((d: Date) => d.toISOString())
+            });
+          } else {
+            throw createError;
+          }
+        }
+      }
+      
+      // Reload recurrence pattern
+      const updatedPattern = await recurrenceApi.get(ticket.id);
+      setRecurrencePattern(updatedPattern);
+      
+      // Generate initial instances if this is a new recurrence
+      if (!recurrencePattern) {
+        await recurrenceApi.generateInstances(ticket.id, 5);
+      }
+      
+    } catch (error) {
+      console.error('Failed to save recurrence:', error);
+    }
+  };
+
+  const handleRemoveRecurrence = async () => {
+    if (!ticket || !recurrencePattern) return;
+    
+    try {
+      await recurrenceApi.delete(ticket.id);
+      setRecurrencePattern(null);
+      
+      // Update ticket to reflect non-recurring status if needed
+      
+    } catch (error) {
+      console.error('Failed to remove recurrence:', error);
+    }
+  };
 
   return (
     <div 
@@ -207,6 +314,52 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
             )}
           </div>
 
+          {/* Repeat/Recurrence Configuration */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-foreground">
+              Repeat
+            </label>
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border border-border">
+              <div className="flex items-center gap-2">
+                {recurrencePattern ? (
+                  <>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="text-sm text-foreground">
+                      {recurrencePattern.frequency === 'DAILY' && `Every ${recurrencePattern.interval} day${recurrencePattern.interval > 1 ? 's' : ''}`}
+                      {recurrencePattern.frequency === 'WEEKLY' && `Every ${recurrencePattern.interval} week${recurrencePattern.interval > 1 ? 's' : ''}`}
+                      {recurrencePattern.frequency === 'MONTHLY' && `Every ${recurrencePattern.interval} month${recurrencePattern.interval > 1 ? 's' : ''}`}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
+                    <span className="text-sm text-muted-foreground">No repeat</span>
+                  </>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRecurrenceClick}
+                  className="text-xs"
+                >
+                  {recurrencePattern ? 'Edit' : 'Add Repeat'}
+                </Button>
+                {recurrencePattern && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveRecurrence}
+                    className="text-xs text-destructive hover:bg-destructive/10"
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Time Range
           <div className="grid grid-cols-2 gap-4">
             <Input
@@ -293,6 +446,21 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
           </div>
         </div>
       </div>
+
+      {/* Recurrence Configuration Modal */}
+      <RecurrenceConfigModal
+        isOpen={isRecurrenceModalOpen}
+        onClose={() => setIsRecurrenceModalOpen(false)}
+        onSave={handleRecurrenceSave}
+        initialPattern={recurrencePattern ? {
+          frequency: recurrencePattern.frequency,
+          interval: recurrencePattern.interval,
+          endDate: recurrencePattern.endDate,
+          maxOccurrences: recurrencePattern.maxOccurrences,
+          skipDates: recurrencePattern.skipDates
+        } : undefined}
+        ticketTitle={ticket?.title || 'ticket'}
+      />
     </div>
   );
 }
