@@ -173,7 +173,7 @@ export class RecurrenceService {
     }
 
     // Only allow detaching if it's a child instance
-    if (!ticket.parentTicketId) {
+    if (!ticket.recurrenceParentId) {
       throw new BadRequestException('Can only detach child instances of recurring tickets');
     }
 
@@ -181,7 +181,7 @@ export class RecurrenceService {
     await this.prisma.ticket.update({
       where: { id: ticketId },
       data: {
-        parentTicketId: null,
+        recurrenceParentId: null,
         recurrenceId: null,
         isRecurring: false
       }
@@ -226,7 +226,7 @@ export class RecurrenceService {
           endTime: new Date(currentDate.getTime() + ticketDuration),
           typeId: ticket.typeId,
           customProperties: ticket.customProperties || {},
-          parentTicketId: ticketId,
+          recurrenceParentId: ticketId,
           recurrenceId: pattern.id,
           status: 'FUTURE',
           isRecurring: false, // Child instances are not recurring themselves
@@ -259,7 +259,7 @@ export class RecurrenceService {
     // Find the latest child instance to calculate next from
     const lastChild = await this.prisma.ticket.findFirst({
       where: {
-        parentTicketId: ticketId,
+        hierarchyParentId: ticketId,
         userId
       },
       orderBy: { startTime: 'desc' }
@@ -281,7 +281,7 @@ export class RecurrenceService {
     }
 
     const existingInstancesCount = await this.prisma.ticket.count({
-      where: { parentTicketId: ticketId, userId }
+      where: { recurrenceParentId: ticketId, userId }
     });
     
     if (ticket.maxOccurrences && existingInstancesCount >= ticket.maxOccurrences) {
@@ -308,7 +308,7 @@ export class RecurrenceService {
         endTime: new Date(nextDate.getTime() + ticketDuration),
         typeId: ticket.typeId,
         customProperties: ticket.customProperties || {},
-        parentTicketId: ticketId,
+        recurrenceParentId: ticketId,
         recurrenceId: pattern.id,
         status: 'FUTURE',
         isRecurring: false, // Child instances are not recurring themselves

@@ -12,6 +12,10 @@ import { getTicketDuration } from '../timeline/utils/duration.ts';
 import { useTicketsPool } from '../timeline/hooks/useTicketsPool.ts';
 import { RecurrenceConfigModal, RecurrencePatternConfig } from './RecurrenceConfigModal.tsx';
 import { recurrenceApi, RecurrencePattern } from '../../services/recurrenceApi.ts';
+import { ChildTicketList } from './ChildTicketList.tsx';
+import { CreateChildTicketModal } from './CreateChildTicketModal.tsx';
+import { HierarchyBreadcrumb } from './HierarchyBreadcrumb.tsx';
+import { CompletionProgressIndicator } from './CompletionProgressIndicator.tsx';
 
 interface TicketDetailModalProps {
   ticket: Ticket | null;
@@ -37,6 +41,9 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
   // Recurrence modal state
   const [isRecurrenceModalOpen, setIsRecurrenceModalOpen] = useState(false);
   const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern | null>(null);
+
+  // Hierarchy modal state
+  const [isCreateChildModalOpen, setIsCreateChildModalOpen] = useState(false);
 
   // Load recurrence pattern when ticket changes
   useEffect(() => {
@@ -360,22 +367,6 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
             </div>
           </div>
 
-          {/* Time Range
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Start Time"
-              type="datetime-local"
-              value={formatDateTime(ticket.start)}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUpdate('start', parseDateTime(e.target.value))}
-            />
-            <Input
-              label="End Time"
-              type="datetime-local"
-              value={formatDateTime(ticket.end)}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUpdate('end', parseDateTime(e.target.value))}
-            />
-          </div> */}
-
           {/* Custom Properties */}
           {(() => {
             const selectedTicketType = ticketTypes.find(t => t.id === ticket.typeId);
@@ -401,6 +392,30 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
             }
             return null;
           })()}
+
+          {/* Hierarchy Section */}
+          <div className="space-y-4">
+            {/* Hierarchy Breadcrumb */}
+            <HierarchyBreadcrumb 
+              currentTicket={ticket}
+              className="border-b border-border pb-2"
+            />
+
+            {/* Parent Completion Progress */}
+            <CompletionProgressIndicator 
+              parentTicket={ticket}
+            />
+
+            {/* Child Tickets */}
+            <ChildTicketList
+              parentTicketId={ticket.id}
+              onChildClick={(childTicket) => {
+                // Navigate to child ticket - could open in new modal or replace current
+                console.log('Navigate to child:', childTicket);
+              }}
+              onAddChildClick={() => setIsCreateChildModalOpen(true)}
+            />
+          </div>
 
         </div>
 
@@ -460,6 +475,18 @@ export function TicketDetailModal({ ticket, isOpen, onClose, onUpdate, onDelete 
           skipDates: recurrencePattern.skipDates
         } : undefined}
         ticketTitle={ticket?.title || 'ticket'}
+      />
+
+      {/* Create Child Ticket Modal */}
+      <CreateChildTicketModal
+        isOpen={isCreateChildModalOpen}
+        onClose={() => setIsCreateChildModalOpen(false)}
+        parentTicket={ticket}
+        onChildCreated={(childTicket) => {
+          console.log('Child ticket created:', childTicket);
+          // Refresh the hierarchy data or update state
+          setIsCreateChildModalOpen(false);
+        }}
       />
     </div>
   );

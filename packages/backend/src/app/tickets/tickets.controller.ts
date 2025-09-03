@@ -2,15 +2,26 @@ import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Query } fro
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { TicketsService } from './tickets.service.ts';
 import { CreateTicketDto, UpdateTicketDto, TicketResponseDto } from './dto/ticket.dto.ts';
+import { 
+  CreateChildTicketDto, 
+  HierarchyResponseDto, 
+  CompletionSettingsDto, 
+  MoveHierarchyDto,
+  CompletionProgressResponseDto 
+} from './dto/hierarchy.dto.ts';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.ts';
 import { CurrentUser, type AuthenticatedUser } from '../decorators/current-user.decorator.ts';
+import { HierarchyService } from './services/hierarchy.service.ts';
 
 @ApiTags('Tickets')
 @Controller('tickets')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class TicketsController {
-  constructor(private readonly ticketsService: TicketsService) {}
+  constructor(
+    private readonly ticketsService: TicketsService,
+    private readonly hierarchyService: HierarchyService
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all tickets for the current user with optional date range filtering' })
@@ -109,5 +120,59 @@ export class TicketsController {
     @CurrentUser() user: AuthenticatedUser
   ) {
     return await this.ticketsService.getPoolTickets(user.id);
+  }
+
+  // Hierarchy endpoints for Story 2.5
+  @Post(':id/children')
+  @ApiOperation({ summary: 'Create a child ticket under a parent ticket' })
+  @ApiResponse({ status: 201, description: 'Child ticket created successfully' })
+  async createChildTicket(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') parentId: string,
+    @Body() createChildDto: CreateChildTicketDto
+  ) {
+    return await this.hierarchyService.createChildTicket(parentId, user.id, createChildDto);
+  }
+
+  @Get(':id/hierarchy')
+  @ApiOperation({ summary: 'Get hierarchy information for a ticket including children' })
+  @ApiResponse({ status: 200, description: 'Ticket hierarchy information', type: HierarchyResponseDto })
+  async getTicketHierarchy(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') ticketId: string
+  ) {
+    return await this.hierarchyService.getHierarchy(ticketId, user.id);
+  }
+
+  @Put(':id/completion-settings')
+  @ApiOperation({ summary: 'Update parent completion settings for a ticket' })
+  @ApiResponse({ status: 200, description: 'Completion settings updated successfully' })
+  async updateCompletionSettings(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') ticketId: string,
+    @Body() settingsDto: CompletionSettingsDto
+  ) {
+    return await this.hierarchyService.updateCompletionSettings(ticketId, user.id, settingsDto);
+  }
+
+  @Put(':id/move-hierarchy')
+  @ApiOperation({ summary: 'Move a ticket in the hierarchy (change parent or make root-level)' })
+  @ApiResponse({ status: 200, description: 'Ticket moved in hierarchy successfully' })
+  async moveTicketInHierarchy(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') ticketId: string,
+    @Body() moveDto: MoveHierarchyDto
+  ) {
+    return await this.hierarchyService.moveTicketInHierarchy(ticketId, user.id, moveDto);
+  }
+
+  @Get(':id/completion-progress')
+  @ApiOperation({ summary: 'Get completion progress for a parent ticket' })
+  @ApiResponse({ status: 200, description: 'Completion progress information', type: CompletionProgressResponseDto })
+  async getCompletionProgress(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') ticketId: string
+  ) {
+    return await this.hierarchyService.getCompletionProgress(ticketId, user.id);
   }
 }

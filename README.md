@@ -15,11 +15,10 @@ The backend is a NestJS application responsible for business logic and data mana
 
 -   **Framework**: [NestJS](https://nestjs.com/) (a progressive Node.js framework for building efficient, reliable and scalable server-side applications).
 -   **Language**: TypeScript.
--   **Authentication**: Authentication is handled using [Supabase Auth](https://supabase.com/docs/guides/auth), as detailed in SUPABASE_AUTH.md. This includes a `SupabaseStrategy` for `passport`.
+-   **Authentication**: Authentication is handled 
 -   **API Documentation**: [Swagger (OpenAPI)](https://swagger.io/) is used to generate interactive API documentation, available at the `/docs` endpoint.
 -   **Key Dependencies**:
     -   `@nestjs/core`, `@nestjs/common`: Core NestJS libraries.
-    -   `nestjs-supabase-auth`: For Supabase authentication.
     -   `@nestjs/swagger`: For API documentation.
 -   **Structure**:
     -   main.ts: The application entry point.

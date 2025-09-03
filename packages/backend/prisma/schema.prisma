@@ -61,20 +61,35 @@ model Ticket {
   updatedAt        DateTime             @updatedAt @map("updated_at")
   isInPool         Boolean              @default(false) @map("is_in_pool")
   poolOrder        Int?                 @map("pool_order")
+  
   // Recurrence fields
   isRecurring      Boolean              @default(false) @map("is_recurring")
   recurrenceId     String?              @map("recurrence_id")
-  parentTicketId   String?              @map("parent_ticket_id")
+  recurrenceParentId String?            @map("recurrence_parent_id")
   recurrenceRule   String?              @map("recurrence_rule")
   recurrenceEnd    DateTime?            @map("recurrence_end")
   maxOccurrences   Int?                 @map("max_occurrences")
+  
+  // NEW - Hierarchical structure fields
+  hierarchyParentId   String?          @map("hierarchy_parent_id")
+  nestingLevel        Int              @default(0) @map("nesting_level")
+  childOrder          Int?             @map("child_order")
+  autoCompleteOnChildrenDone Boolean   @default(false) @map("auto_complete_on_children_done")
+  childCompletionCount    Int          @default(0) @map("child_completion_count")
+  totalChildCount        Int           @default(0) @map("total_child_count")
+  
   collaborations   AgentCollaboration[]
   ticketType       TicketType           @relation(fields: [typeId], references: [id])
   user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // Recurrence relationships
-  parentTicket     Ticket?              @relation("RecurringInstances", fields: [parentTicketId], references: [id])
-  childInstances   Ticket[]             @relation("RecurringInstances")
+  
+  // Recurrence relationships (renamed field)
+  recurrenceParent Ticket?              @relation("RecurringInstances", fields: [recurrenceParentId], references: [id])
+  recurrenceChildren Ticket[]           @relation("RecurringInstances")
   recurrencePattern RecurrencePattern?
+  
+  // NEW - Hierarchical relationships
+  hierarchyParent  Ticket?              @relation("TicketHierarchy", fields: [hierarchyParentId], references: [id])
+  childTickets     Ticket[]             @relation("TicketHierarchy")
 
   @@index([userId])
   @@index([typeId])
@@ -87,8 +102,11 @@ model Ticket {
   @@index([userId, isInPool])
   @@index([userId, isInPool, poolOrder])
   @@index([recurrenceId])
-  @@index([parentTicketId])
+  @@index([recurrenceParentId])
   @@index([isRecurring])
+  @@index([hierarchyParentId])
+  @@index([nestingLevel])
+  @@index([userId, hierarchyParentId])
   @@map("tickets")
 }
 

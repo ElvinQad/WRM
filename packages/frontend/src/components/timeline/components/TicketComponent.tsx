@@ -2,6 +2,7 @@ import React from 'react';
 import { TicketWithPosition } from '../types.ts';
 import { TICKET_HEIGHT } from '../constants.ts';
 import { calculateTicketStateWithColors } from '../utils/ticketState.ts';
+import { HierarchyIndicator } from './HierarchyIndicator.tsx';
 
 interface TicketComponentProps {
   ticketWithPosition: TicketWithPosition;
@@ -88,8 +89,15 @@ export function TicketComponent({
       
       {/* Ticket content */}
       <div className="px-4 py-2 h-full flex flex-col justify-center overflow-hidden cursor-move">
-        <div className="text-sm font-medium text-gray-900 truncate">
-          {ticketWithPosition.title}
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-medium text-gray-900 truncate">
+            {ticketWithPosition.title}
+          </div>
+          <HierarchyIndicator 
+            ticket={ticketWithPosition}
+            size="sm"
+            showChildCount={false}
+          />
         </div>
         <div className="text-xs text-gray-600 truncate">
           {ticketWithPosition.category}
