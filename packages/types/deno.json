@@ -7,8 +7,8 @@
     "./types": "./src/lib/types.ts"
   },
   "tasks": {
-    "build": "deno run --allow-read --allow-write --allow-env scripts/build.ts",
-    "dev": "deno run --allow-read --allow-write --allow-env --watch scripts/build.ts",
+    "build": "deno run --allow-read --allow-write --allow-env --allow-run scripts/build.ts",
+    "dev": "deno run --allow-read --allow-write --allow-env --allow-run --watch scripts/build.ts",
     "clean": "deno run --allow-read --allow-write scripts/clean.ts",
     "type-check": "deno check src/**/*.ts",
     "validate": "deno run --allow-read scripts/validate-types.ts"

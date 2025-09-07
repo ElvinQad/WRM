@@ -1,23 +1,1221 @@
-# WRM Timeline Brownfield Enhancement Architecture
+# Timeline Intelligence System - Technical Architecture v5.0
 
 | Date | Version | Description | Author |
 |------|---------|-------------|--------|
-| 2025-08-01 | 1.0 | Initial│   ├── components/ai-assistant/ (NEW)
-│   │   ├── ChatInterface.tsx        # AI chat UI
-│   │   ├── VoiceInput.tsx          # Voice command interface
-│   │   └── SuggestionPanel.tsx     # Proactive ticket suggestions
-│   ├── store/slices/ (ENHANCE)
-│   │   ├── timelineSlice.ts         # NEW - Timeline state management
-│   │   ├── ticketTypesSlice.ts      # NEW - Custom ticket types state
-│   │   └── aiAssistantSlice.ts      # NEW - AI assistant state
-│   └── testing/ (ENHANCE)
-│       ├── components/              # NEW - Component test utilities
-│       ├── integration/             # NEW - Frontend integration tests
-│       └── utils/                   # ENHANCE - Frontend test helperseld analysis for timeline enhancements | Winston (Architect) |
+| 2025-08-01 | 1.0 | Initial architecture | Winston (Architect) |
+| 2025-09-03 | 2.0 | FocusFlow Integration | Team Update |
+| 2025-09-03 | 3.0 | AI Protocols Addition | Team Update |
+| 2025-09-07 | 4.0 | PRD-Aligned Epic 2-5 Implementation | Team Update |
+| 2025-09-07 | 5.0 | PRD-Architecture Alignment & Realistic Intelligence Amplification | Winston (Architect) |
 
 ## Introduction
 
-This document captures the CURRENT STATE of the WRM (Timeline) codebase and outlines the architectural changes needed to implement the dynamic timeline functionality as specified in the PRD. It serves as a reference for AI agents working on the timeline enhancement features.
+This document captures the CURRENT STATE of the WRM (Timeline) codebase and provides a **realistic, implementable architecture** for transforming it into the Intelligence Amplification System as defined in the PRD. 
+
+**CRITICAL ARCHITECTURAL SHIFT**: Moving from "timeline with AI features" to "AI-native Intelligence Amplification System that uses timeline as interface".
+
+## System Architecture Overview
+
+### Intelligence Amplification System Architecture
+
+**ARCHITECTURAL PARADIGM**: AI-Native Intelligence Amplification with Timeline as Primary Interface
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    Intelligence Interface Layer                     │
+│  Next.js + React + Timeline + AI Chat + Knowledge Capture UI       │
+└─────────────────────┬───────────────────────────────────────────────┘
+                      │
+┌─────────────────────▼───────────────────────────────────────────────┐
+│                Intelligence Orchestration Layer                     │
+│        NestJS + AI Agent + Knowledge Processor + MCP Hub           │
+│    ┌─────────────┬─────────────────┬─────────────────┬─────────────┐ │
+│    │ AI Agent    │ Knowledge       │ Pattern         │ MCP         │ │
+│    │ Manager     │ Processor       │ Recognition     │ Coordinator │ │
+│    └─────────────┴─────────────────┴─────────────────┴─────────────┘ │
+└─────────────────────┬───────────────────────────────────────────────┘
+                      │
+┌─────────────────────▼───────────────────────────────────────────────┐
+│                  Intelligence Storage Layer                         │
+│  ┌─────────────┬─────────────────┬─────────────────┬─────────────┐  │
+│  │ PostgreSQL  │ Vector Database │ Pattern Cache   │ Context     │  │
+│  │ (Structure) │ (Semantics)     │ (Learning)      │ Memory      │  │
+│  └─────────────┴─────────────────┴─────────────────┴─────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Core Intelligence Components
+
+**1. AI Agent Manager**: Central orchestration of all AI interactions
+**2. Knowledge Processor**: RAG pipeline for capture → embed → retrieve → apply  
+**3. Pattern Recognition**: Historical analysis for time estimation & optimization
+**4. MCP Coordinator**: Multi-tool orchestration and external system integration
+**5. Vector Database**: Semantic storage for all knowledge and context
+**6. Context Memory**: Conversational and behavioral context management
+
+## Intelligence Amplification Technology Stack
+
+### Core Intelligence Infrastructure
+
+| Component | Technology | Purpose | Implementation Priority | Complexity |
+|-----------|------------|---------|-------------------------|------------|
+| **Vector Database** | Qdrant/Pinecone | Semantic knowledge storage | HIGH | High |
+| **Embedding Service** | OpenAI Embeddings/Local | Text → Vector conversion | HIGH | Medium |
+| **LLM Integration** | OpenAI GPT-4/Claude | Natural language processing | HIGH | Medium |
+| **RAG Pipeline** | LangChain/Custom | Knowledge retrieval & application | HIGH | High |
+| **MCP Protocol** | TypeScript MCP SDK | Tool orchestration | MEDIUM | High |
+| **Pattern Recognition** | Custom ML/Stats | Historical behavior analysis | MEDIUM | High |
+
+### Existing Foundation (Leverage)
+
+| Component | Technology | Current Status | Enhancement Need |
+|-----------|------------|----------------|------------------|
+| **Frontend Framework** | Next.js + React + TypeScript | ✅ SOLID | Add AI-native components |
+| **Backend Framework** | NestJS + Fastify | ✅ SOLID | Add intelligence services |
+| **Database** | PostgreSQL + Prisma ORM | ✅ SOLID | Add semantic indexing |
+| **Authentication** | JWT | ✅ SOLID | Extend for AI contexts |
+| **State Management** | Redux Toolkit | ✅ SOLID | Add knowledge state |
+| **UI Components** | shadcn/ui + Tailwind CSS | ✅ SOLID | Add intelligence UI |
+
+### Critical New Services
+
+| Service | Purpose | External Dependencies | Risk Level |
+|---------|---------|----------------------|------------|
+| **Knowledge Ingestion** | Capture & process input | LLM API | Medium |
+| **Semantic Search** | Vector similarity search | Vector DB | High |
+| **Context Builder** | Maintain conversation state | Redis/Memory | Low |
+| **Action Generator** | Convert insights to tickets | None | Low |
+| **Pattern Analyzer** | Learn from user behavior | ML Libraries | High |
+
+## Intelligence Amplification Data Architecture
+
+### Knowledge-Centric Data Model
+
+The database architecture shifts from ticket-centric to knowledge-centric, with tickets becoming manifestations of captured knowledge and intelligent planning.
+
+```prisma
+// Core Intelligence Models
+model KnowledgeItem {
+  id          String @id @default(uuid())
+  userId      String
+  
+  // Content
+  originalText String @db.Text         // Raw input
+  processedContent String @db.Text     // Cleaned/structured
+  summary     String?                  // AI-generated summary
+  
+  // Semantic data
+  embedding   Float[]                  // Vector representation
+  topics      String[]                 // Extracted topics
+  actionables String[]                 // Identified actions
+  
+  // Context
+  source      KnowledgeSource          // How it was captured
+  context     Json?                    // Situational context
+  confidence  Float @default(0.5)      // Processing confidence
+  
+  // Application tracking
+  applied     Boolean @default(false)
+  effectiveness Float?                 // User feedback 0-1
+  appliedAt   DateTime?
+  appliedTickets TicketKnowledgeLink[]
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User @relation(fields: [userId], references: [id])
+  
+  @@index([userId, applied])
+  @@index([embedding]) // Vector similarity search
+  @@map("knowledge_items")
+}
+
+model TicketKnowledgeLink {
+  id            String @id @default(uuid())
+  ticketId      String
+  knowledgeId   String
+  relevanceScore Float  // How relevant this knowledge was
+  
+  ticket        Ticket @relation(fields: [ticketId], references: [id])
+  knowledge     KnowledgeItem @relation(fields: [knowledgeId], references: [id])
+  
+  @@unique([ticketId, knowledgeId])
+  @@map("ticket_knowledge_links")
+}
+
+enum KnowledgeSource {
+  MANUAL_INPUT    // User manually entered
+  DOCUMENT_UPLOAD // File upload
+  URL_CAPTURE     // Web page capture
+  CONVERSATION    // AI conversation
+  VOICE_NOTE      // Voice input
+}
+```
+
+## Epic 1: Dynamic Timeline - COMPLETED ✅
+
+### Current Implementation Status
+
+**Epic 1 is fully operational** with sophisticated timeline manipulation capabilities:
+
+**✅ Implemented Features:**
+- **Dynamic Timeline Grid**: Complete timeline visualization with daily/weekly views
+- **Drag-and-Drop System**: Three distinct operations (move, resize-start, resize-end) with 5-minute minimum duration
+- **Real-time Updates**: Live "now" marker with time-aware state visualization
+- **Multi-View Support**: Seamless switching between hourly, daily, weekly views
+- **Performance Optimized**: Sub-50ms visual feedback, optimized for 500+ tickets
+
+**Current Architecture (Working):**
+```typescript
+// Timeline Component Architecture - OPERATIONAL
+packages/frontend/src/components/timeline/
+├── components/
+│   ├── Timeline.tsx               # ✅ Main orchestrator
+│   ├── TimelineHeader.tsx         # ✅ Controls & navigation  
+│   ├── TimeMarkers.tsx           # ✅ Time grid & markers
+│   ├── TicketComponent.tsx       # ✅ Draggable tickets
+│   └── TimelineTooltip.tsx       # ✅ Interactive feedback
+├── hooks/
+│   ├── useTimeline.ts            # ✅ Main state orchestration
+│   ├── useTimelineDrag.ts        # ✅ Drag & drop logic
+│   ├── useTimelinePanning.ts     # ✅ Navigation & scrolling
+│   └── useTimelineAutoCenter.ts  # ✅ Auto-centering features
+└── utils/
+    └── timelineUtils.ts          # ✅ Time & position calculations
+```
+
+### How Intelligence Integrates with Existing Timeline
+
+**The timeline becomes the primary interface for intelligence amplification:**
+
+### 1. Knowledge-Informed Ticket Creation
+
+**Current**: User manually creates tickets on timeline
+**Enhanced**: AI suggests tickets based on captured knowledge
+
+```typescript
+// Timeline Integration Points
+interface IntelligentTicketSuggestion {
+  // Derived from knowledge items
+  title: string;
+  estimatedDuration: number;    // AI-learned from patterns
+  suggestedTimeSlot: DateTime;  // Optimal placement
+  relevantKnowledge: string[];  // Supporting knowledge items
+  confidence: number;           // AI confidence 0-1
+  
+  // Timeline integration
+  timelinePosition: {
+    x: number;  // Timeline grid position
+    y: number;
+    width: number;  // Visual width based on duration
+  };
+}
+```
+
+### 2. Enhanced Timeline UI with Intelligence
+
+**Timeline Header Enhancement**:
+```typescript
+// Enhanced TimelineHeader.tsx
+<TimelineHeader>
+  {/* Existing controls */}
+  <ViewControls />
+  <DateNavigation />
+  
+  {/* NEW: Intelligence features */}
+  <KnowledgeCaptureButton />     // Quick knowledge input
+  <AIAssistantToggle />          // Show/hide AI suggestions
+  <TodaysTrioPanel />           // Priority task selection
+</TimelineHeader>
+```
+
+**Ticket Cards with Intelligence**:
+```typescript
+// Enhanced TicketComponent.tsx  
+<TicketCard>
+  {/* Existing drag/resize handles */}
+  
+  {/* NEW: Intelligence indicators */}
+  <KnowledgeIndicator count={linkedKnowledge.length} />
+  <AIConfidenceBar level={aiEstimation.confidence} />
+  <PatternMatchIcon show={hasSimilarPast} />
+  
+  {/* NEW: Contextual suggestions */}
+  {showAISuggestions && <RelatedKnowledgeTooltip />}
+</TicketCard>
+```
+
+### 3. Timeline Intelligence Overlay
+
+**New Component**: `TimelineIntelligenceOverlay.tsx`
+```typescript
+// Shows AI insights directly on timeline
+const TimelineIntelligenceOverlay = () => {
+  return (
+    <>
+      {/* Suggested time blocks for focus work */}
+      <OptimalFocusBlocks />
+      
+      {/* Patterns from historical data */}
+      <EnergyLevelIndicators />
+      
+      {/* Knowledge-based suggestions */}
+      <SuggestedTicketGhosts />
+      
+      {/* Real-time AI coaching */}
+      <ProductivityInsights />
+    </>
+  );
+};
+```
+
+### Intelligence-Enhanced Ticket Model
+
+**Building on existing ticket structure**:
+```prisma
+// EXISTING Ticket model (from Epic 1) - ENHANCED
+model Ticket {
+  // Epic 1 fields - ALREADY WORKING
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  userId      String
+  
+  // NEW: Intelligence enhancements
+  knowledgeLinks    TicketKnowledgeLink[]  // Connected knowledge
+  aiGenerated       Boolean @default(false) // AI-suggested ticket
+  estimatedDuration Int?                     // AI time estimate
+  actualDuration    Int?                     // Actual completion time
+  patternMatches    Json?                    // Similar historical tickets
+  
+  // Epic 1 relationships - PRESERVE
+  user        User @relation(fields: [userId], references: [id])
+  
+  @@map("tickets")
+}
+```
+
+### User Interaction Flow
+
+**1. Knowledge Capture → Timeline Integration**
+```
+User Input: "I learned about React performance optimization"
+↓
+AI Processing: Extract actionables, estimate time needed
+↓  
+Timeline Suggestion: "2-hour slot suggested for 'Implement React.memo'"
+↓
+User Approval: Drag suggested ticket to preferred time slot
+↓
+Enhanced Timeline: Ticket shows knowledge link indicator
+```
+
+**2. Timeline-Driven Intelligence**
+```
+User drags ticket to new time
+↓
+AI Analysis: "Similar tasks work better in morning" 
+↓
+Gentle Suggestion: Timeline highlights optimal time slots
+↓
+User Choice: Accept AI suggestion or override
+↓
+Learning Loop: AI learns from user's preference
+```
+
+## Epic 2: Intelligent Tickets & Focus System
+
+### Enhanced Ticket Creation Workflow
+
+**Current Epic 1**: Click → Manual form → Timeline placement
+**Enhanced**: Knowledge-driven → AI suggestions → Timeline integration
+
+### 1. Intelligent Ticket Creation Interface
+
+**Timeline Integration**: Right-click on timeline opens enhanced creation modal
+
+```typescript
+// Enhanced TicketCreationModal.tsx
+const TicketCreationModal = () => {
+  return (
+    <Modal>
+      {/* Traditional fields */}
+      <TitleInput />
+      <DescriptionInput />
+      <DurationSelector />
+      
+      {/* NEW: Intelligence features */}
+      <KnowledgeLinker />           // Link to existing knowledge
+      <AITicketSuggestions />       // AI-generated similar tickets
+      <TimeEstimationAI />          // AI-learned duration estimates
+      <OptimalTimingAdvice />       // Best time slots for this type
+      
+      {/* Enhanced with custom properties */}
+      <DynamicCustomFields />       // Based on ticket type
+      <FocusModeSelector />         // Light/Focus/Zen modes
+    </Modal>
+  );
+};
+```
+
+### 2. Custom Ticket Types System
+
+**Building on Epic 1's solid foundation**:
+
+```prisma
+model TicketType {
+  id          String @id @default(uuid())
+  userId      String
+  name        String
+  description String?
+  color       String? // Visual timeline distinction
+  
+  // Intelligence enhancements
+  defaultFocusMode    FocusMode @default(NONE)
+  typicalDuration     Int?      // Learned from usage
+  optimalTimeOfDay    String?   // Morning/Afternoon/Evening
+  knowledgeCategories String[]  // Auto-link knowledge types
+  
+  // Custom properties schema
+  customFields Json? // Dynamic field definitions
+  
+  // Epic 1 compatibility - PRESERVE
+  user        User @relation(fields: [userId], references: [id])
+  tickets     Ticket[]
+  
+  @@map("ticket_types")
+}
+
+enum FocusMode {
+  NONE    // Normal timeline view
+  LIGHT   // Gentle focus indicators
+  FOCUS   // Hide distractions, show timer
+  ZEN     // Full-screen focus mode
+}
+```
+
+### 3. Timeline Visual Enhancements
+
+**Timeline shows intelligence visually**:
+
+```typescript
+// Enhanced TicketComponent.tsx with intelligence
+const TicketCard = ({ ticket }: { ticket: EnhancedTicket }) => {
+  return (
+    <div className={`ticket-card ${ticket.type.color}`}>
+      {/* Existing Epic 1 drag handles - PRESERVE */}
+      <DragHandle />
+      <ResizeHandles />
+      
+      {/* NEW: Intelligence indicators */}
+      <div className="intelligence-indicators">
+        {ticket.knowledgeLinks.length > 0 && (
+          <KnowledgeBadge count={ticket.knowledgeLinks.length} />
+        )}
+        
+        {ticket.aiGenerated && (
+          <AIGeneratedIcon confidence={ticket.confidence} />
+        )}
+        
+        {ticket.focusMode !== 'NONE' && (
+          <FocusModeIndicator mode={ticket.focusMode} />
+        )}
+        
+        {ticket.hasPatternMatch && (
+          <PatternMatchIcon accuracy={ticket.patternAccuracy} />
+        )}
+      </div>
+      
+      {/* Enhanced content with custom properties */}
+      <TicketContent>
+        <Title>{ticket.title}</Title>
+        <CustomPropertiesDisplay fields={ticket.customProperties} />
+        <TimeEstimate 
+          aiPredicted={ticket.aiEstimatedDuration}
+          userEstimate={ticket.userEstimatedDuration}
+        />
+      </TicketContent>
+    </div>
+  );
+};
+```
+
+## Epic 3: Active Knowledge System Integration
+
+### Knowledge Capture Within Timeline Context
+
+**Contextual Knowledge Capture**: Users capture knowledge while working on timeline
+
+```typescript
+// Knowledge capture integrated into timeline flow
+const TimelineKnowledgeCapture = () => {
+  return (
+    <>
+      {/* Floating knowledge input */}
+      <FloatingKnowledgeInput 
+        trigger="Double-click empty timeline space"
+        context={{
+          currentTime: selectedTimeSlot,
+          nearbyTickets: getContextTickets(),
+          recentActivity: getRecentUserActivity()
+        }}
+      />
+      
+      {/* Quick capture toolbar */}
+      <QuickCaptureToolbar>
+        <TextNoteCapture />
+        <VoiceNoteCapture />
+        <URLCapture />
+        <DocumentUpload />
+      </QuickCaptureToolbar>
+    </>
+  );
+};
+```
+
+### Timeline-Driven Knowledge Application
+
+**How knowledge becomes tickets on timeline**:
+
+```typescript
+// Knowledge → Ticket transformation
+interface KnowledgeToTicketFlow {
+  // User captures: "Learned about Redis caching strategies"
+  knowledge: {
+    text: "Redis can improve API performance by 60%...",
+    extractedActions: [
+      "Research Redis implementation",
+      "Set up Redis locally", 
+      "Implement caching for user API"
+    ]
+  };
+  
+  // AI suggests timeline placement
+  suggestedTickets: [
+    {
+      title: "Research Redis implementation",
+      duration: 90, // minutes - AI learned estimate
+      optimalTime: "2024-01-15T09:00:00Z", // morning focus time
+      reasoning: "Similar research tasks completed 40% faster in mornings"
+    }
+  ];
+  
+  // Timeline integration
+  timelineIntegration: {
+    showAsGhostTickets: true,
+    highlightOptimalSlots: true,
+    allowUserModification: true
+  };
+}
+```
+
+### Real User Workflow Example
+
+**Complete Intelligence Amplification Flow**:
+
+```
+1. USER CONTEXT
+   - Working on timeline at 2pm
+   - Has "API optimization" ticket scheduled for tomorrow
+   - Reads article about Redis caching
+
+2. KNOWLEDGE CAPTURE
+   - Double-clicks empty timeline space
+   - Quick capture: "Redis can improve API performance by 60%"
+   - AI extracts: 3 actionable items + time estimates
+
+3. INTELLIGENCE PROCESSING
+   - Links to existing "API optimization" ticket
+   - Suggests breaking it into sub-tasks
+   - Recommends optimal scheduling based on patterns
+
+4. TIMELINE INTEGRATION  
+   - Shows ghost tickets for suggestions
+   - Highlights morning slots (better for research)
+   - User drags to accept or adjusts timing
+
+5. ENHANCED TIMELINE VIEW
+   - Original ticket now shows knowledge link badge
+   - New tickets have AI confidence indicators
+   - Focus mode suggestions for deep work
+
+6. LEARNING LOOP
+   - User accepts morning slot → AI learns preference
+   - Task completion time → improves future estimates
+   - Knowledge effectiveness → prioritizes similar insights
+```
+
+### Focus System Timeline Integration
+
+**Focus modes change timeline interface**:
+
+```typescript
+// Timeline adapts to focus mode
+const FocusEnhancedTimeline = ({ focusMode }: { focusMode: FocusMode }) => {
+  switch(focusMode) {
+    case 'LIGHT':
+      return <Timeline showSuggestions={false} dimNonActive={true} />;
+      
+    case 'FOCUS': 
+      return <Timeline 
+        showOnlyActive={true} 
+        hideUI={true}
+        showTimer={true}
+        blockDistractions={true}
+      />;
+      
+    case 'ZEN':
+      return <FullScreenFocus 
+        currentTicket={activeTicket}
+        hideAllOthers={true}
+        enableBreakReminders={true}
+      />;
+      
+    default:
+      return <Timeline />; // Standard Epic 1 timeline
+  }
+};
+```
+
+This shows exactly how the intelligence features integrate with your existing timeline interface while preserving Epic 1's working functionality.
+  color       String? // Hex color for UI
+  icon        String? // Icon identifier
+  
+  // Focus mode defaults (Epic 2.6)
+  defaultFocusMode FocusMode @default(NONE)
+  
+  // Relationships
+  properties  TicketTypeProperty[]
+  tickets     Ticket[]
+  user        User @relation(fields: [userId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, name])
+  @@map("ticket_types")
+}
+
+// Custom properties for ticket types (Epic 2.2)
+model TicketTypeProperty {
+  id            String @id @default(uuid())
+  ticketTypeId  String
+  name          String
+  fieldType     PropertyFieldType // TEXT, NUMBER, CHECKBOX, DATE, DROPDOWN
+  required      Boolean @default(false)
+  defaultValue  String?
+  options       Json?   // For dropdown types
+  validation    Json?   // Validation rules
+  
+  ticketType    TicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  
+  @@unique([ticketTypeId, name])
+  @@map("ticket_type_properties")
+}
+
+// Enhanced Ticket model with hierarchy & recurrence (Epic 2.4, 2.5)
+model Ticket {
+  // ... existing fields ...
+  
+  // Custom type integration
+  ticketTypeId    String?
+  customProperties Json? // Dynamic properties based on type
+  
+  // Hierarchical structure (Epic 2.5)
+  parentTicketId  String?
+  parentTicket    Ticket? @relation("TicketHierarchy", fields: [parentTicketId], references: [id])
+  childTickets    Ticket[] @relation("TicketHierarchy")
+  
+  // Recurrence (Epic 2.4)
+  isRecurring     Boolean @default(false)
+  recurrenceRule  Json?   // RRULE or custom pattern
+  recurrenceEndDate DateTime?
+  originalTicketId String? // For recurring instances
+  
+  // Focus integration (Epic 5)
+  focusMode       FocusMode @default(NONE)
+  isTodaysTrio    Boolean @default(false)
+  
+  // Relationships
+  ticketType      TicketType? @relation(fields: [ticketTypeId], references: [id])
+  focusSessions   FocusSession[]
+  
+  @@map("tickets")
+}
+
+enum PropertyFieldType {
+  TEXT
+  NUMBER
+  CHECKBOX
+  DATE
+  DROPDOWN
+}
+
+enum FocusMode {
+  NONE
+  LIGHT
+  FOCUS
+  ZEN
+}
+```
+
+### Epic 3: AI Assistant Integration
+
+```prisma
+// Simple AI conversation tracking
+model AIConversation {
+  id          String @id @default(uuid())
+  userId      String
+  sessionId   String // For grouping related exchanges
+  
+  // Conversation data
+  userMessage String @db.Text
+  aiResponse  String @db.Text
+  context     Json?  // Current user context (tickets, schedule, etc.)
+  
+  // AI processing
+  processingTime Int? // Milliseconds
+  aiModel     String? // GPT-4, Claude, etc.
+  
+  // User feedback
+  helpful     Boolean?
+  feedback    String?
+  
+  createdAt   DateTime @default(now())
+  user        User @relation(fields: [userId], references: [id])
+  
+  @@index([userId, sessionId])
+  @@map("ai_conversations")
+}
+
+// AI-generated suggestions
+model AISuggestion {
+  id          String @id @default(uuid())
+  userId      String
+  type        SuggestionType // TICKET_CREATION, SCHEDULE_OPTIMIZATION, FOCUS_TIME, etc.
+  
+  // Suggestion content
+  title       String
+  description String @db.Text
+  actionData  Json   // Data needed to execute suggestion
+  confidence  Float  // AI confidence score (0-1)
+  
+  // User response
+  status      SuggestionStatus @default(PENDING)
+  userResponse String?
+  appliedAt   DateTime?
+  
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime?
+  user        User @relation(fields: [userId], references: [id])
+  
+  @@index([userId, status])
+  @@map("ai_suggestions")
+}
+
+// Simple agent configuration (Epic 3.5)
+model AIAgentConfig {
+  id              String @id @default(uuid())
+  userId          String @unique
+  
+  // Agent personality
+  autonomyLevel   Int @default(3)    // 1-5 scale
+  communicationTone String @default("friendly") // friendly, professional, casual
+  proactiveness   Int @default(3)    // 1-5 scale
+  
+  // Capabilities
+  canCreateTickets Boolean @default(true)
+  canModifySchedule Boolean @default(false)
+  canSendReminders Boolean @default(true)
+  
+  user            User @relation(fields: [userId], references: [id])
+  customCommands  AICustomCommand[]
+  
+  @@map("ai_agent_configs")
+}
+
+// Custom AI commands (Epic 3.6)
+model AICustomCommand {
+  id          String @id @default(uuid())
+  configId    String
+  
+  // Command definition
+  phrase      String // "start my morning routine"
+  description String
+  actions     Json   // Array of actions to execute
+  
+  // Usage tracking
+  isActive    Boolean @default(true)
+  useCount    Int @default(0)
+  lastUsed    DateTime?
+  
+  config      AIAgentConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  
+  @@map("ai_custom_commands")
+}
+
+enum SuggestionType {
+  TICKET_CREATION
+  SCHEDULE_OPTIMIZATION
+  FOCUS_TIME
+  REMINDER
+}
+
+enum SuggestionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+```
+
+### Epic 4: Social & Collaboration
+
+```prisma
+// User connections (Epic 4.5)
+model UserConnection {
+  id          String @id @default(uuid())
+  requesterId String
+  recipientId String
+  status      ConnectionStatus @default(PENDING)
+  
+  requester   User @relation("ConnectionRequester", fields: [requesterId], references: [id])
+  recipient   User @relation("ConnectionRecipient", fields: [recipientId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  acceptedAt  DateTime?
+  
+  @@unique([requesterId, recipientId])
+  @@map("user_connections")
+}
+
+// Shared content (Epic 4.1, 4.2, 4.3)
+model SharedContent {
+  id          String @id @default(uuid())
+  ownerId     String
+  contentType SharedContentType // TIMELINE, TICKET, PROJECT
+  contentId   String // ID of the shared content
+  
+  // Sharing configuration
+  shareId     String @unique // Public share identifier
+  permissions Json   // View, comment, edit permissions per user
+  isPublic    Boolean @default(false)
+  expiresAt   DateTime?
+  
+  owner       User @relation(fields: [ownerId], references: [id])
+  comments    SharedComment[]
+  
+  createdAt   DateTime @default(now())
+  
+  @@map("shared_content")
+}
+
+// Comments on shared content
+model SharedComment {
+  id              String @id @default(uuid())
+  sharedContentId String
+  authorId        String
+  content         String @db.Text
+  
+  sharedContent   SharedContent @relation(fields: [sharedContentId], references: [id], onDelete: Cascade)
+  author          User @relation(fields: [authorId], references: [id])
+  
+  createdAt       DateTime @default(now())
+  
+  @@map("shared_comments")
+}
+
+// Projects (Epic 4.3)
+model Project {
+  id          String @id @default(uuid())
+  ownerId     String
+  name        String
+  description String?
+  
+  // Project members
+  memberIds   String[] // User IDs with access
+  
+  owner       User @relation(fields: [ownerId], references: [id])
+  tickets     ProjectTicket[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("projects")
+}
+
+// Project-ticket relationships
+model ProjectTicket {
+  id        String @id @default(uuid())
+  projectId String
+  ticketId  String
+  
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ticket    Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  @@unique([projectId, ticketId])
+  @@map("project_tickets")
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+enum SharedContentType {
+  TIMELINE
+  TICKET
+  PROJECT
+}
+```
+
+### Epic 5: Focus Enhancement System
+
+```prisma
+// Focus sessions tracking (Epic 5.1, 5.3)
+model FocusSession {
+  id          String @id @default(uuid())
+  userId      String
+  ticketId    String?
+  
+  // Session details
+  focusMode   FocusMode
+  plannedDuration Int      // Minutes
+  actualDuration  Int?     // Minutes
+  
+  // Session data
+  startedAt   DateTime
+  endedAt     DateTime?
+  distractions Int @default(0)
+  pauseCount  Int @default(0)
+  pauseTime   Int @default(0) // Total pause time in minutes
+  
+  // Session outcome
+  completed   Boolean @default(false)
+  productivity Float?  // Self-rated 1-5
+  notes       String?
+  
+  user        User @relation(fields: [userId], references: [id])
+  ticket      Ticket? @relation(fields: [ticketId], references: [id])
+  
+  @@map("focus_sessions")
+}
+
+// Focus preferences (Epic 5.2)
+model FocusPreferences {
+  id              String @id @default(uuid())
+  userId          String @unique
+  
+  // Break settings (Epic 5.4)
+  breakInterval   Int @default(25)    // Minutes (Pomodoro default)
+  shortBreakDuration Int @default(5)  // Minutes
+  longBreakDuration  Int @default(15) // Minutes
+  
+  // Distraction management
+  blockedSites    String[] // URLs to block
+  allowNotifications Boolean @default(false)
+  
+  // Analytics preferences
+  weeklyGoal      Int @default(120)   // Minutes per week
+  dailyGoal       Int @default(120)   // Minutes per day
+  
+  user            User @relation(fields: [userId], references: [id])
+  templates       FocusTemplate[]
+  
+  @@map("focus_preferences")
+}
+
+// Focus session templates (Epic 5.5)
+model FocusTemplate {
+  id          String @id @default(uuid())
+  preferencesId String
+  
+  // Template definition
+  name        String
+  description String?
+  focusMode   FocusMode
+  duration    Int      // Minutes
+  breakPattern Json?   // Custom break configuration
+  
+  // Usage tracking
+  useCount    Int @default(0)
+  lastUsed    DateTime?
+  
+  preferences FocusPreferences @relation(fields: [preferencesId], references: [id], onDelete: Cascade)
+  
+  @@map("focus_templates")
+}
+
+// Today's Trio tracking (Epic 2.7)
+model TodaysTrio {
+  id          String @id @default(uuid())
+  userId      String
+  date        DateTime @db.Date
+  
+  // Trio tickets
+  firstTicketId  String?
+  secondTicketId String?
+  thirdTicketId  String?
+  
+  // Completion tracking
+  firstCompleted  Boolean @default(false)
+  secondCompleted Boolean @default(false)  
+  thirdCompleted  Boolean @default(false)
+  completedAt     DateTime?
+  
+  user           User @relation(fields: [userId], references: [id])
+  
+  @@unique([userId, date])
+  @@map("todays_trios")
+}
+```
+
+## Service Architecture - Epic Implementation
+
+### Epic 2: Custom Ticket Types & Properties
+
+```typescript
+// packages/backend/src/ticket-types/
+├── ticket-types.controller.ts         // REST endpoints for ticket types
+├── ticket-types.service.ts            // Business logic for types & properties
+├── ticket-types.repository.ts         // Prisma data access
+└── dto/
+    ├── create-ticket-type.dto.ts      // Validation for type creation
+    ├── create-property.dto.ts         // Validation for properties
+    └── update-ticket-type.dto.ts      // Update operations
+
+// packages/backend/src/tickets/ (Enhanced)
+├── tickets.service.ts                 // Enhanced with hierarchy & recurrence
+├── recurrence.service.ts              // Handle recurring ticket creation
+└── hierarchy.service.ts               // Parent-child relationships
+```
+
+### Epic 3: AI Assistant Integration
+
+```typescript
+// packages/backend/src/ai/
+├── ai.controller.ts                   // Chat/voice endpoints
+├── ai.service.ts                      // Core AI integration
+├── ai-suggestion.service.ts           // Generate and manage suggestions
+├── conversation.service.ts            // Track chat history
+├── custom-commands.service.ts         // User-defined commands
+└── integrations/
+    ├── openai.service.ts              // OpenAI API wrapper
+    ├── voice.service.ts               // Voice processing
+    └── context.service.ts             // Build user context
+```
+
+### Epic 4: Social & Collaboration
+
+```typescript
+// packages/backend/src/social/
+├── connections.controller.ts          // Friend management endpoints
+├── connections.service.ts             // User connection logic
+├── sharing.controller.ts              // Content sharing endpoints
+├── sharing.service.ts                 // Share permissions & access
+├── projects.controller.ts             // Project management
+├── projects.service.ts                // Project business logic
+└── notifications/
+    ├── notifications.service.ts       // Real-time notifications
+    └── websocket.gateway.ts           // WebSocket handling
+```
+
+### Epic 5: Focus Enhancement System
+
+```typescript
+// packages/backend/src/focus/
+├── focus.controller.ts                // Focus session endpoints
+├── focus.service.ts                   // Session management
+├── focus-analytics.service.ts         // Analytics & insights
+├── focus-preferences.service.ts       // User preferences
+├── templates.service.ts               // Focus templates
+└── trio.service.ts                    // Today's Trio management
+```
+
+### Core Services (Enhanced)
+
+```typescript
+// packages/backend/src/core/
+├── auth/                              // EXISTING - JWT authentication
+├── users/                             // EXISTING - User management
+├── database/                          // EXISTING - Prisma setup
+└── websockets/                        // NEW - Real-time updates
+    ├── websocket.module.ts
+    ├── websocket.gateway.ts
+    └── events/
+        ├── ticket.events.ts           // Ticket updates
+        ├── focus.events.ts            // Focus session events
+        └── social.events.ts           // Collaboration events
+```
+
+## API Layer Updates - Epic Implementation
+
+### Epic 2: Custom Ticket Types & Properties
+
+```typescript
+// Ticket Type Management
+GET    /api/ticket-types            // List user's ticket types
+POST   /api/ticket-types            // Create new ticket type
+GET    /api/ticket-types/:id        // Get ticket type details
+PUT    /api/ticket-types/:id        // Update ticket type
+DELETE /api/ticket-types/:id        // Delete ticket type
+
+// Ticket Type Properties
+POST   /api/ticket-types/:id/properties    // Add property to type
+PUT    /api/ticket-types/:id/properties/:propId  // Update property
+DELETE /api/ticket-types/:id/properties/:propId  // Delete property
+
+// Enhanced Tickets with Hierarchy & Recurrence
+POST   /api/tickets                 // Create ticket (with type & hierarchy)
+GET    /api/tickets/:id/children    // Get child tickets
+POST   /api/tickets/:id/children    // Create child ticket
+PUT    /api/tickets/:id/recurrence  // Set recurrence pattern
+DELETE /api/tickets/:id/recurrence  // Remove recurrence
+```
+
+### Epic 3: AI Assistant Integration
+
+```typescript
+// AI Chat & Voice Interface
+POST   /api/ai/chat                 // Send chat message to AI
+POST   /api/ai/voice                // Process voice command
+GET    /api/ai/conversations        // Get chat history
+DELETE /api/ai/conversations/:sessionId  // Clear conversation
+
+// AI Suggestions
+GET    /api/ai/suggestions          // Get pending suggestions
+POST   /api/ai/suggestions/:id/accept   // Accept suggestion
+POST   /api/ai/suggestions/:id/reject   // Reject suggestion
+PUT    /api/ai/suggestions/:id/feedback // Rate suggestion
+
+// Agent Configuration
+GET    /api/ai/config               // Get agent settings
+PUT    /api/ai/config               // Update agent settings
+GET    /api/ai/custom-commands      // List custom commands
+POST   /api/ai/custom-commands      // Create custom command
+PUT    /api/ai/custom-commands/:id  // Update custom command
+DELETE /api/ai/custom-commands/:id  // Delete custom command
+```
+
+### Epic 4: Social & Collaboration
+
+```typescript
+// Friend Management
+GET    /api/social/connections      // List connections
+POST   /api/social/connections      // Send friend request
+PUT    /api/social/connections/:id  // Accept/reject request
+DELETE /api/social/connections/:id  // Remove connection
+
+// Content Sharing
+POST   /api/sharing/timeline        // Share timeline
+POST   /api/sharing/tickets/:id     // Share specific ticket
+GET    /api/sharing/:shareId        // View shared content
+POST   /api/sharing/:shareId/comments // Add comment to shared content
+DELETE /api/sharing/:shareId        // Remove share
+
+// Project Management
+GET    /api/projects                // List user's projects
+POST   /api/projects                // Create new project
+GET    /api/projects/:id            // Get project details
+PUT    /api/projects/:id            // Update project
+DELETE /api/projects/:id            // Delete project
+POST   /api/projects/:id/tickets    // Add ticket to project
+DELETE /api/projects/:id/tickets/:ticketId // Remove ticket from project
+
+// Real-time Notifications
+GET    /api/notifications           // Get notifications
+PUT    /api/notifications/:id/read  // Mark as read
+DELETE /api/notifications/:id       // Delete notification
+```
+
+### Epic 5: Focus Enhancement System
+
+```typescript
+// Focus Sessions
+POST   /api/focus/sessions          // Start focus session
+PUT    /api/focus/sessions/:id/pause // Pause session
+PUT    /api/focus/sessions/:id/resume // Resume session
+PUT    /api/focus/sessions/:id/end  // End session
+GET    /api/focus/sessions/active   // Get active session
+GET    /api/focus/sessions/history  // Get session history
+
+// Focus Analytics
+GET    /api/focus/analytics/daily   // Daily focus stats
+GET    /api/focus/analytics/weekly  // Weekly focus stats
+GET    /api/focus/analytics/patterns // Focus patterns & insights
+
+// Focus Preferences & Templates
+GET    /api/focus/preferences       // Get focus settings
+PUT    /api/focus/preferences       // Update focus settings
+GET    /api/focus/templates         // List focus templates
+POST   /api/focus/templates         // Create focus template
+PUT    /api/focus/templates/:id     // Update template
+DELETE /api/focus/templates/:id     // Delete template
+
+// Today's Trio
+GET    /api/trio/today              // Get today's trio
+PUT    /api/trio/today              // Set today's trio
+PUT    /api/trio/today/:position/complete // Mark trio item complete
+```
+
+### Frontend Updates - Epic Implementation
+
+```typescript
+// packages/frontend/src/features/
+├── ticket-types/                    // Epic 2 - Custom Types
+│   ├── components/
+│   │   ├── TicketTypeEditor.tsx     // Type creation/editing
+│   │   ├── PropertyEditor.tsx       // Property configuration
+│   │   └── TypeSelector.tsx         // Type selection dropdown
+│   └── hooks/
+│       ├── useTicketTypes.ts        // Type management
+│       └── useCustomProperties.ts   // Property handling
+│
+├── ai-assistant/                    // Epic 3 - AI Integration  
+│   ├── components/
+│   │   ├── ChatInterface.tsx        // Chat UI
+│   │   ├── VoiceInput.tsx          // Voice recognition
+│   │   ├── SuggestionPanel.tsx     // AI suggestions
+│   │   └── AgentConfig.tsx         // Agent settings
+│   └── hooks/
+│       ├── useAIChat.ts            // Chat functionality
+│       ├── useVoiceCommands.ts     // Voice processing
+│       └── useSuggestions.ts       // Suggestion management
+│
+├── social/                          // Epic 4 - Collaboration
+│   ├── components/
+│   │   ├── FriendsPanel.tsx        // Friend management
+│   │   ├── ShareDialog.tsx         // Sharing interface
+│   │   ├── ProjectManager.tsx      // Project management
+│   │   └── NotificationCenter.tsx  // Notifications
+│   └── hooks/
+│       ├── useSocialConnections.ts // Friend system
+│       ├── useSharing.ts           // Content sharing
+│       └── useProjects.ts          // Project management
+│
+├── focus/                           // Epic 5 - Focus System
+│   ├── components/
+│   │   ├── FocusModeUI.tsx         // Focus session interface
+│   │   ├── FocusAnalytics.tsx      // Analytics dashboard
+│   │   ├── TodaysTrioPanel.tsx     // Trio selection
+│   │   └── FocusSettings.tsx       // Focus preferences
+│   └── hooks/
+│       ├── useFocusSession.ts      // Session management
+│       ├── useFocusAnalytics.ts    // Analytics data
+│       └── useTodaysTrio.ts        // Trio management
+│
+└── enhanced-timeline/               // Enhanced Timeline (All Epics)
+    ├── components/
+    │   ├── TimelineView.tsx         // Enhanced with focus indicators
+    │   ├── TicketCard.tsx          // Enhanced with custom types
+    │   └── FocusIndicator.tsx      // Focus mode visual state
+    └── hooks/
+        └── useEnhancedTimeline.ts   // Integrated timeline state
+```
 
 ### Document Scope
 
@@ -1088,34 +2286,156 @@ deno run --allow-all packages/testing/scripts/run-tests.ts --category integratio
 - **Performance Data**: Large datasets for performance testing validation
 - **AI Testing Data**: Mock AI responses and conversation scenarios
 
-## Implementation Roadmap and Next Steps
+## Realistic Implementation Strategy
 
-### Phase 1: Epic 1 - Dynamic Timeline Foundation (Weeks 1-4)
+### Critical Architectural Decisions
+
+**1. Minimum Viable Intelligence (MVI) Approach**
+Rather than attempting full AGI integration, we build incrementally functional intelligence:
+- **Phase 1**: Basic knowledge capture → simple keyword matching → ticket suggestions
+- **Phase 2**: Vector embeddings → semantic search → contextual retrieval  
+- **Phase 3**: Pattern recognition → proactive suggestions → autonomous scheduling
+
+**2. Hybrid Intelligence Architecture**
+- **Simple AI**: Rule-based logic for 80% of use cases
+- **Advanced AI**: LLM integration for complex reasoning when needed
+- **Human-in-Loop**: User validation for all autonomous actions
+
+**3. Graceful Degradation Strategy** 
+- **Core timeline functionality**: Works without AI services
+- **Knowledge capture**: Falls back to simple tagging if vector DB fails
+- **AI suggestions**: Disable gracefully if LLM services unavailable
+
+### Implementation Phases (Realistic Timeline)
+
+### Phase 1: Knowledge Foundation (Weeks 1-6)
+
+**Goal**: Basic knowledge capture and retrieval without advanced AI
 
 **Backend Implementation:**
-1. Enhance Prisma schema with timeline-specific fields
-2. Create timeline controller and service modules
-3. Implement drag-and-drop API endpoints
-4. Add time-aware state logic to ticket operations
+```typescript
+// Start with simple knowledge management
+packages/backend/src/knowledge/
+├── knowledge.controller.ts        // CRUD operations
+├── knowledge.service.ts           // Basic text processing
+├── simple-search.service.ts       // Keyword-based search
+└── knowledge.repository.ts        // Database operations
+```
+
+**Database Changes:**
+- Add `KnowledgeItem` model (without vector embeddings initially)
+- Simple text-based search using PostgreSQL full-text search
+- Basic ticket-knowledge linking
 
 **Frontend Implementation:**
-1. Build TimelineGrid component with drag-and-drop
-2. Implement view controls (hourly/daily/weekly/monthly)
-3. Create date range slider component
-4. Add Redux state management for timeline operations
+- Knowledge capture UI (text input, basic forms)
+- Simple knowledge search interface  
+- Basic knowledge → ticket suggestion workflow
 
-**Testing Implementation:**
-1. Create timeline backend unit tests (`packages/testing/timeline/backend/`)
-2. Implement timeline component tests (`packages/testing/timeline/frontend/`)
-3. Build drag-and-drop integration tests (`packages/testing/timeline/integration/`)
-4. Establish timeline performance testing framework
-5. Create timeline-specific test fixtures and utilities
+**Validation Criteria:**
+- ✅ Users can capture knowledge items
+- ✅ Basic keyword search works
+- ✅ Knowledge items can suggest ticket creation
+- ✅ No external AI dependencies yet
 
-**Integration Requirements:**
-- Maintain existing authentication flow
-- Preserve current ticket CRUD functionality
-- Ensure backward compatibility with existing data
-- Integrate timeline tests with existing test runner infrastructure
+### Phase 2: Semantic Intelligence (Weeks 7-14)
+
+**Goal**: Add vector embeddings and semantic search
+
+**Technical Additions:**
+```typescript
+// Add vector intelligence
+packages/backend/src/intelligence/
+├── embedding.service.ts           // Text → Vector conversion
+├── vector-search.service.ts       // Semantic similarity
+├── rag.service.ts                 // Retrieval-Augmented Generation
+└── knowledge-processor.service.ts // Enhanced knowledge processing
+```
+
+**Infrastructure Requirements:**
+- **Vector Database**: Qdrant (self-hosted) or Pinecone (managed)
+- **Embedding Service**: OpenAI Embeddings API
+- **Background Processing**: Queue system for embedding generation
+
+**New Capabilities:**
+- Semantic search across knowledge items
+- Context-aware knowledge retrieval
+- Similar situation detection
+- Basic pattern recognition
+
+**Validation Criteria:**
+- ✅ Knowledge items have vector embeddings
+- ✅ Semantic search finds relevant items by meaning, not just keywords
+- ✅ System suggests relevant knowledge during ticket creation
+- ✅ Similar past situations are automatically identified
+
+### Phase 3: Active Intelligence (Weeks 15-24)
+
+**Goal**: LLM integration and proactive suggestions
+
+**Advanced AI Integration:**
+```typescript
+packages/backend/src/ai/
+├── llm.service.ts                 // GPT-4/Claude integration
+├── agent.service.ts               // AI agent coordination  
+├── suggestion-engine.service.ts   // Proactive recommendations
+├── pattern-analyzer.service.ts    // Historical behavior analysis
+└── mcp-coordinator.service.ts     // Multi-tool orchestration
+```
+
+**Intelligence Features:**
+- Natural language processing of knowledge items
+- Proactive ticket creation based on patterns
+- Time estimation improvement through learning
+- Agent-to-agent coordination protocols
+
+**Validation Criteria:**
+- ✅ AI can process natural language inputs into structured knowledge
+- ✅ System proactively suggests tickets based on past patterns
+- ✅ Time estimates improve over time through learning
+- ✅ Basic agent coordination works for simple scheduling
+
+## Critical Risks and Mitigation
+
+### High-Risk Components
+
+**1. Vector Database Integration (HIGH RISK)**
+- **Risk**: Vector similarity search performance degrades with scale
+- **Mitigation**: 
+  - Start with simple PostgreSQL vector extension (pgvector)
+  - Implement caching layer for frequent searches
+  - Plan migration path to dedicated vector DB (Qdrant/Pinecone)
+
+**2. LLM Service Reliability (HIGH RISK)**
+- **Risk**: External AI services fail or become expensive
+- **Mitigation**:
+  - Multiple LLM provider support (OpenAI, Anthropic, local)
+  - Graceful degradation to rule-based systems
+  - Cost monitoring and rate limiting
+
+**3. Real-time Intelligence (MEDIUM RISK)**
+- **Risk**: AI processing delays break real-time user experience
+- **Mitigation**:
+  - Asynchronous processing with immediate UI feedback
+  - Background processing for non-critical intelligence
+  - Local caching of frequent AI results
+
+### Success Metrics Alignment with PRD
+
+**Knowledge Application Rate (PRD Target: 70%)**
+- Track which captured knowledge items lead to ticket creation
+- Measure time from knowledge capture to application
+- User feedback on knowledge effectiveness
+
+**Productivity Improvement (PRD Target: 40% increase)**
+- Compare task completion rates before/after intelligence features
+- Measure time estimation accuracy improvement over time
+- Track focus session success rates and duration
+
+**Intelligence Amplification (PRD Goal: Active Intelligence)**
+- Measure frequency of AI-suggested tickets being accepted
+- Track pattern recognition accuracy (time estimates, optimal scheduling)
+- Monitor compound learning rate (knowledge building on knowledge)
 
 ### Phase 2: Epic 2 - Custom Ticket Properties (Weeks 5-8)
 
